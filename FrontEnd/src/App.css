@@ -1,3 +1,15 @@
+/* Reset and deep background to match reference */
+html, body, #root, .app-layout {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* prevent page scrolling */
+  background: transparent; /* background rendered by .bg-canvas only */
+  color: var(--foreground, #dbefff);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -19,12 +31,8 @@
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -33,10 +41,39 @@
   }
 }
 
-.card {
-  padding: 2em;
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  box-sizing: border-box;
+  background: transparent; 
+  position: relative;
+  z-index: 2;
+}
+.content.with-sidebar {
+  /* use padding instead of margin so content doesn't create a separate layout box that alters gradient perception */
+  padding-left: calc(220px + 2rem);
 }
 
-.read-the-docs {
-  color: #888;
+/* Unified background canvas used across the app. Deep navy with subtle blue gradient. */
+.bg-canvas{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.bg-canvas::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* center-start radial gradient with rich navy -> bluish tones */
+  background:
+    radial-gradient(circle at 50% 48%, rgba(6,30,70,0.92) 0%, rgba(4,22,54,0.96) 28%, rgba(2,12,32,1) 100%),
+    linear-gradient(180deg, rgba(12,36,84,0.14), rgba(2,12,32,0.3));
+  background-blend-mode: normal, overlay;
+}
+
+/* small tweak for very wide screens to keep center prominence */
+@media (min-width:1400px){
+  .bg-canvas::before{ background-position: center; }
 }

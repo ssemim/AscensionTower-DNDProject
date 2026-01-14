@@ -1,0 +1,64 @@
+.pin-overlay{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  background: rgba(1,4,14,0.55);
+  backdrop-filter: blur(8px);
+}
+.pin-svg{
+  display:block;
+  filter: drop-shadow(0 0 30px rgba(0,255,224,0.55)) drop-shadow(0 0 60px rgba(0,210,255,0.2));
+}
+
+.rings .stroke{
+  stroke-dasharray: 12 420;
+  stroke-dashoffset: 0;
+  transform-origin: 0 0;
+}
+
+.ring--a .base{ animation: rotate-a 6s linear infinite; }
+.ring--a .glow{ opacity:0.85 }
+.ring--b .base{ animation: rotate-b 5s linear infinite reverse; }
+.ring--b .glow{ opacity:0.9 }
+.ring--c .stroke{ animation: rotate-c 3.6s linear infinite; stroke-dasharray: 120 480; }
+.ring--d .stroke{ animation: rotate-d 3s linear infinite reverse; stroke-dasharray: 80 380; }
+.ring--e .stroke{ animation: rotate-e 2.4s linear infinite; stroke-dasharray: 60 300; }
+.ring--f .stroke{ animation: rotate-f 1.8s linear infinite reverse; stroke-dasharray: 40 220; }
+
+@keyframes rotate-a{
+  0%{ transform: rotate(0deg) }
+  100%{ transform: rotate(360deg) }
+}
+@keyframes rotate-b{
+  0%{ transform: rotate(0deg) }
+  100%{ transform: rotate(-360deg) }
+}
+@keyframes rotate-c{
+  0%{ transform: rotate(0deg); stroke-dashoffset:0 }
+  50%{ transform: rotate(180deg); stroke-dashoffset:-140 }
+  100%{ transform: rotate(360deg); stroke-dashoffset:-320 }
+}
+@keyframes rotate-d{
+  0%{ transform: rotate(0deg); stroke-dashoffset:0 }
+  100%{ transform: rotate(-360deg); stroke-dashoffset:-240 }
+}
+@keyframes rotate-e{
+  0%{ transform: rotate(0deg) }
+  100%{ transform: rotate(360deg) }
+}
+@keyframes rotate-f{
+  0%{ transform: rotate(0deg) }
+  100%{ transform: rotate(-360deg) }
+}
+
+.center-dot circle{ transform-origin: 0 0; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse{
+  0%{ opacity:0.95; filter: drop-shadow(0 0 10px rgba(0,255,224,0.9)); }
+  50%{ opacity:1; filter: drop-shadow(0 0 36px rgba(0,255,224,1)); }
+  100%{ opacity:0.95; filter: drop-shadow(0 0 10px rgba(0,255,224,0.9)); }
+}
+
+/* small responsive scaling */
+@media (max-width:420px){ .pin-svg{ width: 220px; height:220px } }

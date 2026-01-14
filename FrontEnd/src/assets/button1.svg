@@ -1,0 +1,15 @@
+<svg width="320" height="90" xmlns="http://www.w3.org/2000/svg">
+  <defs>…</defs>
+
+  <polygon points="
+    20,10 280,10 310,40
+    280,80 20,80 10,60
+    10,30"
+    fill="url(#bgGrad)"
+    stroke="#7df9ff" stroke-width="2.5"
+    filter="url(#strongGlow)" />
+
+  <!-- 포인트 라인 -->
+  <polyline points="30,20 260,20"
+            stroke="#3fdfff" stroke-width="2" opacity="0.7"/>
+</svg>
