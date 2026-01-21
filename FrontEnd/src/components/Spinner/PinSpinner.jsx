@@ -1,28 +1,34 @@
 import './PinSpinner.css'
 
-export default function PinSpinner({ show = true, size = 320 }){
-  if(!show) return null
+export default function PinSpinner({ show = true, size = 320 }) {
+  if (!show) return null
 
-  const s = size
   return (
     <div className="pin-overlay" role="status" aria-live="polite">
-      <svg className="pin-svg" width={s} height={s} viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 320 320"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="100%">
+          {/* Gradient */}
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00FFE0" />
-            <stop offset="40%" stopColor="#00D2FF" />
-            <stop offset="70%" stopColor="#3AC0FF" />
+            <stop offset="45%" stopColor="#00D2FF" />
             <stop offset="100%" stopColor="#7FB6FF" />
           </linearGradient>
 
-          <filter id="blurGlow-lg" x="-100%" y="-100%" width="300%" height="300%">
+          {/* Glow */}
+          <filter id="glow-lg" x="-120%" y="-120%" width="340%" height="340%">
             <feGaussianBlur stdDeviation="18" result="b" />
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          <filter id="blurGlow-md" x="-80%" y="-80%" width="260%" height="260%">
+
+          <filter id="glow-md" x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur stdDeviation="10" result="m" />
             <feMerge>
               <feMergeNode in="m" />
@@ -31,37 +37,126 @@ export default function PinSpinner({ show = true, size = 320 }){
           </filter>
         </defs>
 
-        <g className="rings" transform="translate(160,160)">
-          <g className="ring ring--a">
-            <circle className="stroke base" r="136" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="10" strokeLinecap="round" />
-            <circle className="stroke glow" r="136" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="20" strokeOpacity="0.18" filter="url(#blurGlow-lg)" />
+        <g transform="translate(160 160)">
+          {/* OUTER ENERGY RING (thick segments) */}
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0"
+              to="360"
+              dur="10s"
+              repeatCount="indefinite"
+            />
+            <circle
+              r="138"
+              fill="none"
+              stroke="url(#g1)"
+              strokeWidth="18"
+              strokeLinecap="round"
+              strokeDasharray="90 40 30 60 140 40"
+            />
+            <circle
+              r="138"
+              fill="none"
+              stroke="url(#g1)"
+              strokeWidth="34"
+              strokeOpacity="0.18"
+              strokeDasharray="90 40 30 60 140 40"
+              filter="url(#glow-lg)"
+            />
           </g>
 
-          <g className="ring ring--b">
-            <circle className="stroke base" r="112" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="8" strokeLinecap="round" />
-            <circle className="stroke glow" r="112" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="14" strokeOpacity="0.2" filter="url(#blurGlow-md)" />
+          {/* MID SCAN RING */}
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="360"
+              to="0"
+              dur="14s"
+              repeatCount="indefinite"
+            />
+            <circle
+              r="112"
+              fill="none"
+              stroke="url(#g1)"
+              strokeWidth="10"
+              strokeDasharray="160 520"
+              filter="url(#glow-md)"
+            >
+              <animate
+                attributeName="stroke-opacity"
+                values="0.5;0.9;0.6"
+                dur="2.8s"
+                repeatCount="indefinite"
+              />
+            </circle>
           </g>
 
-          <g className="ring ring--c">
-            <circle className="stroke" r="86" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="7" strokeLinecap="round" />
+          {/* INNER STABILITY RING */}
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0"
+              to="360"
+              dur="22s"
+              repeatCount="indefinite"
+            />
+            <circle
+              r="86"
+              fill="none"
+              stroke="url(#g1)"
+              strokeWidth="8"
+              strokeOpacity="0.65"
+            />
           </g>
 
-          <g className="ring ring--d">
-            <circle className="stroke" r="60" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="6" strokeLinecap="round" />
-          </g>
+          {/* CORE CHARGING */}
+          <g>
+            <circle r="10" fill="#E6FBFF">
+              <animate
+                attributeName="r"
+                values="10;14;10"
+                dur="2.4s"
+                repeatCount="indefinite"
+              />
+            </circle>
 
-          <g className="ring ring--e">
-            <circle className="stroke" r="36" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="5" strokeLinecap="round" />
-          </g>
+            <circle
+              r="22"
+              fill="#00FFE0"
+              opacity="0.9"
+              filter="url(#glow-md)"
+            >
+              <animate
+                attributeName="r"
+                values="18;28;18"
+                dur="2.4s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.6;1;0.6"
+                dur="2.4s"
+                repeatCount="indefinite"
+              />
+            </circle>
 
-          <g className="ring ring--f">
-            <circle className="stroke" r="18" cx="0" cy="0" fill="none" stroke="url(#g1)" strokeWidth="4" strokeLinecap="round" />
-          </g>
-
-          <g className="center-dot">
-            <circle r="6" fill="#E6FBFF" />
-            <circle r="10" fill="#00FFE0" style={{filter: 'url(#blurGlow-md)', opacity:0.95}} />
-            <circle r="18" fill="#00D2FF" style={{filter: 'url(#blurGlow-lg)', opacity:0.18}} />
+            <circle
+              r="38"
+              fill="#00D2FF"
+              opacity="0.15"
+              filter="url(#glow-lg)"
+            >
+              <animate
+                attributeName="opacity"
+                values="0.05;0.25;0.05"
+                dur="2.4s"
+                repeatCount="indefinite"
+              />
+            </circle>
           </g>
         </g>
       </svg>

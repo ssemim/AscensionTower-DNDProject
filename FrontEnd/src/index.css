@@ -2,15 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: rgba(245, 243, 255, 0.9); /* 연보라 톤 화이트 */
+  background-color: #2a2633;     /* 살짝 보라 섞인 다크 */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -20,11 +19,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #a78bfa; /* 보라 포인트 */
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #c4b5fd; /* hover 시 밝은 보라 */
 }
 
 body {
@@ -47,27 +46,33 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #322c3e; /* 보라 기운 버튼 */
+  color: #f5f3ff;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #a78bfa;
+  background-color: #3a3350;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto rgba(167, 139, 250, 0.6);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #2e1f47;
+    background-color: #f6f4fb; /* 연한 보라 화이트 */
+  }
+  a {
+    color: #7c3aed;
   }
   a:hover {
-    color: #747bff;
+    color: #6d28d9;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #ede9fe;
+    color: #2e1f47;
   }
 }

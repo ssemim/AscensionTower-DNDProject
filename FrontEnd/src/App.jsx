@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import './App.css'
 
 import Menu from './components/Menu/Menu'
@@ -10,11 +10,14 @@ import Login from './pages/Login/Login'
 import SignUp from './pages/SignUp/SignUp'
 import MyPage from './pages/MyPage/MyPage'
 import Shop from './pages/Shop/Shop'
+import World from './pages/World/World'
+import './index.css';
 
 function App() {
-  const [count] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
+  const prevPathname = useRef(location.pathname)
 
   useEffect(() => {
     // demo: hide spinner after 1.5s; replace with real loading logic
@@ -22,8 +25,15 @@ function App() {
     return () => clearTimeout(t)
   }, [])
 
-  const hideMenuPaths = ['/shop', '/mypage']
-  const showMenu = !hideMenuPaths.some((p) => location.pathname.startsWith(p))
+  useLayoutEffect(() => {
+    // Set initial menu state based on path only when path changes
+    if (prevPathname.current !== location.pathname) {
+      const shouldMenuOpen = !location.pathname.startsWith('/shop') && !location.pathname.startsWith('/mypage')
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setIsMenuOpen(shouldMenuOpen)
+      prevPathname.current = location.pathname
+    }
+  }, [location.pathname])
 
   
 
@@ -39,15 +49,17 @@ function App() {
         <span className="light l3" />
         <span className="backlight" />
       </div>
-      {showMenu && <Menu />}
+      <Menu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen(!isMenuOpen)} />
+      
 
-      <main className={showMenu ? 'content with-sidebar' : 'content'}>
+      <main className={isMenuOpen ? 'content with-sidebar' : 'content'}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/world" element={<World />} />
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
       </main>

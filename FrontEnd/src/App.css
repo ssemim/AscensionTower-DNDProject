@@ -42,22 +42,25 @@ html, body, #root, .app-layout {
 }
 
 
+
+/* 기본 상태 (메뉴 닫힘) */
 .content {
-  flex: 1;
-  padding: 2rem;
-  box-sizing: border-box;
-  background: transparent; 
-  position: relative;
-  z-index: 2;
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
 }
+
+/* 메뉴 열림 */
 .content.with-sidebar {
-  /* use padding instead of margin so content doesn't create a separate layout box that alters gradient perception */
-  padding-left: calc(220px + 2rem);
+  margin-left: 12rem; /* w-48 = 192px */
 }
+
 
 /* Unified background canvas used across the app. Deep navy with subtle blue gradient. */
 .bg-canvas{
-  position: fixed;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   inset: 0;
   z-index: 0;
   pointer-events: none;

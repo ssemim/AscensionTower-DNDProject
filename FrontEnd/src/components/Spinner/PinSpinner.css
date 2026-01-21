@@ -9,7 +9,7 @@
 }
 .pin-svg{
   display:block;
-  filter: drop-shadow(0 0 30px rgba(0,255,224,0.55)) drop-shadow(0 0 60px rgba(0,210,255,0.2));
+  filter: drop-shadow(0 0 30px rgba(0,255,224,0.55)) drop-shadow(0 0 60px rgba(0,210,255,0.4));
 }
 
 .rings .stroke{
