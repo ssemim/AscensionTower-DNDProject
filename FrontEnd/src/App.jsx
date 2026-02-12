@@ -3,7 +3,6 @@ import './App.css'
 
 import Menu from './components/Menu/Menu'
 import PinSpinner from './components/Spinner/PinSpinner'
-import Particles from './components/Particles/Particles'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Landing from './pages/Landing/Landing'
 import Login from './pages/Login/Login'
@@ -11,6 +10,8 @@ import SignUp from './pages/SignUp/SignUp'
 import MyPage from './pages/MyPage/MyPage'
 import Shop from './pages/Shop/Shop'
 import World from './pages/World/World'
+import BlackjackGame from './pages/BlackJack/Blackjack'
+import NotFound from './pages/404/404'
 import './index.css';
 
 function App() {
@@ -40,15 +41,6 @@ function App() {
   return (
     <>
       <PinSpinner show={loading} size={260} />
-      <div className="app-layout">
-      <div className="bg-canvas" aria-hidden="true">
-        <Particles />
-        <span className="vignette" />
-        <span className="light l1" />
-        <span className="light l2" />
-        <span className="light l3" />
-        <span className="backlight" />
-      </div>
       <Menu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen(!isMenuOpen)} />
       
 
@@ -60,10 +52,10 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/world" element={<World />} />
-          <Route path="*" element={<div>404 Not Found</div>} />
+          <Route path="/blackjack" element={<BlackjackGame />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-    </div>
     </>
   )
 }
