@@ -12,6 +12,7 @@ import Shop from './pages/Shop/Shop'
 import World from './pages/World/World'
 import BlackjackGame from './pages/BlackJack/Blackjack'
 import NotFound from './pages/404/404'
+import MouseEffect from './components/MouseEffect/MouseEffect'
 import './index.css';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
 
   return (
     <>
+      <MouseEffect />
       <PinSpinner show={loading} size={260} />
       <Menu isOpen={isMenuOpen} onToggle={() => setIsMenuOpen(!isMenuOpen)} />
       

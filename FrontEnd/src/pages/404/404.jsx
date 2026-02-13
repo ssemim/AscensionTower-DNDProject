@@ -5,7 +5,7 @@ function NotFound() {
   return (
     // flex와 justify-center를 추가해서 화면 중앙에 오도록 함
     
-    <div className="not-found-container min-h-screen bg-black text-white flex items-center justify-center p-10 relative">
+    <div className="not-found-container min-h-screen bg-main text-text-main flex items-center justify-center p-10 relative">
       <div className="error">
         <div className="wrap">
           <pre className="font-mono leading-relaxed">

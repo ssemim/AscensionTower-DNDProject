@@ -13,31 +13,31 @@ export default function LoginRequiredModal({ open, onClose }) {
           className="
             w-full max-w-md
             rounded-xl
-            bg-slate-900
-            border border-cyan-500/30
-            shadow-[0_0_40px_rgba(34,211,238,0.3)]
+            bg-slate-100 dark:bg-slate-900
+            border border-primary/30
+            shadow-stark-glow
             glow-effect
           "
         >
           <Dialog.Title
-            className="px-6 py-4 text-cyan-400 font-bold tracking-widest border-b border-cyan-500/30"
+            className="px-6 py-4 text-primary font-bold tracking-widest border-b border-primary/30"
           >
             ACCESS RESTRICTED
           </Dialog.Title>
 
-          <div className="p-6 text-cyan-200/80">
+          <div className="p-6 text-text-main/80">
             로그인이 필요한 페이지입니다.
           </div>
 
-          <div className="flex justify-end gap-3 px-6 py-4 border-t border-cyan-500/30">
+          <div className="flex justify-end gap-3 px-6 py-4 border-t border-primary/30">
             <button
-              className="px-4 py-2 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30"
+              className="px-4 py-2 rounded bg-primary/20 text-primary/80 hover:bg-primary/30"
               onClick={() => navigate('/login')}
             >
               LOGIN
             </button>
             <button
-              className="px-4 py-2 bg-cyan-500/20 text-cyan-400/60 hover:text-white"
+              className="px-4 py-2 bg-primary/20 text-primary/60 hover:text-text-main"
               onClick={onClose}
             >
               CANCEL

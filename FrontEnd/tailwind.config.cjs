@@ -1,12 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/tw-elements-react/dist/js/**/*.js",
-  ],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: 'class', 
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        main: 'var(--color-bg)',
+        primary: 'var(--color-primary)',
+        'text-main': 'var(--color-text-main)',
+      },
+      boxShadow: {
+        'stark-glow': '0 0 15px var(--color-primary-glow)',
+      },
+      backgroundImage: {
+        'stark-grid': "linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px)",
+      }
+    },
   },
   plugins: [],
 }

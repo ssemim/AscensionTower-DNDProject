@@ -16,7 +16,7 @@ export default function MyPage() {
   }
 
   return (
-    <div className="page mypage">
+    <div className="page mypage bg-main text-text-main min-h-screen p-4">
       <h2>My Page</h2>
       <p>유저 마이페이지입니다.</p>
     </div>
