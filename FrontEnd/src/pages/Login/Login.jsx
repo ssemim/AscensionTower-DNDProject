@@ -21,7 +21,7 @@ export default function Login() {
 
         <div className="w-full max-w-md relative">
 
-          <div className="relative bg-gradient-to-br from-slate-900/40 to-slate-800/20 dark:from-cyan-950/40 dark:to-cyan-900/20 border border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
+          <div className="relative bg-main/60 border border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
 
             {/* Top glow line */}
 
@@ -32,9 +32,9 @@ export default function Login() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
-              NEXUS
+          TOWER
             </h1>
-            <p className="text-xs text-primary/60 tracking-widest">
+            <p className="text-xs text-primary/60 dark:text-white/60 tracking-widest">
               AUTHENTICATION REQUIRED
             </p>
             <div className="mt-4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
@@ -44,7 +44,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="relative">
-              <label className="block text-sm text-primary/80 mb-2 tracking-wide">
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
                 USERNAME
               </label>
               <div className="relative group">
@@ -63,7 +63,7 @@ export default function Login() {
                   onChange={(e) => setUsername(e.target.value)}
                   onFocus={() => setIsFocused('username')}
                   onBlur={() => setIsFocused(null)}
-                  className="w-full bg-slate-200/10 dark:bg-cyan-950/30 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-text-main placeholder-primary/30 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
+                  className="w-full bg-white/90 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="ID"
                 />
                 <div
@@ -76,7 +76,7 @@ export default function Login() {
 
             {/* Password Field */}
             <div className="relative">
-              <label className="block text-sm text-primary/80 mb-2 tracking-wide">
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
                 PASSWORD
               </label>
               <div className="relative group">
@@ -94,7 +94,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setIsFocused('password')}
                   onBlur={() => setIsFocused(null)}
-                  className="w-full bg-slate-200/10 dark:bg-cyan-950/30 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-text-main placeholder-primary/30 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
+                  className="w-full bg-white/90 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="PW"
                 />
                 <div
@@ -124,7 +124,7 @@ export default function Login() {
 
           {/* Status Indicator */}
           <div className="mt-8 pt-6 border-t border-primary/30">
-            <div className="flex items-center justify-center gap-2 text-primary/50 text-xs">
+            <div className="flex items-center justify-center gap-2 text-primary/50 dark:text-white/50 text-xs">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--color-primary-glow)]"></div>
               <span className="tracking-wider">SECURE CONNECTION</span>
             </div>

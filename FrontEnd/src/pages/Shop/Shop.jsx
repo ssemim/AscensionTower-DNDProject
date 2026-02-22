@@ -75,15 +75,7 @@ const Shop = () => {
 
         {/* Center: Inventory Grid (5 cols) */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="flex justify-between items-center px-2">
-            <nav className="flex gap-4 text-[10px] font-bold">
-              <span className="text-text-main border-b border-primary pb-1 cursor-pointer uppercase">All</span>
-              <span className="opacity-40 hover:opacity-100 cursor-pointer transition-opacity uppercase">Weapons</span>
-              <span className="opacity-40 hover:opacity-100 cursor-pointer transition-opacity uppercase">Armor</span>
-            </nav>
-            <span className="text-[9px] opacity-30 italic font-bold">GRID_COORD: 4X6_INV</span>
-          </div>
-          <div className="grid grid-cols-4 gap-2 bg-primary/5 p-4 border border-primary/30">
+          <div className="grid grid-cols-4 gap-2 bg-main p-4 border border-primary/30">
             {items.map((item) => (
               <div
                 key={item.id}

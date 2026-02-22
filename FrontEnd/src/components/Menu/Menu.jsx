@@ -10,6 +10,7 @@ export default function Menu({ isOpen, onToggle }) {
     { to: '/login', label: 'Login' },
     { to: '/signup', label: 'Sign Up' },
     { to: '/shop', label: 'Shop' },
+    { to: '/game', label: 'Game' },
     { to: '/mypage', label: 'My Page' },
   ];
 
@@ -39,6 +40,7 @@ export default function Menu({ isOpen, onToggle }) {
           bg-main border-r border-primary/30 backdrop-blur-sm
           transition-transform duration-300
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isDark ? 'text-white' : 'text-text-main'}
         `}
       >
         {/* Grid Background (Tailwind 설정값 사용) */}
@@ -67,7 +69,7 @@ export default function Menu({ isOpen, onToggle }) {
             className="block mb-8 pb-6 border-b border-primary/30"
           >
             <h4 className="text-2xl font-bold text-primary italic">THE TOWER :</h4>
-            <h4 className="text-xl font-bold text-text-main">
+            <h4 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-text-main'}`}>
               FALLING TO ASCENSION
             </h4>
             <p className="text-xs text-primary/60 mt-1 tracking-widest">
@@ -76,7 +78,7 @@ export default function Menu({ isOpen, onToggle }) {
           </NavLink>
 
           {/* Menu Items */}
-          <nav className="space-y-2 flex-grow">
+          <nav className="space-y-2 flex-grow text-xl font-bold">
             {menuItems.map(item => (
               <NavLink
                 key={item.to}
@@ -86,7 +88,7 @@ export default function Menu({ isOpen, onToggle }) {
                   block px-4 py-3 rounded-lg transition-all duration-200
                   ${isActive
                     ? 'bg-primary/20 text-primary shadow-[inset_0_0_10px_rgba(34,211,238,0.1)]'
-                    : 'text-text-main/70 hover:text-primary hover:bg-primary/5'}
+                    : `${isDark ? 'text-white/70' : 'text-text-main/70'} hover:text-primary hover:bg-primary/5`}
                 `
                 }
               >
