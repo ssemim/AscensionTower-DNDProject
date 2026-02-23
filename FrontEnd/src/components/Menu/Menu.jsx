@@ -10,7 +10,7 @@ export default function Menu({ isOpen, onToggle }) {
     { to: '/login', label: 'Login' },
     { to: '/signup', label: 'Sign Up' },
     { to: '/shop', label: 'Shop' },
-    { to: '/game', label: 'Game' },
+    { to: '/blackjack', label: 'Game' },
     { to: '/mypage', label: 'My Page' },
   ];
 

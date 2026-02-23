@@ -10,7 +10,7 @@ import SignUp from './pages/SignUp/SignUp'
 import MyPage from './pages/MyPage/MyPage'
 import Shop from './pages/Shop/Shop'
 import World from './pages/World/World'
-import BlackjackGame from './pages/BlackJack/Blackjack'
+import Blackjack from './pages/BlackJack/Blackjack'
 import NotFound from './pages/404/404'
 import MouseEffect from './components/MouseEffect/MouseEffect'
 import './index.css';
@@ -54,7 +54,7 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/world" element={<World />} />
-          <Route path="/blackjack" element={<BlackjackGame />} />
+          <Route path="/blackjack" element={<Blackjack />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

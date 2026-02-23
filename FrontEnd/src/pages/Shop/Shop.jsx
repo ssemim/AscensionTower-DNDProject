@@ -40,12 +40,8 @@ const Shop = () => {
           </div>
         </div>
         <div className="text-right">
-          <div className="flex gap-4 text-[9px] font-bold mb-2 opacity-50 uppercase">
-            <span>Uplink_Secure</span>
-            <span className="text-green-500">System_Nominal</span>
-          </div>
           <div className="text-3xl font-black text-text-main italic tracking-widest">
-            24,580 <span className="text-primary/80 text-sm italic">CR</span>
+            포인트 변수 <span className="text-primary/80 text-sm italic">CR</span>
           </div>
         </div>
       </header>
@@ -93,9 +89,6 @@ const Shop = () => {
                     <div className="w-10 h-10 border border-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <div className="w-6 h-6 bg-primary/20"></div>
                     </div>
-                    <div className={`absolute top-1 left-1 w-1.5 h-1.5 ${
-                      item.rarity === 'EPIC' ? 'bg-purple-500' : 'bg-primary'
-                    }`}></div>
                   </>
                 )}
                 <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{item.id}</span>
@@ -145,11 +138,11 @@ const Shop = () => {
       {/* Footer System Log */}
       <footer className="max-w-7xl mx-auto mt-8 flex justify-between items-center text-[9px] font-bold text-primary/40 uppercase tracking-widest">
         <div className="flex gap-8">
-          <span>Stark_OS: v4.2.1</span>
+          <span>ASCENSION_: v4.2.1</span>
           <span>Core_Temp: 32.5c</span>
           <span>Sync: Stable</span>
         </div>
-        <div className="text-primary/70 italic">© 2024 Stark Industries // Tactical Supply Div</div>
+        <div className="text-primary/70 italic">© 2026 ASCENSION TOWER // Tactical Supply Div</div>
       </footer>
     </div>
   );
