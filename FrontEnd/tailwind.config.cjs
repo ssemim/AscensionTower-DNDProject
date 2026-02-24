@@ -4,6 +4,14 @@ module.exports = {
   darkMode: 'class', 
   theme: {
     extend: {
+
+      fontFamily: {
+        'dos-gothic': ['DosGothic', 'sans-serif'],
+        'pf-stardust': ['PfStardust30S', 'sans-serif'],
+        'nexon-warhaven': ['NexonWarhaven', 'sans-serif'],
+        'joseon': ['JoseonGaneGothic', 'sans-serif'],
+      },
+
       colors: {
         main: 'var(--color-bg)',
         primary: 'var(--color-primary)',

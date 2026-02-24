@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
+    "@reduxjs/toolkit": "^2.11.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.12.0",
     "tw-elements-react": "^1.0.0-alpha-end"
   },

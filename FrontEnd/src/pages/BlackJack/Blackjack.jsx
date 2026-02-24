@@ -108,7 +108,7 @@ const BlackJack = () => {
           <div className="absolute inset-0 dark:bg-cyan-400/10 bg-cyan-300/10 animate-pulse" />
           <div className="text-[12rem] font-black italic dark:text-white text-gray-500 opacity-20 animate-ping absolute">21</div>
           <div className="text-6xl font-black italic dark:text-cyan-400 text-cyan-600 drop-shadow-[0_0_30px_#22d3ee] animate-bounce z-10">
-            크리티컬 블랙잭
+            BLACK JACK! (STAND)
           </div>
           {/* Particles */}
           <div className="absolute inset-0 overflow-hidden">
@@ -165,7 +165,7 @@ const BlackJack = () => {
           </div>
 
           {/* Current Score Display */}
-          <div className="relative">
+          <div className="relative  font-dos-gothic">
             {gameStatus === 'ENDED' && winner && (
               <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 dark:bg-yellow-400 bg-yellow-500 text-black text-lg font-black italic animate-bounce">
                 {winner === 'PLAYER' && '승리!'}
@@ -179,7 +179,7 @@ const BlackJack = () => {
           </div>
 
           {/* Player Section */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center  font-dos-gothic">
             <div className="flex gap-4 h-36 items-center">
               {playerHand.map((card) => (
                 <div key={card.id} className="w-24 h-36 border-2 dark:border-cyan-400 border-cyan-500 dark:bg-black bg-white flex items-center justify-center relative shadow-[0_0_30px_rgba(34,211,238,0.2)] animate-slide-in">
@@ -193,7 +193,7 @@ const BlackJack = () => {
         </section>
 
         {/* Right Col: Bankroll & Controls */}
-        <aside className="col-span-12 lg:col-span-3 flex flex-col justify-end lg:justify-start gap-6 mb-12 lg:mb-0">
+        <aside className="col-span-12 lg:col-span-3 flex flex-col justify-end lg:justify-start gap-6 mb-12 lg:mb-0 font-dos-gothic">
           <div className="grid grid-cols-2 gap-2">
             <button 
               onClick={dealCards} 
@@ -211,9 +211,9 @@ const BlackJack = () => {
       {/* 5. FOOTER SYSTEM LOG */}
       <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t dark:border-cyan-900 border-gray-200 dark:bg-black/80 bg-white/80 flex justify-between items-center text-[8px] font-bold dark:text-cyan-900 text-gray-400 uppercase tracking-widest">
         <div className="flex gap-8">
-          <span>[정보] 딜러 알고리즘: 안정</span>
-          <span>[시스템] 베팅 프로토콜 동기화 중...</span>
-          <span>[스캔] 플레이어에게 최적화된 확률</span>
+          <span>Dealer</span>
+          <span>system : ...</span>
+          <span>scan</span>
         </div>
         <p>Timestamp: 23:59:12::TOWER_27</p>
       </footer>
