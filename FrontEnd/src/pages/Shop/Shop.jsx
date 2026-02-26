@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import Typewriter from 'typewriter-effect';
+import { addItem, removeItem, clearCart, decreaseItem } from '../../store/cartSlice';
+import dialog from './dialog';
+import itemsData from './item.js';
 
 // 공통 UI 컴포넌트: HUD 스타일의 테두리 박스
 const HUDBox = ({ children, className = "" }) => (
@@ -10,14 +15,19 @@ const HUDBox = ({ children, className = "" }) => (
 );
 
 const Shop = () => {
+  const [rightPanelTab, setRightPanelTab] = useState('inspect');
+  const dispatch = useDispatch();
+  const cartItems = useSelector(state => state.cart.items);
+  const [merchantDialog, setMerchantDialog] = useState('');
+  const [isAcquiring, setIsAcquiring] = useState(false);
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * dialog.length);
+    setMerchantDialog(dialog[randomIndex]);
+  }, []);
+
   // 인벤토리 아이템 데이터 (24개 슬롯)
-  const [items] = useState([
-    { id: 1, name: "PHASE_BLADE", type: "Weapon", rarity: "EPIC", stats: { ATK: 85, ENRG: 40, STB: 60 }, price: "12,500", desc: "Experimental energy edge utilizing concentrated arc particles." },
-    { id: 2, name: "ION_SHIELD", type: "Armor", rarity: "RARE", stats: { ATK: 5, ENRG: 80, STB: 95 }, price: "8,200", desc: "Multi-layered kinetic barrier with automatic ion-refresh." },
-    { id: 3, name: "CORE_CELL", type: "Utility", rarity: "COMMON", stats: { ATK: 0, ENRG: 100, STB: 20 }, price: "1,500", desc: "Standard Stark-grade power cell for industrial use." },
-    // 나머지 슬롯을 위한 빈 데이터
-    ...Array.from({ length: 21 }, (_, i) => ({ id: i + 4, isEmpty: true }))
-  ]);
+  const [items] = useState(itemsData);
 
   const [selected, setSelected] = useState(items[0]);
 
@@ -62,16 +72,28 @@ const Shop = () => {
             </div>
           </HUDBox>
           <HUDBox className="p-4 bg-main/60">
-            <p className="text-[9px] font-bold text-primary/80 mb-2 uppercase tracking-tighter italic">// Incoming_Comms</p>
-            <p className="text-[11px] leading-relaxed text-text-main/80 italic">
-              "You have the credits, I have the prototypes. But remember, once a Phase Blade is linked, there's no going back."
-            </p>
+            <div className="text-[14px] leading-relaxed font-dos-gothic font-bold text-text-main/80 italic">
+              "{merchantDialog && (
+                <Typewriter
+                  onInit={(typewriter) => {
+                    typewriter
+                      .pauseFor(1000)
+                      .typeString(merchantDialog)
+                      .start();
+                  }}
+                  options={{
+                    delay: 80,
+                    cursor: '',
+                  }}
+                />
+              )}"
+            </div>
           </HUDBox>
         </div>
 
         {/* Center: Inventory Grid (5 cols) */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="grid grid-cols-4 gap-2 bg-main p-4 border border-primary/30">
+          <div className="grid grid-cols-4 gap-2 bg-main p-4 border border-primary/30 h-full">
             {items.map((item) => (
               <div
                 key={item.id}
@@ -97,53 +119,120 @@ const Shop = () => {
           </div>
         </div>
 
-        {/* Right: Inspection HUD (4 cols) */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col">
-          <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-primary shadow-stark-glow">
-            <div className="mb-8 border-b border-primary/20 pb-4">
-              <span className="bg-primary/90 text-text-main/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">{selected?.rarity || 'SCANNING'}</span>
-              <h2 className="text-3xl font-black text-text-main mt-2 tracking-tighter italic uppercase">{selected?.name || '---'}</h2>
-              <p className="text-[10px] text-primary/80 mt-1 font-bold italic uppercase tracking-widest">Type: {selected?.type || 'Unknown'}</p>
+        {/* Right: Inspection & Cart HUD (4 cols) */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col font-dos-gothic">
+          <div className="flex border-b border-primary/30">
+              <button 
+                onClick={() => setRightPanelTab('inspect')}
+                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'inspect' ? 'bg-primary/20 text-text-main border-b-2 border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
+              >
+                Inspect
+              </button>
+              <button 
+                onClick={() => setRightPanelTab('cart')}
+                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'cart' ? 'bg-primary/20 text-text-main border-b-2 border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
+              >
+                Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+              </button>
             </div>
+          {rightPanelTab === 'inspect' && (
+            <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-primary shadow-stark-glow">
+              <div className="mb-8 border-b border-primary/20 pb-4">
+                <span className="bg-primary/90 text-text-main/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">{selected?.rarity || 'SCANNING'}</span>
+                <h2 className="text-3xl font-black text-text-main mt-2 tracking-wide italic uppercase">{selected?.name || '---'}</h2>
+                <p className="text-lg font-black text-primary/80 mt-2">{selected?.price ? `${selected.price} CR` : 'N/A'}</p>
+              </div>
 
-            <div className="space-y-6 flex-1">
-              {/* Dynamic Stats Bars */}
-              {['ATK', 'ENRG', 'STB'].map((stat) => (
-                <div key={stat}>
-                  <div className="flex justify-between text-[9px] font-black uppercase tracking-widest mb-1">
-                    <span className="text-primary/70">{stat}_EFFICIENCY</span>
-                    <span className="text-text-main">{selected?.stats?.[stat] || 0}%</span>
+              <div className="space-y-6 flex-1">
+                <div>
+                  <div className="flex justify-between text-[12px] font-black uppercase tracking-widest mb-1">
+                    <span className="text-primary/70">임의 스텟</span>
+                    <span className="text-text-main text-[12px]">{selected?.stats?.ATK || 0}%</span>
                   </div>
                   <div className="w-full h-1 bg-primary/10 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-primary shadow-stark-glow transition-all duration-700 ease-out" 
-                      style={{ width: `${selected?.stats?.[stat] || 0}%` }}
+                      style={{ width: `${selected?.stats?.ATK || 0}%` }}
                     ></div>
                   </div>
                 </div>
-              ))}
 
-              <div className="p-4 border-l-2 border-primary bg-primary/5 italic text-[11px] leading-relaxed text-text-main/60 mt-8">
-                {`> LOG_READOUT: ${selected?.desc || 'Awaiting selection for neural link diagnostic...'}`}
+                <div className="p-4 border-l-2 border-primary bg-primary/5 italic text-[16px] leading-relaxed text-text-main/60 mt-8">
+                  {`> LOG_READOUT: ${selected?.desc || 'Awaiting selection for neural link diagnostic...'}`}
+                </div>
               </div>
-            </div>
 
-            <button className="mt-8 bg-primary hover:bg-text-main text-main font-black py-4 text-xs uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-stark-glow">
-              Acquire_Protocols // {selected?.price || '0'} CR
-            </button>
-          </HUDBox>
+              <button 
+                onClick={() => {
+                  if (selected && !selected.isEmpty && !isAcquiring) {
+                    setIsAcquiring(true);
+                    dispatch(addItem(selected));
+                    setTimeout(() => setIsAcquiring(false), 1000); // Prevent rapid clicks
+                  }
+                }}
+                disabled={!selected || selected.isEmpty || isAcquiring}
+                className="mt-8 bg-primary hover:bg-text-main text-main font-black py-4 text-sm uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed">
+                {isAcquiring ? '불러오는 중...' : `장바구니 담기 // ${selected?.price || '0'} CR`}
+              </button>
+            </HUDBox>
+          )}
+          {rightPanelTab === 'cart' && (
+             <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-primary shadow-stark-glow">
+              {cartItems.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center text-xl">
+                   <p className="text-sm text-primary/70 italic mb-4">카트가 비어있습니다</p>
+                   <p className="text-xs text-text-main/50">담기 버튼을 통해 카트에 아이템을 담아주세요.</p>
+                </div>
+              ) : (
+                <>
+                  {/* header row with clear button */}
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-xl font-black uppercase tracking-widest">Cart</h3>
+                    <button
+                      onClick={() => dispatch(clearCart())}
+                      className="text-red-500 hover:text-red-400 text-xs uppercase tracking-widest"
+                    >
+                      Clear Cart
+                    </button>
+                  </div>
+
+                  <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2">
+                    {cartItems.map(item => (
+                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-primary/5 py-4 px-2 border-l-2 border-primary">
+                        <div className="col-span-6">
+                          <p className="text-base space-x-1 truncate">{item.name}</p>
+                        </div>
+                        <div className="col-span-4 text-center flex justify-around items-center">
+                          <button onClick={() => dispatch(decreaseItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">-</button>
+                          <p className="text-base font-mono">x{item.quantity}</p>
+                          <button onClick={() => dispatch(addItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">+</button>
+                        </div>
+                        <div className="col-span-2 text-right">
+                          <button onClick={() => dispatch(removeItem(item.id))} className="text-red-500 hover:text-red-400 text-base">지우기</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* total price display */}
+                  <div className="mt-2 text-right text-sm font-bold">
+                    합계: {cartItems.reduce((sum, itm) => sum + parseFloat(itm.price.replace(/,/g, '')) * itm.quantity, 0)} CR
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-primary/30 flex justify-end gap-4">
+                    <button className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
+                      구매하기
+                    </button>
+                <button className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
+                      선물하기
+                    </button>
+                  </div>
+                </>
+              )}
+            </HUDBox>
+          )}
         </div>
       </main>
-
-      {/* Footer System Log */}
-      <footer className="max-w-7xl mx-auto mt-8 flex justify-between items-center text-[9px] font-bold text-primary/40 uppercase tracking-widest">
-        <div className="flex gap-8">
-          <span>ASCENSION_: v4.2.1</span>
-          <span>Core_Temp: 32.5c</span>
-          <span>Sync: Stable</span>
-        </div>
-        <div className="text-primary/70 italic">© 2026 ASCENSION TOWER // Tactical Supply Div</div>
-      </footer>
     </div>
   );
 };

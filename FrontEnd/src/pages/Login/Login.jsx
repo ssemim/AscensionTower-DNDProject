@@ -32,7 +32,7 @@ export default function Login() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
-          TOWER
+          LOGIN
             </h1>
             <p className="text-xs text-primary/60 dark:text-white/60 tracking-widest">
               AUTHENTICATION REQUIRED

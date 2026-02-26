@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../../components/ThemeProvider/ThemeProvider';
 import { createDeck, shuffleDeck, calculateScore, getWinner } from './GameLogic';
 
-const BlackJack = () => {
+function BlackJack() {
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
@@ -100,14 +100,14 @@ const BlackJack = () => {
   }, [gameStatus, dealerHand, deck, playerScore, playerHand.length]);
 
   return (
-    <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 dark:bg-[#02060a] dark:text-cyan-400 bg-gray-100 text-gray-800 ${isBlackjack ? 'dark:bg-cyan-900/20 bg-cyan-100/30' : ''}`}>
+    <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
       
       {/* 1. BLACKJACK CRITICAL EFFECT OVERLAY */}
       {isBlackjack && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
-          <div className="absolute inset-0 dark:bg-cyan-400/10 bg-cyan-300/10 animate-pulse" />
-          <div className="text-[12rem] font-black italic dark:text-white text-gray-500 opacity-20 animate-ping absolute">21</div>
-          <div className="text-6xl font-black italic dark:text-cyan-400 text-cyan-600 drop-shadow-[0_0_30px_#22d3ee] animate-bounce z-10">
+          <div className="absolute inset-0 bg-primary/10 animate-pulse" />
+          <div className="text-[12rem] font-black italic text-text-main/20 animate-ping absolute">21</div>
+          <div className="text-6xl font-black italic text-primary drop-shadow-[0_0_30px_var(--color-primary-glow)] animate-bounce z-10">
             BLACK JACK! (STAND)
           </div>
           {/* Particles */}
@@ -115,7 +115,7 @@ const BlackJack = () => {
             {Array.from({ length: 20 }).map((_, i) => (
               <div 
                 key={i} 
-                className="absolute w-1 h-10 dark:bg-cyan-400 bg-cyan-500 animate-pulse" 
+                className="absolute w-1 h-10 bg-primary animate-pulse" 
                 style={{ 
                   left: `${Math.random() * 100}%`, 
                   top: `${Math.random() * 100}%`, 
@@ -129,15 +129,7 @@ const BlackJack = () => {
       )}
 
       {/* 2. BACKGROUND HUD GRID */}
-      <div 
-        className="fixed inset-0 dark:opacity-[0.05] opacity-10 pointer-events-none" 
-        style={{ 
-          backgroundImage: isDark 
-            ? 'linear-gradient(#22d3ee 1px, transparent 1px), linear-gradient(90deg, #22d3ee 1px, transparent 1px)'
-            : 'linear-gradient(#a5f3fc 1px, transparent 1px), linear-gradient(90deg, #a5f3fc 1px, transparent 1px)',
-          backgroundSize: '40px 40px' 
-        }} 
-      />
+      <div className="fixed inset-0 opacity-[0.05] pointer-events-none bg-stark-grid" style={{backgroundSize: '40px 40px'}} />
 
       {/* 4. MAIN COMBAT AREA */}
       <main className="max-w-7xl mx-auto mt-12 grid grid-cols-12 gap-8 relative z-10">
@@ -145,7 +137,7 @@ const BlackJack = () => {
         <section className="col-span-12 lg:col-span-9 flex flex-col items-center justify-center py-10 space-y-16">
           {/* Dealer Section */}
           <div className="flex flex-col items-center">
-            <div className="text-[10px] dark:text-cyan-900 text-gray-400 font-black mb-4 tracking-[0.5em] uppercase italic"> 딜러 (현재 점수: {dealerScore > 0 ? dealerScore : '?'})</div>
+            <div className="text-[10px] text-text-main/50 font-black mb-4 tracking-[0.5em] uppercase italic"> 딜러 (현재 점수: {dealerScore > 0 ? dealerScore : '?'})</div>
             <div className="flex gap-4 h-36 items-center">
               {dealerHand.map((card) => {
                 return (
@@ -153,11 +145,11 @@ const BlackJack = () => {
                     key={card.id}
                     className={`w-24 h-36 border-2 flex items-center justify-center relative transition-all duration-500 transform animate-slide-in 
                     ${card.hidden
-                        ? 'dark:border-cyan-900 border-gray-300 dark:bg-cyan-950/20 bg-gray-100/20'
-                        : 'dark:border-cyan-400 border-cyan-500 dark:bg-black bg-white shadow-[0_0_20px_rgba(34,211,238,0.2)]'}`}
+                        ? 'border-primary/20 bg-primary/5'
+                        : 'border-primary bg-main shadow-stark-glow'}`}
                   >
-                    <span className={`text-4xl font-black italic ${card.hidden ? 'dark:text-cyan-900 text-gray-400' : 'dark:text-white text-gray-900'}`}>{card.hidden ? '?' : card.value}</span>
-                    {!card.hidden && <div className="absolute top-2 right-2 w-2 h-2 dark:bg-cyan-400 bg-cyan-500" />}
+                    <span className={`text-4xl font-black italic ${card.hidden ? 'text-primary/30' : 'text-text-main'}`}>{card.hidden ? '?' : card.value}</span>
+                    {!card.hidden && <div className="absolute top-2 right-2 w-2 h-2 bg-primary" />}
                   </div>
                 );
               })}
@@ -167,13 +159,13 @@ const BlackJack = () => {
           {/* Current Score Display */}
           <div className="relative  font-dos-gothic">
             {gameStatus === 'ENDED' && winner && (
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 dark:bg-yellow-400 bg-yellow-500 text-black text-lg font-black italic animate-bounce">
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 bg-yellow-400 text-black text-lg font-black italic animate-bounce">
                 {winner === 'PLAYER' && '승리!'}
                 {winner === 'DEALER' && (playerScore > 21 ? '버스트!' : '패배')}
                 {winner === 'PUSH' && '무승부'}
               </div>
             )}
-            <div className={`text-xl font-black italic px-8 py-2 border-y-2 dark:border-cyan-900 border-gray-200 transition-all ${isBlackjack ? 'dark:text-white text-black dark:border-cyan-400 border-cyan-500 dark:bg-cyan-400/10 bg-cyan-500/10' : ''}`}>
+            <div className={`text-xl font-black italic px-8 py-2 border-y-2 border-primary/20 transition-all ${isBlackjack ? 'text-primary border-primary bg-primary/10' : ''}`}>
               현재 점수: {playerScore}
             </div>
           </div>
@@ -182,13 +174,13 @@ const BlackJack = () => {
           <div className="flex flex-col items-center  font-dos-gothic">
             <div className="flex gap-4 h-36 items-center">
               {playerHand.map((card) => (
-                <div key={card.id} className="w-24 h-36 border-2 dark:border-cyan-400 border-cyan-500 dark:bg-black bg-white flex items-center justify-center relative shadow-[0_0_30px_rgba(34,211,238,0.2)] animate-slide-in">
-                  <span className="text-4xl font-black italic dark:text-white text-gray-900">{card.value}</span>
-                  <div className="absolute bottom-2 right-2 w-2 h-2 dark:bg-cyan-400 bg-cyan-500" />
+                <div key={card.id} className="w-24 h-36 border-2 border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in">
+                  <span className="text-4xl font-black italic text-text-main">{card.value}</span>
+                  <div className="absolute bottom-2 right-2 w-2 h-2 bg-primary" />
                 </div>
               ))}
             </div>
-            <div className="text-[10px] dark:text-cyan-400 text-cyan-600 font-black mt-4 tracking-[0.5em] uppercase">플레이어</div>
+            <div className="text-[10px] text-primary font-black mt-4 tracking-[0.5em] uppercase">플레이어</div>
           </div>
         </section>
 
@@ -198,18 +190,18 @@ const BlackJack = () => {
             <button 
               onClick={dealCards} 
               disabled={gameStatus === 'PLAYING' || gameStatus === 'DEALER_TURN'} 
-              className="col-span-2 py-4 bg-cyan-500 text-black font-black uppercase text-sm tracking-widest hover:bg-white transition-all shadow-[0_0_20px_#22d3ee] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="col-span-2 py-4 bg-primary text-main font-black uppercase text-sm tracking-widest hover:bg-text-main hover:text-primary transition-all shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '게임 시작' : '게임 중'}
             </button>
-            <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border dark:border-cyan-900 border-gray-300 hover:dark:border-cyan-400 hover:border-gray-500 dark:text-cyan-900 text-gray-400 hover:dark:text-cyan-400 hover:text-gray-600 font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
-            <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border dark:border-cyan-900 border-gray-300 hover:dark:border-cyan-400 hover:border-gray-500 dark:text-cyan-900 text-gray-400 hover:dark:text-cyan-400 hover:text-gray-600 font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
+            <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-primary/30 hover:border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
+            <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-primary/30 hover:border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
           </div>
         </aside>
       </main>
 
       {/* 5. FOOTER SYSTEM LOG */}
-      <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t dark:border-cyan-900 border-gray-200 dark:bg-black/80 bg-white/80 flex justify-between items-center text-[8px] font-bold dark:text-cyan-900 text-gray-400 uppercase tracking-widest">
+      <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t border-primary/20 bg-main/80 backdrop-blur-sm flex justify-between items-center text-[8px] font-bold text-primary/70 uppercase tracking-widest">
         <div className="flex gap-8">
           <span>Dealer</span>
           <span>system : ...</span>
@@ -230,6 +222,5 @@ const BlackJack = () => {
       `}</style>
     </div>
   );
-};
-
+}
 export default BlackJack;
