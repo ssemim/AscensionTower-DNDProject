@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Typewriter from 'typewriter-effect';
 import { addItem, removeItem, clearCart, decreaseItem } from '../../store/cartSlice';
@@ -18,13 +18,11 @@ const Shop = () => {
   const [rightPanelTab, setRightPanelTab] = useState('inspect');
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
-  const [merchantDialog, setMerchantDialog] = useState('');
-  const [isAcquiring, setIsAcquiring] = useState(false);
-
-  useEffect(() => {
+  const [merchantDialog] = useState(() => {
     const randomIndex = Math.floor(Math.random() * dialog.length);
-    setMerchantDialog(dialog[randomIndex]);
-  }, []);
+    return dialog[randomIndex];
+  });
+  const [isAcquiring, setIsAcquiring] = useState(false);
 
   // 인벤토리 아이템 데이터 (24개 슬롯)
   const [items] = useState(itemsData);
