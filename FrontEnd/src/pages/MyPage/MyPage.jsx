@@ -1,99 +1,412 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Menu from '../../components/Menu/Menu';
+import YouTube from 'react-youtube';
 import '../Landing/index.css';
 
+// 유튜브 URL에서 비디오 ID를 추출하는 헬퍼 함수
+function getYouTubeID(url) {
+  if (!url) return null;
+  let regExp = /youtu\.be\/([^?&\s]+)/;
+  let match = url.match(regExp);
+  if (match && match[1]) return match[1];
+  regExp = /[?&]v=([^&\s]+)/;
+  match = url.match(regExp);
+  if (match && match[1]) return match[1];
+  regExp = /embed\/([^?&\s]+)/;
+  match = url.match(regExp);
+  if (match && match[1]) return match[1];
+  return null;
+}
+
+// YouTube oEmbed API로 제목 가져오기 (무료, 키 불필요)
+async function fetchYouTubeTitle(videoId) {
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+    );
+    if (!res.ok) throw new Error('oEmbed 요청 실패');
+    const data = await res.json();
+    return data.title || null;
+  } catch {
+    return null;
+  }
+}
+
+// 백엔드 응답 정규화
+// { gifts: [...] } / { items: [...] } / { data: [...] } / [...] 모두 처리
+function normalizeResponse(data) {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.gifts)) return data.gifts;
+  if (data && Array.isArray(data.items)) return data.items;
+  if (data && Array.isArray(data.data)) return data.data;
+  return [];
+}
+
+// ─────────────────────────────────────────────
+// 개별 아이템 카드
+// DB 응답 구조가 확정되면 내부 렌더링만 수정하면 됨
+// ─────────────────────────────────────────────
+function ItemCard({ item, tab }) {
+  return (
+    <div className="flex-shrink-0 w-36 border border-primary/20 p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
+      {/* 썸네일 - DB에서 imageUrl 필드로 교체 예정 */}
+      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-xs">
+        {item.imageUrl
+          ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          : '[ IMG ]'}
+      </div>
+
+      {/* 이름 */}
+      <p className="text-xs font-bold truncate text-text-main">
+        {item.name || item.title || `Item_${item.id ?? '??'}`}
+      </p>
+
+      {/* 탭별 부가 정보 */}
+      {tab === 'gifted' && item.senderName && (
+        <p className="text-[10px] text-text-main/50 truncate">from: {item.senderName}</p>
+      )}
+      {tab === 'inventory' && item.quantity != null && (
+        <p className="text-[10px] text-text-main/50">x{item.quantity}</p>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 탭 전환 인벤토리 섹션
+// ─────────────────────────────────────────────
+function InventorySection() {
+  const TABS = [
+    { id: 'inventory', label: 'INVENTORY' },
+    { id: 'gifted',    label: 'GIFTED'    },
+  ];
+
+  const [activeTab, setActiveTab] = useState('inventory');
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [giftedItems, setGiftedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 탭이 바뀔 때마다 해당 데이터 fetch (이미 로드된 탭은 재요청 생략)
+  useEffect(() => {
+    const fetchItems = async () => {
+      const alreadyLoaded =
+        (activeTab === 'inventory' && inventoryItems.length > 0) ||
+        (activeTab === 'gifted'    && giftedItems.length > 0);
+      if (alreadyLoaded) return;
+
+      setIsLoading(true);
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+
+        const endpoint =
+          activeTab === 'inventory'
+            ? `/api/inventory/${userId}`   // 백엔드 엔드포인트 확정 시 수정
+            : `/api/gifts/${userId}`;      // 백엔드 엔드포인트 확정 시 수정
+
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error(`${activeTab} 로드 실패`);
+
+        const data = await res.json();
+        const items = normalizeResponse(data);
+
+        if (activeTab === 'inventory') setInventoryItems(items);
+        else setGiftedItems(items);
+      } catch (err) {
+        console.error('아이템 로드 실패:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const currentItems = activeTab === 'inventory' ? inventoryItems : giftedItems;
+
+  return (
+    <section className="px-12 py-6 bg-main border-y border-primary/20 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
+
+      <div className="flex flex-col gap-4 max-w-6xl mx-auto">
+
+        {/* 탭 헤더 */}
+        <div className="flex items-end gap-0 border-b border-primary/20">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`
+                text-xs font-bold tracking-widest px-6 py-2 transition-colors duration-150
+                ${activeTab === tab.id
+                  ? 'text-primary border-b-2 border-primary -mb-px bg-primary/10'
+                  : 'text-text-main/40 hover:text-text-main/70'}
+              `}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 아이템 목록 */}
+        <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          {isLoading ? (
+            <p className="text-text-main/50 text-xs self-center">로딩 중...</p>
+          ) : currentItems.length > 0 ? (
+            currentItems.map((item, index) => (
+              <ItemCard key={item.id ?? index} item={item} tab={activeTab} />
+            ))
+          ) : (
+            <p className="text-text-main/50 text-xs self-center">
+              {activeTab === 'inventory'
+                ? '보유한 아이템이 없습니다.'
+                : '선물받은 아이템이 없습니다.'}
+            </p>
+          )}
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 메인 페이지
+// ─────────────────────────────────────────────
 export default function MyPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  // 플레이리스트
+  const [videoLinks, setVideoLinks] = useState([]);
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
+  const [player, setPlayer] = useState(null);
+  const [nowPlayingIndex, setNowPlayingIndex] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // 플레이어 상태
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(100);
+
+  useEffect(() => {
+    const fetchUserGifts = async () => {
+      setIsLoadingPlaylist(true);
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) { setIsLoadingPlaylist(false); return; }
+
+        const response = await fetch(`/api/gifts/${userId}`);
+        if (!response.ok) throw new Error('플레이리스트 로드 실패');
+
+        const data = await response.json();
+        const fetchedLinks = normalizeResponse(data);
+
+        const linksWithTitles = await Promise.all(
+          fetchedLinks.map(async (link, index) => {
+            if (link.title) return link;
+            const videoId = getYouTubeID(link.url);
+            if (!videoId) return { ...link, title: link.url || `Track ${index + 1}` };
+            const title = await fetchYouTubeTitle(videoId);
+            return { ...link, title: title || link.url || `Track ${index + 1}` };
+          })
+        );
+
+        setVideoLinks(linksWithTitles);
+      } catch (error) {
+        console.error('플레이리스트 로드 실패:', error);
+        setVideoLinks([]);
+      } finally {
+        setIsLoadingPlaylist(false);
+      }
+    };
+    fetchUserGifts();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (player && isPlaying) {
+        setCurrentTime(player.getCurrentTime());
+        setDuration(player.getDuration());
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [player, isPlaying]);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleImageUpload = (e) => {
+    if (e.target.files?.[0]) setProfileImage(URL.createObjectURL(e.target.files[0]));
+  };
+
+  const youtubePlayerOptions = {
+    height: '0', width: '0',
+    playerVars: { autoplay: 0 },
+  };
+
+  const onPlayerReady = (event) => {
+    setPlayer(event.target);
+    event.target.setVolume(volume);
+  };
+
+  const onPlayerStateChange = (event) => {
+    setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+    if (event.data === window.YT.PlayerState.ENDED) {
+      const next = nowPlayingIndex + 1;
+      if (next < videoLinks.length) {
+        handlePlay(next);
+      } else {
+        setNowPlayingIndex(null);
+        setCurrentTime(0);
+        setDuration(0);
+      }
+    }
+  };
+
+  const handlePlay = (index) => {
+    if (nowPlayingIndex === index && isPlaying) { player?.pauseVideo(); return; }
+    const videoId = getYouTubeID(videoLinks[index]?.url);
+    if (player && videoId) {
+      setNowPlayingIndex(index);
+      player.loadVideoById(videoId);
+      player.playVideo();
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!player || nowPlayingIndex === null) return;
+    isPlaying ? player.pauseVideo() : player.playVideo();
+  };
+
+  const handlePrev = () => { if (nowPlayingIndex > 0) handlePlay(nowPlayingIndex - 1); };
+  const handleNext = () => { if (nowPlayingIndex < videoLinks.length - 1) handlePlay(nowPlayingIndex + 1); };
+
+  const handleSeek = (time) => { player?.seekTo(time, true); setCurrentTime(time); };
+
+  const handleVolumeChange = (newVolume) => { player?.setVolume(newVolume); setVolume(newVolume); };
+
+  const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="min-h-screen bg-main text-text-main font-mono overflow-x-hidden relative">
+    <div className="min-h-screen bg-main text-text-main font-mono relative">
       <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
-      {/* Background HUD Grid */}
-      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-20 dark:opacity-100">
+      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-20 dark:opacity-100" />
+
+      {/* 숨겨진 YouTube 플레이어 - 항상 마운트 유지 */}
+      <div className="hidden">
+        <YouTube onReady={onPlayerReady} onStateChange={onPlayerStateChange} opts={youtubePlayerOptions} />
       </div>
 
       <main className="relative z-10">
-        {/* Hero Section */}
-        <section className="px-12 py-32 flex flex-col items-center text-center">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="w-12 h-[1px] bg-primary"></span>
-            <span className="text-[10px] font-bold text-primary tracking-[0.5em] uppercase">Sector_07 Access Granted</span>
-            <span className="w-12 h-[1px] bg-primary"></span>
+
+        {/* 프로필 + 정보 + 플레이리스트 */}
+        <section className="px-24 py-12 flex gap-4 min-h-[30vh] max-h-[50vh]">
+          {/* 프로필 이미지 */}
+          <div className="border border-primary/20 w-2/12 aspect-square flex flex-col items-center justify-center p-4">
+            <input type="file" id="profile-upload" className="hidden" onChange={handleImageUpload} accept="image/*" />
+            <label htmlFor="profile-upload" className="cursor-pointer w-full h-full flex items-center justify-center">
+              {profileImage
+                ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary">Upload</div>
+              }
+            </label>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-text-main drop-shadow-[0_0_20px_var(--color-primary-glow)] mb-4">
-            Ascension_Core
-          </h1>
-          <p className="max-w-2xl text-text-main/70 text-sm leading-relaxed mb-12 italic">
-            Next-generation neural link research and sub-atomic energy harvesting. 
-            Welcome, Director. All systems operational within designated parameters.
-          </p>
-          
-          <div className="flex gap-4">
-            <button className="px-10 py-4 bg-primary text-white font-black text-xs uppercase tracking-widest hover:bg-text-main transition-all shadow-xl shadow-primary/20">
-              Deploy Project
-            </button>
-            <button className="px-10 py-4 border-2 border-primary text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/10 transition-all">
-              Research Portal
-            </button>
+
+          {/* 정보 */}
+          <div className="w-6/12 border border-primary/20 p-4">
+          <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">INFO</h4>
+          </div>
+
+          {/* 플레이리스트 */}
+          <div className="w-4/12 border border-primary/20 p-4 flex flex-col overflow-hidden">
+            <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">PLAYLIST</h4>
+
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {isLoadingPlaylist ? (
+                <p className="text-text-main/50 text-sm">로딩 중...</p>
+              ) : videoLinks.length > 0 ? (
+                <div className="space-y-2">
+                  {videoLinks.map((video, index) => (
+                    <button
+                      key={video.id ?? index}
+                      onClick={() => handlePlay(index)}
+                      className={`w-full text-left p-2 rounded transition-colors duration-200 ${
+                        nowPlayingIndex === index ? 'bg-primary/30 text-text-main' : 'hover:bg-primary/10'
+                      }`}
+                    >
+                      <span className="font-bold">{nowPlayingIndex === index && isPlaying ? '▶' : '▷'}</span>
+                      <span className="ml-3 text-sm truncate">{video.title}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-main/50 text-sm">선물받은 BGM이 아직 없습니다.</p>
+              )}
+            </div>
+
+            {nowPlayingIndex !== null && (
+              <div className="mt-4 pt-4 border-t border-primary/20 flex-shrink-0">
+                <p className="text-xs text-primary truncate mb-2">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+
+                <div className="text-xs text-text-main/70 mb-1 flex justify-between">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+
+                <input
+                  type="range" min="0" max={duration || 0} value={currentTime}
+                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                  className="w-full h-1 bg-primary/20 rounded cursor-pointer accent-primary mb-4"
+                />
+
+                <div className="flex gap-2 mb-4">
+                  <button onClick={handlePrev} disabled={nowPlayingIndex === 0}
+                    className="bg-primary/20 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
+                  <button onClick={handlePlayPause}
+                    className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">
+                    {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
+                  </button>
+                  <button onClick={handleNext} disabled={nowPlayingIndex === videoLinks.length - 1}
+                    className="bg-primary/20 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-main/70">🔊</span>
+                  <input type="range" min="0" max="100" value={volume}
+                    onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
+                    className="flex-1 h-1 bg-primary/20 rounded cursor-pointer accent-primary" />
+                  <span className="text-xs text-text-main/70 w-8 text-right">{volume}</span>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Chronology / Timeline Section */}
-        <section className="px-12 py-24 bg-main border-y border-primary/20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
-          
+        {/* 탭형 인벤토리 / 선물 섹션 */}
+        <InventorySection />
+
+        {/* ARCHIVE_HISTORY */}
+        <section className="px-12 py-12 bg-main border-b border-primary/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
           <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
-            <div className="md:w-1/3">
+            <div className="md:w-1/4">
               <span className="text-primary font-bold text-xs tracking-widest">// ARCHIVE_HISTORY</span>
               <h3 className="text-4xl font-black italic mt-4 mb-6 leading-tight">EXP_CHRONOLOGY</h3>
               <p className="text-text-main/50 text-xs leading-relaxed">
                 Tracing the evolution of TECH from the first Arc Reactor to the current Quantum Nexus protocols.
               </p>
             </div>
-
-            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide">
-              {[
-                { year: "2024.Q1", title: "Project_Ghost", status: "COMPLETED" },
-                { year: "2024.Q3", title: "Neural_Link", status: "ACTIVE" },
-                { year: "2025.Q1", title: "Void_Energy", status: "PENDING" },
-              ].map((item, idx) => (
-                <div key={idx} className="min-w-[240px] border border-primary/20 p-6 bg-main/50 relative group hover:border-primary transition-all">
-                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rotate-45 border-4 border-main"></div>
-                  <span className="text-[10px] font-bold text-primary/80">{item.year}</span>
-                  <h4 className="text-lg font-black mt-2 mb-4">{item.title}</h4>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                    <span className="text-[9px] font-black opacity-40">{item.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-primary/20" />
           </div>
         </section>
 
-        {/* Department Grid */}
-        <section className="px-12 py-24 max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['Tactical', 'Energy', 'Cyber', 'Bio'].map((dept) => (
-              <div key={dept} className="aspect-video border border-primary/20 bg-main p-6 flex flex-col justify-between group hover:bg-primary transition-all cursor-pointer shadow-sm hover:shadow-primary/20">
-                <span className="text-[10px] font-bold text-primary group-hover:text-primary/70 tracking-[0.3em] uppercase">Dept_{dept}</span>
-                <div className="flex justify-between items-end">
-                  <h5 className="text-xl font-black italic group-hover:text-white transition-colors">{dept}</h5>
-                  <div className="w-8 h-8 border border-primary/20 flex items-center justify-center group-hover:border-white/30">
-                    <span className="text-primary group-hover:text-white">→</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
       </main>
 
-      {/* Footer Info HUD */}
       <footer className="px-12 py-8 border-t border-primary/20 bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
         <div className="flex gap-12">
           <p>Local_Time: 14:22:09 GMT</p>
@@ -104,4 +417,4 @@ export default function MyPage() {
       </footer>
     </div>
   );
-};
+}
