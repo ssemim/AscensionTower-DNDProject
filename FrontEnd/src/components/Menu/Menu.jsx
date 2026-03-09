@@ -119,7 +119,7 @@ export default function Menu({ isOpen, onToggle }) {
               </button>
             </div>
             <p className="text-[10px] text-center mt-4 opacity-30 uppercase">
-              Environment: {isDark ? 'Dark-Stark' : 'Bright-Lab'}
+              Environment: {isDark ? 'Dark-FALLING' : 'Bright-ASCENSION'}
             </p>
           </div>
         </div>

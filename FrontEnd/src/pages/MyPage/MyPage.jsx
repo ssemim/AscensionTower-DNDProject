@@ -50,23 +50,23 @@ function ItemCard({ item, tab }) {
   return (
     <div className="flex-shrink-0 w-36 border border-primary/20 p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
       {/* 썸네일 - DB에서 imageUrl 필드로 교체 예정 */}
-      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-xs">
+      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">
         {item.imageUrl
           ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
           : '[ IMG ]'}
       </div>
 
       {/* 이름 */}
-      <p className="text-xs font-bold truncate text-text-main">
+      <p className="text-s font-bold truncate text-text-main font-pf-stardust">
         {item.name || item.title || `Item_${item.id ?? '??'}`}
       </p>
 
       {/* 탭별 부가 정보 */}
       {tab === 'gifted' && item.senderName && (
-        <p className="text-[10px] text-text-main/50 truncate">from: {item.senderName}</p>
+        <p className="text-[10px] text-text-main/50 truncate font-pf-stardust">from: {item.senderName}</p>
       )}
       {tab === 'inventory' && item.quantity != null && (
-        <p className="text-[10px] text-text-main/50">x{item.quantity}</p>
+        <p className="text-[10px] text-text-main/50 font-pf-stardust">x{item.quantity}</p>
       )}
     </div>
   );
@@ -137,7 +137,7 @@ function InventorySection() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                text-xs font-bold tracking-widest px-6 py-2 transition-colors duration-150
+                text-s font-bold tracking-widest px-6 py-2 transition-colors duration-150
                 ${activeTab === tab.id
                   ? 'text-primary border-b-2 border-primary -mb-px bg-primary/10'
                   : 'text-text-main/40 hover:text-text-main/70'}
@@ -151,13 +151,13 @@ function InventorySection() {
         {/* 아이템 목록 */}
         <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
           {isLoading ? (
-            <p className="text-text-main/50 text-xs self-center">로딩 중...</p>
+            <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
           ) : currentItems.length > 0 ? (
             currentItems.map((item, index) => (
               <ItemCard key={item.id ?? index} item={item} tab={activeTab} />
             ))
           ) : (
-            <p className="text-text-main/50 text-xs self-center">
+            <p className="text-text-main/50 text-s self-center font-pf-stardust">
               {activeTab === 'inventory'
                 ? '보유한 아이템이 없습니다.'
                 : '선물받은 아이템이 없습니다.'}
@@ -305,9 +305,10 @@ export default function MyPage() {
       <main className="relative z-10">
 
         {/* 프로필 + 정보 + 플레이리스트 */}
-        <section className="px-24 py-12 flex gap-4 min-h-[30vh] max-h-[50vh]">
-          {/* 프로필 이미지 */}
-          <div className="border border-primary/20 w-2/12 aspect-square flex flex-col items-center justify-center p-4">
+        <section className="px-12 py-12 bg-main relative overflow-hidden">
+          <div className="flex gap-4 min-h-[30vh] max-h-[50vh] max-w-6xl mx-auto">
+            {/* 프로필 이미지 */}
+            <div className="border border-primary/20 w-2/12 aspect-square flex flex-col items-center justify-center p-4">
             <input type="file" id="profile-upload" className="hidden" onChange={handleImageUpload} accept="image/*" />
             <label htmlFor="profile-upload" className="cursor-pointer w-full h-full flex items-center justify-center">
               {profileImage
@@ -328,7 +329,7 @@ export default function MyPage() {
 
             <div className="flex-1 overflow-y-auto min-h-0">
               {isLoadingPlaylist ? (
-                <p className="text-text-main/50 text-sm">로딩 중...</p>
+                <p className="text-text-main/50 text-sm font-pf-stardust">로딩 중...</p>
               ) : videoLinks.length > 0 ? (
                 <div className="space-y-2">
                   {videoLinks.map((video, index) => (
@@ -345,15 +346,15 @@ export default function MyPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-text-main/50 text-sm">선물받은 BGM이 아직 없습니다.</p>
+                <p className="text-text-main/50 text-sm font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
               )}
             </div>
 
             {nowPlayingIndex !== null && (
               <div className="mt-4 pt-4 border-t border-primary/20 flex-shrink-0">
-                <p className="text-xs text-primary truncate mb-2">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                <p className="text-s text-primary truncate mb-2 font-pf-stardust">♪ {videoLinks[nowPlayingIndex]?.title}</p>
 
-                <div className="text-xs text-text-main/70 mb-1 flex justify-between">
+                <div className="text-s text-text-main/70 mb-1 flex justify-between">
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
@@ -376,7 +377,7 @@ export default function MyPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-main/70">🔊</span>
+                  <span className="text-s text-text-main/70">🔊</span>
                   <input type="range" min="0" max="100" value={volume}
                     onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
                     className="flex-1 h-1 bg-primary/20 rounded cursor-pointer accent-primary" />
@@ -385,6 +386,7 @@ export default function MyPage() {
               </div>
             )}
           </div>
+        </div>
         </section>
 
         {/* 탭형 인벤토리 / 선물 섹션 */}
@@ -395,13 +397,14 @@ export default function MyPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
           <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
             <div className="md:w-1/4">
-              <span className="text-primary font-bold text-xs tracking-widest">// ARCHIVE_HISTORY</span>
-              <h3 className="text-4xl font-black italic mt-4 mb-6 leading-tight">EXP_CHRONOLOGY</h3>
-              <p className="text-text-main/50 text-xs leading-relaxed">
-                Tracing the evolution of TECH from the first Arc Reactor to the current Quantum Nexus protocols.
+              <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
+              <p className="text-text-main/50 text-s leading-relaxed font-pf-stardust">
+                무엇을 해냈나요?
               </p>
             </div>
-            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-primary/20" />
+            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-primary/20">
+            뱃지 목록
+            </div>
           </div>
         </section>
 
@@ -409,11 +412,11 @@ export default function MyPage() {
 
       <footer className="px-12 py-8 border-t border-primary/20 bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
         <div className="flex gap-12">
-          <p>Local_Time: 14:22:09 GMT</p>
-          <p>System_Temp: 32.5°C</p>
-          <p>Link_Strength: 99%</p>
+          <p className="font-pf-stardust">Local_Time: ?</p>
+          <p className="font-pf-stardust">System_Temp: 14.5°C</p>
+          <p className="font-pf-stardust">Link_Strength: 98%</p>
         </div>
-        <p className="text-primary">© INDUSTRIES // GLOBAL RESEARCH DIV</p>
+        <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>
       </footer>
     </div>
   );

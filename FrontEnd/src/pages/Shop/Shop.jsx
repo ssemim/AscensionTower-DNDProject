@@ -40,10 +40,10 @@ const Shop = () => {
       <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-primary/20 pb-4 relative z-10">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 border-2 border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
-            <span className="text-3xl font-black -rotate-45 text-text-main">S</span>
+            <span className="text-sm font-black -rotate-45 text-text-main">logo</span>
           </div>
           <div>
-            <h1 className="text-4xl font-black italic tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">Armory_Exchange</h1>
+            <h1 className="text-4xl font-black italic tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">아무튼간지나는상점이름</h1>
             <p className="text-[10px] text-primary/70 font-bold tracking-[0.4em] uppercase">Authorized Access Only // Sector_04</p>
           </div>
         </div>
@@ -105,11 +105,7 @@ const Shop = () => {
                 `}
               >
                 {!item.isEmpty && (
-                  <>
-                    <div className="w-10 h-10 border border-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <div className="w-6 h-6 bg-primary/20"></div>
-                    </div>
-                  </>
+                  <img src={item.src} alt={item.name} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform" />
                 )}
                 <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{item.id}</span>
               </div>
