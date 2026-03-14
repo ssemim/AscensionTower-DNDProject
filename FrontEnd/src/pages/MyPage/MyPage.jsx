@@ -48,7 +48,7 @@ function normalizeResponse(data) {
 // ─────────────────────────────────────────────
 function ItemCard({ item, tab }) {
   return (
-    <div className="flex-shrink-0 w-36 border border-primary/20 p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
+    <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
       {/* 썸네일 - DB에서 imageUrl 필드로 교체 예정 */}
       <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">
         {item.imageUrl
@@ -125,13 +125,13 @@ function InventorySection() {
   const currentItems = activeTab === 'inventory' ? inventoryItems : giftedItems;
 
   return (
-    <section className="px-12 py-6 bg-main border-y border-primary/20 relative overflow-hidden">
+    <section className="px-12 py-6 bg-main border-y border-border-primary relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
 
       <div className="flex flex-col gap-4 max-w-6xl mx-auto">
 
         {/* 탭 헤더 */}
-        <div className="flex items-end gap-0 border-b border-primary/20">
+        <div className="flex items-end gap-0 border-b border-border-primary">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -139,7 +139,7 @@ function InventorySection() {
               className={`
                 text-s font-bold tracking-widest px-6 py-2 transition-colors duration-150
                 ${activeTab === tab.id
-                  ? 'text-primary border-b-2 border-primary -mb-px bg-primary/10'
+                  ? 'text-primary border-b-2 border-border-primary -mb-px bg-primary/10'
                   : 'text-text-main/40 hover:text-text-main/70'}
               `}
             >
@@ -295,7 +295,7 @@ export default function MyPage() {
   return (
     <div className="min-h-screen bg-main text-text-main font-mono relative">
       <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
-      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-20 dark:opacity-100" />
+      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
 
       {/* 숨겨진 YouTube 플레이어 - 항상 마운트 유지 */}
       <div className="hidden">
@@ -305,26 +305,33 @@ export default function MyPage() {
       <main className="relative z-10">
 
         {/* 프로필 + 정보 + 플레이리스트 */}
-        <section className="px-12 py-12 bg-main relative overflow-hidden">
-          <div className="flex gap-4 min-h-[30vh] max-h-[50vh] max-w-6xl mx-auto">
+        <section className="px-4 md:px-12 py-12 bg-main relative overflow-hidden">
+          <div className="flex flex-col md:flex-row gap-4 min-h-0 md:min-h-[30vh] max-h-none md:max-h-[50vh] max-w-6xl mx-auto">
             {/* 프로필 이미지 */}
-            <div className="border border-primary/20 w-2/12 aspect-square flex flex-col items-center justify-center p-4">
-            <input type="file" id="profile-upload" className="hidden" onChange={handleImageUpload} accept="image/*" />
-            <label htmlFor="profile-upload" className="cursor-pointer w-full h-full flex items-center justify-center">
-              {profileImage
-                ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary">Upload</div>
-              }
-            </label>
-          </div>
+            <div className="border border-border-primary w-full md:w-2/12 aspect-square flex flex-col">
+              <input type="file" id="profile-upload" className="hidden" onChange={handleImageUpload} accept="image/*" />
+              {/* 이미지 표시 영역 */}
+              <div className="flex-1 flex items-center justify-center p-4">
+                {profileImage
+                  ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary/50">No Image</div>
+                }
+              </div>
+              {/* 구분선 */}
+              <div className="border-t border-border-primary"></div>
+              {/* 업로드 버튼 */}
+              <label htmlFor="profile-upload" className="cursor-pointer bg-primary hover:bg-primary/80 text-white text-center py-2 px-4 text-sm font-bold transition-colors">
+                Upload
+              </label>
+            </div>
 
           {/* 정보 */}
-          <div className="w-6/12 border border-primary/20 p-4">
+          <div className="w-full md:w-6/12 border border-border-primary p-4">
           <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">INFO</h4>
           </div>
 
           {/* 플레이리스트 */}
-          <div className="w-4/12 border border-primary/20 p-4 flex flex-col overflow-hidden">
+          <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col overflow-hidden">
             <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">PLAYLIST</h4>
 
             <div className="flex-1 overflow-y-auto min-h-0">
@@ -336,7 +343,7 @@ export default function MyPage() {
                     <button
                       key={video.id ?? index}
                       onClick={() => handlePlay(index)}
-                      className={`w-full text-left p-2 rounded transition-colors duration-200 ${
+                      className={`w-full text-left p-2 rounded transition-colors duration-00 ${
                         nowPlayingIndex === index ? 'bg-primary/30 text-text-main' : 'hover:bg-primary/10'
                       }`}
                     >
@@ -351,7 +358,7 @@ export default function MyPage() {
             </div>
 
             {nowPlayingIndex !== null && (
-              <div className="mt-4 pt-4 border-t border-primary/20 flex-shrink-0">
+              <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
                 <p className="text-s text-primary truncate mb-2 font-pf-stardust">♪ {videoLinks[nowPlayingIndex]?.title}</p>
 
                 <div className="text-s text-text-main/70 mb-1 flex justify-between">
@@ -362,25 +369,25 @@ export default function MyPage() {
                 <input
                   type="range" min="0" max={duration || 0} value={currentTime}
                   onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-primary/20 rounded cursor-pointer accent-primary mb-4"
+                  className="w-full h-1 bg-primary/0 rounded cursor-pointer accent-primary mb-4"
                 />
 
                 <div className="flex gap-2 mb-4">
                   <button onClick={handlePrev} disabled={nowPlayingIndex === 0}
-                    className="bg-primary/20 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
+                    className="bg-primary/0 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
                   <button onClick={handlePlayPause}
-                    className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">
+                    className="flex-1 bg-primary/0 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">
                     {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
                   </button>
                   <button onClick={handleNext} disabled={nowPlayingIndex === videoLinks.length - 1}
-                    className="bg-primary/20 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
+                    className="bg-primary/0 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span className="text-s text-text-main/70">🔊</span>
                   <input type="range" min="0" max="100" value={volume}
                     onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-                    className="flex-1 h-1 bg-primary/20 rounded cursor-pointer accent-primary" />
+                    className="flex-1 h-1 bg-primary/0 rounded cursor-pointer accent-primary" />
                   <span className="text-xs text-text-main/70 w-8 text-right">{volume}</span>
                 </div>
               </div>
@@ -393,7 +400,7 @@ export default function MyPage() {
         <InventorySection />
 
         {/* ARCHIVE_HISTORY */}
-        <section className="px-12 py-12 bg-main border-b border-primary/20 relative overflow-hidden">
+        <section className="px-12 py-12 bg-main border-b border-border-primary relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
           <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
             <div className="md:w-1/4">
@@ -402,7 +409,7 @@ export default function MyPage() {
                 무엇을 해냈나요?
               </p>
             </div>
-            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-primary/20">
+            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-border-primary">
             뱃지 목록
             </div>
           </div>
@@ -410,7 +417,7 @@ export default function MyPage() {
 
       </main>
 
-      <footer className="px-12 py-8 border-t border-primary/20 bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
+      <footer className="px-12 py-8 border-t border-border-primary bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
         <div className="flex gap-12">
           <p className="font-pf-stardust">Local_Time: ?</p>
           <p className="font-pf-stardust">System_Temp: 14.5°C</p>

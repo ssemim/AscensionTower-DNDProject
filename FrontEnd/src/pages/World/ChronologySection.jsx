@@ -32,9 +32,9 @@ const ChronologySection = () => {
               <div key={index} className={`flex flex-col md:flex-row items-center gap-8 ${event.side === 'right' ? 'md:flex-row-reverse' : ''}`}>
                 
                 {/* 5. 컨텐츠 박스 */}
-                <div className="w-full md:flex-1 p-6 border border-primary/30 bg-main/40 backdrop-blur-md relative group hover:border-primary transition-all shadow-sm hover:shadow-stark-glow">
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+                <div className="w-full md:flex-1 p-6 border border-border-primary/30 bg-main/40 backdrop-blur-md relative group hover:border-border-primary transition-all shadow-sm hover:shadow-stark-glow">
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-border-primary"></div>
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-border-primary"></div>
                   
                   <span className="text-[10px] text-primary/70 tracking-widest">DATE_REF: {event.date}</span>
                   <h3 className="text-xl font-bold mt-1 mb-2 text-text-main dark:!text-white">{event.title}</h3>
@@ -43,7 +43,7 @@ const ChronologySection = () => {
 
                 {/* 6. 중앙 아이콘 */}
                 <div className="relative flex-none z-10 my-6 md:my-0">
-                  <div className="w-10 h-10 border border-primary rotate-45 flex items-center justify-center bg-main shadow-stark-glow">
+                  <div className="w-10 h-10 border border-border-primary rotate-45 flex items-center justify-center bg-main shadow-stark-glow">
                     <div className="w-2 h-2 bg-primary rotate-0 animate-pulse"></div>
                   </div>
                 </div>

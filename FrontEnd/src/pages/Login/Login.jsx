@@ -18,10 +18,14 @@ export default function Login() {
       <div className="min-h-screen bg-main flex items-center justify-center">
 
         <div className="absolute inset-0 opacity-[0.05] bg-stark-grid bg-[length:40px_40px] pointer-events-none"></div>
+        {/* Background HUD Grid Layout */}
+        <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+        </div>
 
         <div className="w-full max-w-md relative">
 
-          <div className="relative bg-main/60 border border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
+          <div className="relative bg-main border border-border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
 
             {/* Top glow line */}
 
@@ -32,7 +36,7 @@ export default function Login() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
-          LOGIN
+          로그인
             </h1>
             <p className="text-xs text-primary/60 dark:text-white/60 tracking-widest">
               AUTHENTICATION REQUIRED
@@ -63,7 +67,7 @@ export default function Login() {
                   onChange={(e) => setUsername(e.target.value)}
                   onFocus={() => setIsFocused('username')}
                   onBlur={() => setIsFocused(null)}
-                  className="w-full bg-white/90 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
+                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="ID"
                 />
                 <div
@@ -94,7 +98,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setIsFocused('password')}
                   onBlur={() => setIsFocused(null)}
-                  className="w-full bg-white/90 border border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-primary focus:shadow-stark-glow transition-all duration-300"
+                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="PW"
                 />
                 <div
@@ -123,7 +127,7 @@ export default function Login() {
           </form>
 
           {/* Status Indicator */}
-          <div className="mt-8 pt-6 border-t border-primary/30">
+          <div className="mt-8 pt-6 border-t border-border-primary/30">
             <div className="flex items-center justify-center gap-2 text-primary/50 dark:text-white/50 text-xs">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--color-primary-glow)]"></div>
               <span className="tracking-wider">SECURE CONNECTION</span>
@@ -131,10 +135,10 @@ export default function Login() {
           </div>
 
           {/* Corner decorations */}
-          <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-primary/50"></div>
-          <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-primary/50"></div>
-          <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-primary/50"></div>
-          <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-primary/50"></div>
+          <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-border-primary/50"></div>
+          <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-border-primary/50"></div>
+          <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-border-primary/50"></div>
+          <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-border-primary/50"></div>
         </div>
 
         {/* Bottom glow */}

@@ -4,15 +4,16 @@
 
 @layer base {
   :root {
-    --color-bg: #f0f0f0f0;
+    --color-bg:#F0F2F5;
     --color-text-main: #0f172a;
     --color-primary: #2563eb;
     --color-primary-glow: rgba(37, 99, 235, 0.2);
     --grid-color: rgba(37, 99, 235, 0.05);
+     --color-border-primary: #8C92AC;
   }
 
   .dark {
-    --color-bg: #02060a;
+    --color-bg: #19181d;
     --color-text-main: #e2e8f0;
     --color-primary: #22d3ee;
     --color-primary-glow: rgba(34, 211, 238, 0.4);

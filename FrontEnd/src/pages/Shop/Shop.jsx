@@ -7,9 +7,9 @@ import itemsData from './item.js';
 
 // 공통 UI 컴포넌트: HUD 스타일의 테두리 박스
 const HUDBox = ({ children, className = "" }) => (
-  <div className={`relative border border-primary/20 bg-slate-200/10 dark:bg-black/40 backdrop-blur-md ${className}`}>
-    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary"></div>
-    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary"></div>
+  <div className={`relative border border-border-primary bg-slate-200/10 dark:bg-black/40 backdrop-blur-md ${className}`}>
+    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-border-primary"></div>
+    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-border-primary"></div>
     {children}
   </div>
 );
@@ -37,10 +37,10 @@ const Shop = () => {
       </div>
 
       {/* Header HUD */}
-      <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-primary/20 pb-4 relative z-10">
+      <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-border-primary pb-4 relative z-10">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 border-2 border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
-            <span className="text-sm font-black -rotate-45 text-text-main">logo</span>
+          <div className="w-14 h-14 border-2 border-border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
+            <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
           </div>
           <div>
             <h1 className="text-4xl font-black italic tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">아무튼간지나는상점이름</h1>
@@ -62,8 +62,8 @@ const Shop = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
             {/* NPC Visual Placeholder */}
             <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-pulse">
-              <div className="w-32 h-32 border-2 border-primary rounded-full mb-6 flex items-center justify-center">
-                <div className="w-24 h-24 border border-primary/30 rounded-full animate-spin-slow"></div>
+              <div className="w-32 h-32 border-2 border-border-primary rounded-full mb-6 flex items-center justify-center">
+                <div className="w-24 h-24 border border-border-primary rounded-full animate-spin-slow"></div>
               </div>
               <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_K3-V4</p>
               <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">The_Merchant</h3>
@@ -91,7 +91,7 @@ const Shop = () => {
 
         {/* Center: Inventory Grid (5 cols) */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-          <div className="grid grid-cols-4 gap-2 bg-main p-4 border border-primary/30 h-full">
+          <div className="grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full">
             {items.map((item) => (
               <div
                 key={item.id}
@@ -99,8 +99,8 @@ const Shop = () => {
                 className={`
                   aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group
                   ${item.isEmpty 
-                    ? 'border-primary/20 bg-main/40 opacity-30' 
-                    : 'border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}
+                    ? 'border-border-primary bg-main/40 opacity-30' 
+                    : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}
                   ${selected?.id === item.id ? 'border-primary bg-primary/30 ring-1 ring-primary' : ''}
                 `}
               >
@@ -115,23 +115,23 @@ const Shop = () => {
 
         {/* Right: Inspection & Cart HUD (4 cols) */}
         <div className="col-span-12 lg:col-span-4 flex flex-col font-dos-gothic">
-          <div className="flex border-b border-primary/30">
+          <div className="flex border-b border-border-primary">
               <button 
                 onClick={() => setRightPanelTab('inspect')}
-                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'inspect' ? 'bg-primary/20 text-text-main border-b-2 border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
+                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'inspect' ? 'bg-primary/20 text-text-main border-b-2 border-border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
               >
                 Inspect
               </button>
               <button 
                 onClick={() => setRightPanelTab('cart')}
-                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'cart' ? 'bg-primary/20 text-text-main border-b-2 border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
+                className={`flex-1 py-2 px-4 text-xs font-black uppercase tracking-widest transition-all ${rightPanelTab === 'cart' ? 'bg-primary/20 text-text-main border-b-2 border-border-primary' : 'text-primary/70 hover:bg-primary/10'}`}
               >
                 Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
               </button>
             </div>
           {rightPanelTab === 'inspect' && (
-            <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-primary shadow-stark-glow">
-              <div className="mb-8 border-b border-primary/20 pb-4">
+            <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-border-primary shadow-stark-glow">
+              <div className="mb-8 border-b border-border-primary pb-4">
                 <span className="bg-primary/90 text-text-main/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">{selected?.rarity || 'SCANNING'}</span>
                 <h2 className="text-3xl font-black text-text-main mt-2 tracking-wide italic uppercase">{selected?.name || '---'}</h2>
                 <p className="text-lg font-black text-primary/80 mt-2">{selected?.price ? `${selected.price} CR` : 'N/A'}</p>
@@ -151,7 +151,7 @@ const Shop = () => {
                   </div>
                 </div>
 
-                <div className="p-4 border-l-2 border-primary bg-primary/5 italic text-[16px] leading-relaxed text-text-main/60 mt-8">
+                <div className="p-4 border-l-2 border-border-primary bg-primary/5 italic text-[16px] leading-relaxed text-text-main/60 mt-8">
                   {`> LOG_READOUT: ${selected?.desc || 'Awaiting selection for neural link diagnostic...'}`}
                 </div>
               </div>
@@ -171,7 +171,7 @@ const Shop = () => {
             </HUDBox>
           )}
           {rightPanelTab === 'cart' && (
-             <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-primary shadow-stark-glow">
+             <HUDBox className="p-6 bg-main/80 flex-1 flex flex-col border-t-0 border-border-primary shadow-stark-glow">
               {cartItems.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center text-xl">
                    <p className="text-sm text-primary/70 italic mb-4">카트가 비어있습니다</p>
@@ -192,7 +192,7 @@ const Shop = () => {
 
                   <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2">
                     {cartItems.map(item => (
-                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-primary/5 py-4 px-2 border-l-2 border-primary">
+                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-primary/5 py-4 px-2 border-l-2 border-border-primary">
                         <div className="col-span-6">
                           <p className="text-base space-x-1 truncate">{item.name}</p>
                         </div>
@@ -213,7 +213,7 @@ const Shop = () => {
                     합계: {cartItems.reduce((sum, itm) => sum + parseFloat(itm.price.replace(/,/g, '')) * itm.quantity, 0)} CR
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-primary/30 flex justify-end gap-4">
+                  <div className="mt-4 pt-4 border-t border-border-primary flex justify-end gap-4">
                     <button className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
                       구매하기
                     </button>

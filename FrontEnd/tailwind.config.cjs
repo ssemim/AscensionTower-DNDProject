@@ -16,6 +16,7 @@ module.exports = {
         main: 'var(--color-bg)',
         primary: 'var(--color-primary)',
         'text-main': 'var(--color-text-main)',
+        'border-primary': 'var(--color-border-primary)',
       },
       boxShadow: {
         'stark-glow': '0 0 15px var(--color-primary-glow)',

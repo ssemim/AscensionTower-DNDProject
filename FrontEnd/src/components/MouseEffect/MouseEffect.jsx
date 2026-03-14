@@ -82,7 +82,7 @@ const MouseEffect = () => {
               <div className="absolute cross-line-v" />
               
               {/* 3. 안쪽 보조 원 (살짝 투명하게) */}
-              <div className="absolute w-10 h-10 border-2 border-primary/60 rounded-full" />
+              <div className="absolute w-10 h-10 border-2 border-border-primary/60 rounded-full" />
               
               {/* 4. 정중앙 점 */}
               <div className="absolute w-2 h-2 bg-text-main rounded-full shadow-[0_0_10px_var(--color-text-main)]" />

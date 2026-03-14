@@ -145,8 +145,8 @@ function BlackJack() {
                     key={card.id}
                     className={`w-24 h-36 border-2 flex items-center justify-center relative transition-all duration-500 transform animate-slide-in 
                     ${card.hidden
-                        ? 'border-primary/20 bg-primary/5'
-                        : 'border-primary bg-main shadow-stark-glow'}`}
+                        ? 'border-border-primary/20 bg-primary/5'
+                        : 'border-border-primary bg-main shadow-stark-glow'}`}
                   >
                     <span className={`text-4xl font-black italic ${card.hidden ? 'text-primary/30' : 'text-text-main'}`}>{card.hidden ? '?' : card.value}</span>
                     {!card.hidden && <div className="absolute top-2 right-2 w-2 h-2 bg-primary" />}
@@ -165,7 +165,7 @@ function BlackJack() {
                 {winner === 'PUSH' && '무승부'}
               </div>
             )}
-            <div className={`text-xl font-black italic px-8 py-2 border-y-2 border-primary/20 transition-all ${isBlackjack ? 'text-primary border-primary bg-primary/10' : ''}`}>
+            <div className={`text-xl font-black italic px-8 py-2 border-y-2 border-border-primary/20 transition-all ${isBlackjack ? 'text-primary border-border-primary bg-primary/10' : ''}`}>
               현재 점수: {playerScore}
             </div>
           </div>
@@ -174,7 +174,7 @@ function BlackJack() {
           <div className="flex flex-col items-center  font-dos-gothic">
             <div className="flex gap-4 h-36 items-center">
               {playerHand.map((card) => (
-                <div key={card.id} className="w-24 h-36 border-2 border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in">
+                <div key={card.id} className="w-24 h-36 border-2 border-border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in">
                   <span className="text-4xl font-black italic text-text-main">{card.value}</span>
                   <div className="absolute bottom-2 right-2 w-2 h-2 bg-primary" />
                 </div>
@@ -194,14 +194,14 @@ function BlackJack() {
             >
               {gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '게임 시작' : '게임 중'}
             </button>
-            <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-primary/30 hover:border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
-            <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-primary/30 hover:border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
+            <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
+            <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
           </div>
         </aside>
       </main>
 
       {/* 5. FOOTER SYSTEM LOG */}
-      <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t border-primary/20 bg-main/80 backdrop-blur-sm flex justify-between items-center text-[8px] font-bold text-primary/70 uppercase tracking-widest">
+      <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t border-border-primary/20 bg-main/80 backdrop-blur-sm flex justify-between items-center text-[8px] font-bold text-primary/70 uppercase tracking-widest">
         <div className="flex gap-8">
           <span>Dealer</span>
           <span>system : ...</span>

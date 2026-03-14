@@ -37,7 +37,7 @@ export default function Menu({ isOpen, onToggle }) {
       <aside
         className={`
           fixed top-0 left-0 h-screen w-64 z-50
-          bg-main border-r border-primary/30 backdrop-blur-sm
+          bg-main border-r border-border-primary/30 backdrop-blur-sm
           transition-transform duration-300
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           ${isDark ? 'text-white' : 'text-text-main'}
@@ -66,7 +66,7 @@ export default function Menu({ isOpen, onToggle }) {
           {/* Header */}
           <NavLink
             to="/"
-            className="block mb-8 pb-6 border-b border-primary/30"
+            className="block mb-8 pb-6 border-b border-border-primary/30"
           >
             <h4 className="text-2xl font-bold text-primary italic">THE TOWER :</h4>
             <h4 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-text-main'}`}>
@@ -98,7 +98,7 @@ export default function Menu({ isOpen, onToggle }) {
           </nav>
 
           {/* 🔥 Theme Toggle Section (하단 고정) */}
-          <div className="pt-6 border-t border-primary/30">
+          <div className="pt-6 border-t border-border-primary/30">
             <div className="flex items-center justify-between px-2">
               <span className="text-xs font-bold text-primary/60 uppercase tracking-tighter">
                 System Theme
@@ -106,7 +106,7 @@ export default function Menu({ isOpen, onToggle }) {
               <button
                 onClick={toggleTheme}
                 className={`
-                  relative w-12 h-6 rounded-full border border-primary/50 transition-all
+                  relative w-12 h-6 rounded-full border border-border-primary/50 transition-all
                   ${isDark ? 'bg-primary/10 shadow-stark-glow' : 'bg-gray-200'}
                 `}
               >
