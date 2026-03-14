@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Menu from '../../components/Menu/Menu';
 import YouTube from 'react-youtube';
 import '../Landing/index.css';
+import badges from './badge.js';
 
 // 유튜브 URL에서 비디오 ID를 추출하는 헬퍼 함수
 function getYouTubeID(url) {
@@ -77,6 +78,7 @@ function ItemCard({ item, tab }) {
 // ─────────────────────────────────────────────
 function InventorySection() {
   const TABS = [
+    { id: 'friends',   label: 'FRIENDS'   },
     { id: 'inventory', label: 'INVENTORY' },
     { id: 'gifted',    label: 'GIFTED'    },
   ];
@@ -84,6 +86,7 @@ function InventorySection() {
   const [activeTab, setActiveTab] = useState('inventory');
   const [inventoryItems, setInventoryItems] = useState([]);
   const [giftedItems, setGiftedItems] = useState([]);
+  const [friendsItems, setFriendsItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // 탭이 바뀔 때마다 해당 데이터 fetch (이미 로드된 탭은 재요청 생략)
@@ -91,7 +94,8 @@ function InventorySection() {
     const fetchItems = async () => {
       const alreadyLoaded =
         (activeTab === 'inventory' && inventoryItems.length > 0) ||
-        (activeTab === 'gifted'    && giftedItems.length > 0);
+        (activeTab === 'gifted'    && giftedItems.length > 0) ||
+        (activeTab === 'friends'   && friendsItems.length > 0);
       if (alreadyLoaded) return;
 
       setIsLoading(true);
@@ -102,7 +106,9 @@ function InventorySection() {
         const endpoint =
           activeTab === 'inventory'
             ? `/api/inventory/${userId}`   // 백엔드 엔드포인트 확정 시 수정
-            : `/api/gifts/${userId}`;      // 백엔드 엔드포인트 확정 시 수정
+            : activeTab === 'gifted'
+            ? `/api/gifts/${userId}`      // 백엔드 엔드포인트 확정 시 수정
+            : `/api/friends/${userId}`;   // 백엔드 엔드포인트 확정 시 수정
 
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`${activeTab} 로드 실패`);
@@ -111,7 +117,8 @@ function InventorySection() {
         const items = normalizeResponse(data);
 
         if (activeTab === 'inventory') setInventoryItems(items);
-        else setGiftedItems(items);
+        else if (activeTab === 'gifted') setGiftedItems(items);
+        else setFriendsItems(items);
       } catch (err) {
         console.error('아이템 로드 실패:', err);
       } finally {
@@ -122,7 +129,7 @@ function InventorySection() {
     fetchItems();
   }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const currentItems = activeTab === 'inventory' ? inventoryItems : giftedItems;
+  const currentItems = activeTab === 'inventory' ? inventoryItems : activeTab === 'gifted' ? giftedItems : friendsItems;
 
   return (
     <section className="px-12 py-6 bg-main border-y border-border-primary relative overflow-hidden">
@@ -149,21 +156,43 @@ function InventorySection() {
         </div>
 
         {/* 아이템 목록 */}
-        <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {isLoading ? (
-            <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
-          ) : currentItems.length > 0 ? (
-            currentItems.map((item, index) => (
-              <ItemCard key={item.id ?? index} item={item} tab={activeTab} />
-            ))
-          ) : (
-            <p className="text-text-main/50 text-s self-center font-pf-stardust">
-              {activeTab === 'inventory'
-                ? '보유한 아이템이 없습니다.'
-                : '선물받은 아이템이 없습니다.'}
-            </p>
-          )}
-        </div>
+        {activeTab === 'friends' ? (
+          <div className="min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4 flex items-center justify-left">
+            {isLoading ? (
+              <p className="text-text-main/50 text-s font-pf-stardust">로딩 중...</p>
+            ) : currentItems.length > 0 ? (
+              <div className="space-y-2 w-full">
+                {currentItems.map((friend, index) => (
+                  <div key={friend.id ?? index} className="border border-border-primary p-4 flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary/50">👤</div>
+                    <div>
+                      <p className="font-bold text-text-main font-pf-stardust">{friend.name || `Friend ${index + 1}`}</p>
+                      <p className="text-sm text-text-main/50">{friend.status || 'Online'}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-text-main/50 text-lg font-pf-stardust">친구가 없습니다.</p>
+            )}
+          </div>
+        ) : (
+          <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {isLoading ? (
+              <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
+            ) : currentItems.length > 0 ? (
+              currentItems.map((item, index) => (
+                <ItemCard key={item.id ?? index} item={item} tab={activeTab} />
+              ))
+            ) : (
+              <p className="text-text-main/50 text-lg self-center font-pf-stardust">
+                {activeTab === 'inventory'
+                  ? '보유한 아이템이 없습니다.'
+                  : '선물받은 아이템이 없습니다.'}
+              </p>
+            )}
+          </div>
+        )}
 
       </div>
     </section>
@@ -176,6 +205,9 @@ function InventorySection() {
 export default function MyPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+
+  // 사용자 정보
+  const [userInfo, setUserInfo] = useState({ name: '', age: '', position: '', point: 0 });
 
   // 플레이리스트
   const [videoLinks, setVideoLinks] = useState([]);
@@ -221,6 +253,22 @@ export default function MyPage() {
       }
     };
     fetchUserGifts();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      try {
+        const res = await fetch(`/api/user/${userId}`);
+        if (!res.ok) throw new Error('User info fetch failed');
+        const data = await res.json();
+        setUserInfo(data);
+      } catch (err) {
+        console.error('User info fetch error:', err);
+      }
+    };
+    fetchUserInfo();
   }, []);
 
   useEffect(() => {
@@ -293,6 +341,7 @@ export default function MyPage() {
   };
 
   return (
+  <>
     <div className="min-h-screen bg-main text-text-main font-mono relative">
       <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
       <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
@@ -328,6 +377,12 @@ export default function MyPage() {
           {/* 정보 */}
           <div className="w-full md:w-6/12 border border-border-primary p-4">
           <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">INFO</h4>
+          <ul className="space-y-2 font-pf-stardust text-lg text-text-main/70">
+            <li className="border-b border-border-primary/30 pb-1">NAME : {userInfo.name}</li>
+            <li className="border-b border-border-primary/30 pb-1">AGE : {userInfo.age}</li>
+            <li className="border-b border-border-primary/30 pb-1">POSITION : {userInfo.position}</li>
+            <li className="pb-1">POINT : {userInfo.point}</li>
+          </ul>
           </div>
 
           {/* 플레이리스트 */}
@@ -353,7 +408,7 @@ export default function MyPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-text-main/50 text-sm font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
+                <p className="text-text-main/50 text-lg font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
               )}
             </div>
 
@@ -409,8 +464,30 @@ export default function MyPage() {
                 무엇을 해냈나요?
               </p>
             </div>
-            <div className="md:w-2/3 flex gap-8 overflow-x-auto pb-8 scrollbar-hide border border-border-primary">
-            뱃지 목록
+            <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
+              {badges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className={`
+                    aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-pf-stardust text-lg text-text-main/70
+                    ${badge.isEmpty 
+                      ? 'border-border-primary bg-main/40 opacity-30' 
+                      : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}
+                  `}
+                >
+                  {!badge.isEmpty && (
+                    <>
+                      <div className="text-sm font-bold opacity-100 group-hover:opacity-0 transition-opacity">{badge.name}</div>
+                      <div className="absolute inset-0 bg-main/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                        <div className="text-center text-xs">
+                          {badge.desc}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -426,5 +503,6 @@ export default function MyPage() {
         <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>
       </footer>
     </div>
+  </>
   );
 }
