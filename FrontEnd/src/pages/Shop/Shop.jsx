@@ -43,13 +43,13 @@ const Shop = () => {
             <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
           </div>
           <div>
-            <h1 className="text-4xl font-black italic tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">아무튼간지나는상점이름</h1>
+            <h1 className="text-4xl font-black italic font-nexon-warhaven tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">36TH FLOOR</h1>
             <p className="text-[10px] text-primary/70 font-bold tracking-[0.4em] uppercase">Authorized Access Only // Sector_04</p>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-black text-text-main italic tracking-widest">
-            포인트 변수 <span className="text-primary/80 text-sm italic">CR</span>
+          <div className="text-3xl font-pf-stardust font-black text-text-main italic tracking-widest">
+            2400 <span className="text-primary/80 text-sm italic">CR</span>
           </div>
         </div>
       </header>

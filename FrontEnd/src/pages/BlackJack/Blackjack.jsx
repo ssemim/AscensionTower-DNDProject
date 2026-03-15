@@ -1,6 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '../../components/ThemeProvider/ThemeProvider';
 import { createDeck, shuffleDeck, calculateScore, getWinner } from './GameLogic';
+
+function BettingModal({ onBet, onCancel, balance }) {
+    const [amount, setAmount] = useState('');
+
+    const handleBetClick = () => {
+        const betValue = parseInt(amount, 10);
+        if (betValue > 0 && betValue <= balance) {
+            onBet(betValue);
+        } else {
+            alert('유효하지 않은 베팅 금액입니다.');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+            <div className="bg-main border border-border-primary p-6 rounded-lg shadow-stark-glow flex flex-col gap-4 w-full max-w-sm animate-slide-in">
+                <h2 className="text-xl font-bold text-primary tracking-widest uppercase">얼마를 거시겠습니까?</h2>
+                <p className="text-sm text-text-main/70">보유 포인트: {balance} P</p>
+                <input 
+                    type="number" 
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="베팅 금액 입력"
+                    className="bg-primary/10 border border-border-primary/50 p-2 text-text-main w-full focus:outline-none focus:border-primary"
+                    autoFocus
+                />
+                <div className="grid grid-cols-2 gap-2">
+                    <button onClick={onCancel} className="py-3 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-xs transition-all">취소</button>
+                    <button onClick={handleBetClick} className="py-3 bg-primary text-main font-black uppercase text-xs tracking-widest hover:bg-text-main hover:text-primary transition-all">확인</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 function BlackJack() {
   const [deck, setDeck] = useState([]);
@@ -9,24 +42,44 @@ function BlackJack() {
   const [playerScore, setPlayerScore] = useState(0);
   const [dealerScore, setDealerScore] = useState(0);
   const [winner, setWinner] = useState(null); // 'PLAYER', 'DEALER', 'PUSH'
-  const [isBlackjack, setIsBlackjack] = useState(false);
   const [gameStatus, setGameStatus] = useState('IDLE'); // IDLE, PLAYING, DEALER_TURN, ENDED
-  const { isDark } = useTheme();
+  
+  const [betAmount, setBetAmount] = useState(0);
+  const [balance, setBalance] = useState(1000);
+  const [hearts, setHearts] = useState(3);
+  const [isBetting, setIsBetting] = useState(false);
+  const [roundResult, setRoundResult] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
 
-  // 블랙잭(21) 달성 시 이펙트 트리거
-  useEffect(() => {
-    if (playerScore === 21 && playerHand.length === 2) {
-      setIsBlackjack(true);
-      const timer = setTimeout(() => setIsBlackjack(false), 3000);
-      return () => clearTimeout(timer);
+  const isBlackjack = playerScore === 21 && playerHand.length === 2;
+
+  const stand = useCallback(() => {
+    if (gameStatus !== 'PLAYING') return;
+    setGameStatus('DEALER_TURN');
+  }, [gameStatus]);
+
+  const hit = () => {
+    if (gameStatus !== 'PLAYING') return;
+
+    const newDeck = [...deck];
+    const newCard = newDeck.pop();
+    const newPlayerHand = [...playerHand, newCard];
+    const newPlayerScore = calculateScore(newPlayerHand);
+
+    setDeck(newDeck);
+    setPlayerHand(newPlayerHand);
+    setPlayerScore(newPlayerScore);
+
+    if (newPlayerScore > 21) {
+      setWinner('DEALER');
+      setGameStatus('DEALER_TURN'); // Player busts, go to dealer turn to reveal cards and process result
     }
-  }, [playerScore, playerHand.length]);
+  };
 
-  // 게임 시작 및 카드 분배
   const dealCards = useCallback(() => {
     setGameStatus('PLAYING');
-    setIsBlackjack(false);
     setWinner(null);
+    setRoundResult(0);
 
     const newDeck = shuffleDeck(createDeck());
     
@@ -42,37 +95,23 @@ function BlackJack() {
     setDealerScore(calculateScore(dealerInitialHand));
 
     if (initialPlayerScore === 21) {
-      // 플레이어가 블랙잭인 경우, 즉시 딜러 턴 진행
       stand();
     }
-  }, []);
+  }, [stand]);
 
-  // Hit: 카드 한 장 더 받기
-  const hit = () => {
-    if (gameStatus !== 'PLAYING') return;
-
-    const newDeck = [...deck];
-    const newCard = newDeck.pop();
-    const newPlayerHand = [...playerHand, newCard];
-    const newPlayerScore = calculateScore(newPlayerHand);
-
-    setDeck(newDeck);
-    setPlayerHand(newPlayerHand);
-    setPlayerScore(newPlayerScore);
-
-    if (newPlayerScore > 21) {
-      setWinner('DEALER');
-      setGameStatus('ENDED');
-    }
+  const handleStartBetting = () => {
+    if (gameOver) return;
+    setRoundResult(0);
+    setIsBetting(true);
   };
 
-  // Stand: 차례를 딜러에게 넘김
-  const stand = () => {
-    if (gameStatus !== 'PLAYING') return;
-    setGameStatus('DEALER_TURN');
+  const handlePlaceBet = (amount) => {
+      setBetAmount(amount);
+      setBalance(prev => prev - amount);
+      setIsBetting(false);
+      dealCards();
   };
 
-  // 딜러 턴 로직
   useEffect(() => {
     if (gameStatus !== 'DEALER_TURN') return;
 
@@ -81,28 +120,69 @@ function BlackJack() {
       let currentDealerScore = calculateScore(currentDealerHand);
       let currentDeck = [...deck];
 
-      while (currentDealerScore < 17) {
-        const newCard = currentDeck.pop();
-        currentDealerHand.push(newCard);
-        currentDealerScore = calculateScore(currentDealerHand);
+      // Player bust case
+      if (playerScore > 21) {
+        // Just reveal dealer's hand
+      } else {
+        while (currentDealerScore < 17) {
+          const newCard = currentDeck.pop();
+          currentDealerHand.push(newCard);
+          currentDealerScore = calculateScore(currentDealerHand);
+        }
       }
 
       setDealerHand(currentDealerHand);
       setDealerScore(currentDealerScore);
       setDeck(currentDeck);
-      setWinner(getWinner(playerScore, currentDealerScore, playerHand.length));
+
+      const winnerResult = getWinner(playerScore, currentDealerScore, playerHand.length);
+      setWinner(winnerResult);
+
+      if (winnerResult === 'PLAYER') {
+          const winnings = betAmount * 2;
+          setBalance(prev => prev + winnings);
+          setRoundResult(winnings);
+      } else if (winnerResult === 'DEALER') {
+          const newHearts = hearts - 1;
+          setHearts(newHearts);
+          setRoundResult(-betAmount);
+          if (newHearts <= 0) {
+              setGameOver(true);
+          }
+      } else { // PUSH
+          setBalance(prev => prev + betAmount);
+          setRoundResult(0);
+      }
+      
       setGameStatus('ENDED');
     };
 
-    // 딜러가 생각하는 듯한 딜레이
     const timer = setTimeout(playDealerTurn, 1000);
     return () => clearTimeout(timer);
-  }, [gameStatus, dealerHand, deck, playerScore, playerHand.length]);
+  }, [gameStatus, dealerHand, deck, playerScore, playerHand.length, betAmount, hearts]);
+
+  // Auto-restart round on ENDED
+  useEffect(() => {
+    if (gameStatus === 'ENDED' && !gameOver) {
+      const autoRestartTimer = setTimeout(() => {
+        dealCards(); 
+      }, 3000); // 3 seconds to see result
+
+      return () => clearTimeout(autoRestartTimer);
+    }
+  }, [gameStatus, gameOver, dealCards]);
 
   return (
     <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
       
-      {/* 1. BLACKJACK CRITICAL EFFECT OVERLAY */}
+      {isBetting && (
+          <BettingModal 
+              balance={balance}
+              onBet={handlePlaceBet}
+              onCancel={() => setIsBetting(false)}
+          />
+      )}
+
       {isBlackjack && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div className="absolute inset-0 bg-primary/10 animate-pulse" />
@@ -110,54 +190,33 @@ function BlackJack() {
           <div className="text-6xl font-black italic text-primary drop-shadow-[0_0_30px_var(--color-primary-glow)] animate-bounce z-10">
             BLACK JACK! (STAND)
           </div>
-          {/* Particles */}
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div 
-                key={i} 
-                className="absolute w-1 h-10 bg-primary animate-pulse" 
-                style={{ 
-                  left: `${Math.random() * 100}%`, 
-                  top: `${Math.random() * 100}%`, 
-                  transform: `rotate(${Math.random() * 360}deg)`,
-                  animationDelay: `${Math.random() * 2}s`
-                }} 
-              />
-            ))}
-          </div>
         </div>
       )}
 
-      {/* 2. BACKGROUND HUD GRID */}
       <div className="fixed inset-0 opacity-[0.05] pointer-events-none bg-stark-grid" style={{backgroundSize: '40px 40px'}} />
 
-      {/* 4. MAIN COMBAT AREA */}
-      <main className="max-w-7xl mx-auto mt-12 grid grid-cols-12 gap-8 relative z-10">
-        {/* Center Col: Play Field */}
+      <main className="max-w-7xl mx-auto mt-12 grid grid-cols-12 gap-8 relative z-10 px-4">
         <section className="col-span-12 lg:col-span-9 flex flex-col items-center justify-center py-10 space-y-16">
-          {/* Dealer Section */}
           <div className="flex flex-col items-center">
             <div className="text-[10px] text-text-main/50 font-black mb-4 tracking-[0.5em] uppercase italic"> 딜러 (현재 점수: {dealerScore > 0 ? dealerScore : '?'})</div>
-            <div className="flex gap-4 h-36 items-center">
-              {dealerHand.map((card) => {
-                return (
+            <div className="flex gap-4 h-36 items-center overflow-x-auto p-4">
+              {dealerHand.map((card) => (
                   <div
                     key={card.id}
-                    className={`w-24 h-36 border-2 flex items-center justify-center relative transition-all duration-500 transform animate-slide-in 
+                    className={`w-24 h-36 border-2 flex-shrink-0 flex items-center justify-center relative transition-all duration-500 transform animate-slide-in overflow-hidden
                     ${card.hidden
                         ? 'border-border-primary/20 bg-primary/5'
                         : 'border-border-primary bg-main shadow-stark-glow'}`}
                   >
-                    <span className={`text-4xl font-black italic ${card.hidden ? 'text-primary/30' : 'text-text-main'}`}>{card.hidden ? '?' : card.value}</span>
-                    {!card.hidden && <div className="absolute top-2 right-2 w-2 h-2 bg-primary" />}
+                    <span className={`text-4xl font-black italic ${card.hidden ? 'text-primary/30' : 'text-text-main'}`}>
+                      {card.hidden ? '?' : card.value}
+                    </span>
                   </div>
-                );
-              })}
+              ))}
             </div>
           </div>
 
-          {/* Current Score Display */}
-          <div className="relative  font-dos-gothic">
+          <div className="relative font-dos-gothic">
             {gameStatus === 'ENDED' && winner && (
               <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 bg-yellow-400 text-black text-lg font-black italic animate-bounce">
                 {winner === 'PLAYER' && '승리!'}
@@ -170,47 +229,69 @@ function BlackJack() {
             </div>
           </div>
 
-          {/* Player Section */}
-          <div className="flex flex-col items-center  font-dos-gothic">
-            <div className="flex gap-4 h-36 items-center">
-              {playerHand.map((card) => (
-                <div key={card.id} className="w-24 h-36 border-2 border-border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in">
-                  <span className="text-4xl font-black italic text-text-main">{card.value}</span>
-                  <div className="absolute bottom-2 right-2 w-2 h-2 bg-primary" />
+          <div className="flex flex-col items-center font-dos-gothic">
+             <div className="flex gap-4 h-36 items-center overflow-x-auto p-4">
+               {playerHand.map((card) => (
+                <div key={card.id} className="w-24 h-36 border-2 flex-shrink-0 border-border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in overflow-hidden">
+                  <span className="text-4xl font-black italic text-text-main">
+                    {card.value}
+                  </span>
                 </div>
               ))}
             </div>
-            <div className="text-[10px] text-primary font-black mt-4 tracking-[0.5em] uppercase">플레이어</div>
+            <div className="flex items-center gap-4 mt-4">
+                <div className="text-[10px] text-primary font-black tracking-[0.5em] uppercase">플레이어</div>
+                <div className="flex items-center gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <span key={i} className={`text-2xl transition-colors ${i < hearts ? 'text-red-500' : 'text-text-main/20'}`}>♥</span>
+                    ))}
+                </div>
+            </div>
           </div>
         </section>
 
-        {/* Right Col: Bankroll & Controls */}
-        <aside className="col-span-12 lg:col-span-3 flex flex-col justify-end lg:justify-start gap-6 mb-12 lg:mb-0 font-dos-gothic">
-          <div className="grid grid-cols-2 gap-2">
-            <button 
-              onClick={dealCards} 
-              disabled={gameStatus === 'PLAYING' || gameStatus === 'DEALER_TURN'} 
-              className="col-span-2 py-4 bg-primary text-main font-black uppercase text-sm tracking-widest hover:bg-text-main hover:text-primary transition-all shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '게임 시작' : '게임 중'}
-            </button>
-            <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
-            <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
+        <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-dos-gothic">
+          <div>
+            <div className="text-center mb-4 p-4 border border-border-primary/30">
+              <p className="text-sm text-text-main/70 mb-1">"얼마 걸건데?"</p>
+                <p className="text-yellow-400 text-4xl font-black h-12 flex items-center justify-center">
+                    {betAmount > 0 ? `${betAmount} P` : '...'}
+                </p>
+                {betAmount > 0 && gameStatus !== 'IDLE' && gameStatus !== 'BETTING' && (
+                    <div className="text-xs mt-2 grid grid-cols-2 gap-1">
+                        <p className="text-green-400">WIN: +{betAmount * 2} P</p>
+                        <p className="text-red-400">LOSE: -{betAmount} P</p>
+                    </div>
+                )}
+              <p className="text-xs text-text-main/50 mt-2">보유 포인트: {balance} P</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button 
+                onClick={handleStartBetting} 
+                disabled={gameStatus !== 'IDLE' && !gameOver}
+                className="col-span-2 py-4 bg-primary text-main font-black uppercase text-sm tracking-widest hover:bg-text-main hover:text-primary transition-all shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {gameOver ? 'GAME OVER' : (gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '새 게임' : '게임 중')}
+              </button>
+              <button onClick={hit} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
+              <button onClick={stand} disabled={gameStatus !== 'PLAYING'} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
+            </div>
           </div>
         </aside>
       </main>
 
-      {/* 5. FOOTER SYSTEM LOG */}
       <footer className="fixed bottom-0 left-0 w-full px-6 py-2 border-t border-border-primary/20 bg-main/80 backdrop-blur-sm flex justify-between items-center text-[8px] font-bold text-primary/70 uppercase tracking-widest">
         <div className="flex gap-8">
-          <span>Dealer</span>
-          <span>system : ...</span>
-          <span>scan</span>
+          <span>ROUND P/L: 
+            <span className={`ml-2 ${roundResult > 0 ? 'text-green-400' : roundResult < 0 ? 'text-red-400' : 'text-primary/70'}`}>
+                {roundResult > 0 ? `+${roundResult}` : roundResult} P
+            </span>
+          </span>
         </div>
         <p>Timestamp: 23:59:12::TOWER_27</p>
       </footer>
 
-      {/* GLOBAL ANIMATIONS */}
       <style>{`
         @keyframes slide-in {
           from { transform: translateY(-30px); opacity: 0; }

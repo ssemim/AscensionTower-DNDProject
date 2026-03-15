@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [ID, setID] = useState('');
   const [password, setPassword] = useState('');
   const [isFocused, setIsFocused] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { username, password });
+    console.log('Login attempt:', { ID, password });
     // 로그인 로직 추가
   };
 
@@ -35,26 +35,26 @@ export default function Login() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
+            <h1 className="text-4xl font-bold font-nexon-warhaven text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
           로그인
             </h1>
-            <p className="text-xs text-primary/60 dark:text-white/60 tracking-widest">
+            <p className="text-xs text-primary/60 font-nexon-warhaven dark:text-white/60 tracking-widest">
               AUTHENTICATION REQUIRED
             </p>
             <div className="mt-4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
+          <form onSubmit={handleSubmit} className="space-y-6 font-nexon-warhaven">
+            {/* ID Field */}
             <div className="relative">
-              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
-                USERNAME
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide ">
+                ID
               </label>
               <div className="relative group">
                 <div
                   className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'username'
+                    isFocused === 'ID'
                       ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
                       : 'text-primary/50'
                   }`}
@@ -63,16 +63,16 @@ export default function Login() {
                 </div>
                 <input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onFocus={() => setIsFocused('username')}
+                  value={ID}
+                  onChange={(e) => setID(e.target.value)}
+                  onFocus={() => setIsFocused('ID')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="ID"
                 />
                 <div
                   className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'username' ? 'via-primary/10' : ''
+                    isFocused === 'ID' ? 'via-primary/10' : ''
                   }`}
                 ></div>
               </div>

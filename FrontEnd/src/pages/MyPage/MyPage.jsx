@@ -497,7 +497,7 @@ export default function MyPage() {
       <footer className="px-12 py-8 border-t border-border-primary bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
         <div className="flex gap-12">
           <p className="font-pf-stardust">Local_Time: ?</p>
-          <p className="font-pf-stardust">System_Temp: 14.5°C</p>
+          <p className="font-pf-stardust">System_Temp: 15°C</p>
           <p className="font-pf-stardust">Link_Strength: 98%</p>
         </div>
         <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>

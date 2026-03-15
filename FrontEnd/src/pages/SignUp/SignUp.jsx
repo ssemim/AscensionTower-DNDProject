@@ -1,13 +1,16 @@
 import { useState } from 'react';
 
 export default function SignUp() {
-  const [username, setUsername] = useState('');
+  const [ID, setID] = useState('');
   const [password, setPassword] = useState('');
+  const [characterName, setCharacterName] = useState('');
+  const [accessCode, setAccessCode] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isFocused, setIsFocused] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Sign up attempt:', { username, password });
+    console.log('Sign up attempt:', { ID, password, characterName, accessCode, confirmPassword });
     // 회원가입 로직 추가
   };
 
@@ -15,7 +18,7 @@ export default function SignUp() {
 
       
 
-      <div className="min-h-screen bg-main flex items-center justify-center">
+      <div className="min-h-screen bg-main flex items-center justify-center font-nexon-warhaven">
 
         <div className="absolute inset-0 opacity-[0.05] bg-stark-grid bg-[length:40px_40px] pointer-events-none"></div>
         {/* Background HUD Grid Layout */}
@@ -46,15 +49,15 @@ export default function SignUp() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
+            {/* ID Field */}
             <div className="relative">
               <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
-                id
+                ID
               </label>
               <div className="relative group">
                 <div
                   className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'username'
+                    isFocused === 'ID'
                       ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
                       : 'text-primary/50'
                   }`}
@@ -63,20 +66,52 @@ export default function SignUp() {
                 </div>
                 <input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onFocus={() => setIsFocused('username')}
+                  value={ID}
+                  onChange={(e) => setID(e.target.value)}
+                  onFocus={() => setIsFocused('ID')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="ID"
                 />
                 <div
                   className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'username' ? 'via-primary/10' : ''
+                    isFocused === 'ID' ? 'via-primary/10' : ''
                   }`}
                 ></div>
               </div>
             </div>
+
+            {/* Character Name Field */}
+            <div className="relative">
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
+                CHARACTER NAME
+              </label>
+              <div className="relative group">
+                <div
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                    isFocused === 'characterName'
+                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
+                      : 'text-primary/50'
+                  }`}
+                >
+                </div>
+                <input
+                  type="text"
+                  value={characterName}
+                  onChange={(e) => setCharacterName(e.target.value)}
+                  onFocus={() => setIsFocused('characterName')}
+                  onBlur={() => setIsFocused(null)}
+                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
+                  placeholder="Character Name"
+                />
+                <div
+                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
+                    isFocused === 'characterName' ? 'via-primary/10' : ''
+                  }`}
+                ></div>
+              </div>
+            </div>
+
 
             {/* Password Field */}
             <div className="relative">
@@ -104,6 +139,69 @@ export default function SignUp() {
                 <div
                   className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
                     isFocused === 'password' ? 'via-primary/10' : ''
+                  }`}
+                ></div>
+              </div>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div className="relative">
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
+                CONFIRM PASSWORD
+              </label>
+              <div className="relative group">
+                <div
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                    isFocused === 'confirmPassword'
+                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
+                      : 'text-primary/50'
+                  }`}
+                >
+                </div>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onFocus={() => setIsFocused('confirmPassword')}
+                  onBlur={() => setIsFocused(null)}
+                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
+                  placeholder="Confirm Password"
+                />
+                <div
+                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
+                    isFocused === 'confirmPassword' ? 'via-primary/10' : ''
+                  }`}
+                ></div>
+              </div>
+            </div>
+
+            
+            {/* ACCESS CODE Field */}
+            <div className="relative">
+              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
+                ACCESS CODE
+              </label>
+              <div className="relative group">
+                <div
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                    isFocused === 'accessCode'
+                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
+                      : 'text-primary/50'
+                  }`}
+                >
+                </div>
+                <input
+                  type="text"
+                  value={accessCode}
+                  onChange={(e) => setAccessCode(e.target.value)}
+                  onFocus={() => setIsFocused('accessCode')}
+                  onBlur={() => setIsFocused(null)}
+                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
+                  placeholder="Access Code"
+                />
+                <div
+                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
+                    isFocused === 'accessCode' ? 'via-primary/10' : ''
                   }`}
                 ></div>
               </div>

@@ -2,9 +2,22 @@ import React from 'react';
 
 const ChronologySection = () => {
   const events = [
-    { date: "2140.001", title: "THE COLLAPSE", desc: "System-wide critical failure. Global hegemony terminated.", side: "left" },
-    { date: "2212.045", title: "VOID_MATTER_SIG", desc: "New energy signature detected. Sub-atomic rift harvesting operational.", side: "right" },
-    { date: "2305.881", title: "INTERSTELLAR_CONFLICT", desc: "Resource wars across sector 4. High-yield tactical strikes.", side: "left" },
+    { date: "2036", title: "2036년", desc: "크리쳐의 등장, 인류와 전쟁을 시작하다", side: "left" },
+    { date: "2116", title: "2116년", desc: "국경의 소멸화, 초기 방주의 성립", side: "right" },
+    { date: "2151", title: "2151년", desc: "돌연변이의 등장", side: "left" },
+    { date: "2153", title: "2153년", desc: "교단의 등장과 함께 ‘아케로’에 대한 정의가 내려지다", side: "right" },
+    { date: "2180", title: "2180년", desc: "방주에서 ‘탑의 완공’을 공식적으로 발표하다", side: "left" },
+    { date: "2185~2210", title: "2185년~2210년", desc: "방주의 확장 및 고착화", side: "right" },
+    { date: "2211~2225", title: "2211년~2225년", desc: "정계의 등장 및 안정화", side: "left" },
+    { date: "2225", title: "2225년", desc: "부지의 구획화 시작", side: "right" },
+    { date: "2230", title: "2230년", desc: "혁명가 ‘칼’을 시작으로 2부지에서 대규모 혁명이 전개되다", side: "left" },
+    { date: "2232", title: "2232년", desc: "수장인 ‘칼’의 실종과 함께 혁명의 불꽃이 사그라들다", side: "right" },
+    { date: "2232~2237", title: "2232년~2237년", desc: "1부지와 2부지 사이의 불가침 구역 추가 구축 공사, 부지 구획화가 완료되다.", side: "left" },
+    { date: "2300", title: "2300년", desc: "아케로를 영웅으로 추앙하기 시작하다.", side: "right" },
+    { date: "2326~2405", title: "2326년~2405년", desc: "방주의 완벽한 안정화를 대통령이 선포하다.", side: "left" },
+    { date: "2406", title: "2406년", desc: "비행 타입의 크리쳐 등장 및 공습 사태로 3부지 일대의 몰살, 수많은 사상자가 발생하다", side: "right" },
+    { date: "2407~2426", title: "2407년~2426년", desc: "파손된 3부지 일대 방호벽과 결계의 재시동 시도, 반복된 실패로 돌아가다", side: "left" },
+    { date: "2426", title: "2426년", desc: "현재", side: "right" },
   ];
 
   return (
@@ -32,7 +45,7 @@ const ChronologySection = () => {
               <div key={index} className={`flex flex-col md:flex-row items-center gap-8 ${event.side === 'right' ? 'md:flex-row-reverse' : ''}`}>
                 
                 {/* 5. 컨텐츠 박스 */}
-                <div className="w-full md:flex-1 p-6 border border-border-primary/30 bg-main/40 backdrop-blur-md relative group hover:border-border-primary transition-all shadow-sm hover:shadow-stark-glow">
+                <div className="w-full md:flex-1 p-6 border border-border-primary font-nexon-warhaven bg-main/40 backdrop-blur-md relative group hover:border-border-primary transition-all shadow-sm hover:shadow-stark-glow">
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-border-primary"></div>
                   <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-border-primary"></div>
                   
