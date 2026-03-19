@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import './index.css'  
+import CommonModal from '../../components/Modal/CommonModal';
 
 export default function Landing(){
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-main text-text-main font-mono overflow-x-hidden relative">
@@ -19,6 +22,7 @@ export default function Landing(){
           <p className="max-w-2xl text-text-main/70 text-sm leading-relaxed mb-12 italic">
           교리 자리
           </p>
+          <button onClick={() => setIsModalOpen(true)} className="bg-primary text-white px-4 py-2 rounded">Open Modal</button>
         </section>
 
         <section className="px-12 py-24 bg-main border-y border-border-primary/20 relative overflow-hidden flex flex-col items-center text-center">
@@ -62,6 +66,9 @@ export default function Landing(){
         </div>
         <p className="text-primary">© ASCENSION TOWER // GLOBAL RESEARCH DIV</p>
       </footer>
+      <CommonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <p>This is a modal.</p>
+      </CommonModal>
     </div>
   );
 };
