@@ -4,6 +4,8 @@ import Typewriter from 'typewriter-effect';
 import { addItem, removeItem, clearCart, decreaseItem } from '../../store/cartSlice';
 import dialog from './dialog';
 import itemsData from './item.js';
+import BuyItemModal from '../../components/Modal/BuyItemModal.jsx';
+
 
 // 공통 UI 컴포넌트: HUD 스타일의 테두리 박스
 const HUDBox = ({ children, className = "" }) => (
@@ -23,6 +25,9 @@ const Shop = () => {
     return dialog[randomIndex];
   });
   const [isAcquiring, setIsAcquiring] = useState(false);
+
+  // 모달 타입: null | 'buy' | 'gift'
+  const [modalType, setModalType] = useState(null);
 
   // 인벤토리 아이템 데이터 (24개 슬롯)
   const [items] = useState(itemsData);
@@ -161,7 +166,7 @@ const Shop = () => {
                   if (selected && !selected.isEmpty && !isAcquiring) {
                     setIsAcquiring(true);
                     dispatch(addItem(selected));
-                    setTimeout(() => setIsAcquiring(false), 1000); // Prevent rapid clicks
+                    setTimeout(() => setIsAcquiring(false), 1000);
                   }
                 }}
                 disabled={!selected || selected.isEmpty || isAcquiring}
@@ -214,10 +219,14 @@ const Shop = () => {
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-border-primary flex justify-end gap-4">
-                    <button className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
+                    <button
+                      onClick={() => setModalType('buy')}
+                      className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
                       구매하기
                     </button>
-                <button className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
+                    <button
+                      onClick={() => setModalType('gift')}
+                      className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">
                       선물하기
                     </button>
                   </div>
@@ -227,6 +236,16 @@ const Shop = () => {
           )}
         </div>
       </main>
+
+      {/* BuyItemModal: modalType이 null이 아닐 때만 렌더링 */}
+{modalType && (
+  <BuyItemModal
+    isOpen={!!modalType}   
+    type={modalType}
+    items={cartItems}
+    onClose={() => setModalType(null)}
+  />
+)}
     </div>
   );
 };
