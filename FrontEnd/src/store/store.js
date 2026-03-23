@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer from './cartSlice';
-// import userReducer from './userSlice'; // 나중에 userSlice를 만들면 주석 해제
+import authReducer from './authSlice';
 
 const saveState = (state) => {
   try {
@@ -14,7 +14,7 @@ const saveState = (state) => {
 export const store = configureStore({
   reducer: {
     cart: cartReducer,
-    // user: userReducer, // 나중에 userSlice를 만들면 주석 해제
+    auth: authReducer,
   },
 });
 

@@ -1,22 +1,31 @@
-import { NavLink } from 'react-router-dom';
-import { useTheme } from '../ThemeProvider/ThemeProvider'; // 경로를 프로젝트 구조에 맞게 수정하세요
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useTheme } from '../ThemeProvider/ThemeProvider';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../store/authSlice'; // 경로 맞게 수정
+import axios from 'axios';
 import './Menu.css';
 
 export default function Menu({ isOpen, onToggle }) {
-  const { isDark, toggleTheme } = useTheme(); // 테마 훅 불러오기
+  const { isDark, toggleTheme } = useTheme();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const menuItems = [
-    { to: '/world', label: 'World' },
-    { to: '/login', label: 'Login' },
-    { to: '/signup', label: 'Sign Up' },
-    { to: '/shop', label: 'Shop' },
-    { to: '/blackjack', label: 'Game' },
-    { to: '/mypage', label: 'My Page' },
-  ];
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/logout', { withCredentials: true })
+      .then(() => {
+        dispatch(logout());
+        navigate('/login');
+      })
+      .catch(() => {
+        dispatch(logout());
+        navigate('/login');
+      });
+  };
 
   return (
     <>
-      {/* 🔥 햄버거 버튼 */}
+      {/* 햄버거 버튼 */}
       {!isOpen && (
         <button
           onClick={onToggle}
@@ -43,10 +52,10 @@ export default function Menu({ isOpen, onToggle }) {
           ${isDark ? 'text-white' : 'text-text-main'}
         `}
       >
-        {/* Grid Background (Tailwind 설정값 사용) */}
+        {/* Grid Background */}
         <div className="absolute inset-0 opacity-10 bg-stark-grid bg-[length:20px_20px]" />
 
-        {/* 🔥 닫기 버튼 */}
+        {/* 닫기 버튼 */}
         {isOpen && (
           <button
             onClick={onToggle}
@@ -79,25 +88,86 @@ export default function Menu({ isOpen, onToggle }) {
 
           {/* Menu Items */}
           <nav className="space-y-2 flex-grow text-xl font-bold">
-            {menuItems.map(item => (
+
+            {/* World - 항상 표시 */}
+            <NavLink
+              to="/world"
+              className={({ isActive }) => `
+                block px-4 py-3 rounded-lg transition-all duration-200
+                ${isActive
+                  ? 'bg-primary/20 text-primary shadow-[inset_0_0_10px_rgba(34,211,238,0.1)]'
+                  : `${isDark ? 'text-white/70' : 'text-text-main/70'} hover:text-primary hover:bg-primary/5`}
+              `}
+            >
+              World
+            </NavLink>
+
+            {/* 로그아웃 상태일 때만 표시 */}
+            {!isLoggedIn && (
+              <>
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) => `
+                    block px-4 py-3 rounded-lg transition-all duration-200
+                    ${isActive
+                      ? 'bg-primary/20 text-primary shadow-[inset_0_0_10px_rgba(34,211,238,0.1)]'
+                      : `${isDark ? 'text-white/70' : 'text-text-main/70'} hover:text-primary hover:bg-primary/5`}
+                  `}
+                >
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className={({ isActive }) => `
+                    block px-4 py-3 rounded-lg transition-all duration-200
+                    ${isActive
+                      ? 'bg-primary/20 text-primary shadow-[inset_0_0_10px_rgba(34,211,238,0.1)]'
+                      : `${isDark ? 'text-white/70' : 'text-text-main/70'} hover:text-primary hover:bg-primary/5`}
+                  `}
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            )}
+
+            {/* 나머지 공통 메뉴 */}
+            {[
+              { to: '/shop', label: 'Shop' },
+              { to: '/blackjack', label: 'Game' },
+              { to: '/mypage', label: 'My Page' },
+            ].map(item => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={({ isActive }) =>
-                  `
+                className={({ isActive }) => `
                   block px-4 py-3 rounded-lg transition-all duration-200
                   ${isActive
                     ? 'bg-primary/20 text-primary shadow-[inset_0_0_10px_rgba(34,211,238,0.1)]'
                     : `${isDark ? 'text-white/70' : 'text-text-main/70'} hover:text-primary hover:bg-primary/5`}
-                `
-                }
+                `}
               >
                 {item.label}
               </NavLink>
             ))}
           </nav>
 
-          {/* 🔥 Theme Toggle Section (하단 고정) */}
+          {isLoggedIn && (
+            <div className="pt-4">
+              <button
+                onClick={handleLogout}
+                className={`
+                  w-full text-left px-4 py-3 rounded-lg transition-all duration-200
+                  text-xl font-bold
+                  ${isDark ? 'text-white/70' : 'text-text-main/70'}
+                  hover:text-red-400 hover:bg-red-400/5
+                `}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+
+          {/* Theme Toggle Section */}
           <div className="pt-6 border-t border-border-primary/30">
             <div className="flex items-center justify-between px-2">
               <span className="text-xs font-bold text-primary/60 uppercase tracking-tighter">
@@ -110,11 +180,11 @@ export default function Menu({ isOpen, onToggle }) {
                   ${isDark ? 'bg-primary/10 shadow-stark-glow' : 'bg-gray-200'}
                 `}
               >
-                <div 
+                <div
                   className={`
                     absolute top-1 w-3.5 h-3.5 rounded-full bg-primary transition-all duration-300
                     ${isDark ? 'left-7' : 'left-1'}
-                  `} 
+                  `}
                 />
               </button>
             </div>

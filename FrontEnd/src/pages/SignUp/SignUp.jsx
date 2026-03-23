@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const hasEmoji = (str) => /\p{Emoji_Presentation}/u.test(str);
 
 export default function SignUp() {
   const [ID, setID] = useState('');
@@ -7,39 +11,60 @@ export default function SignUp() {
   const [accessCode, setAccessCode] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isFocused, setIsFocused] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Sign up attempt:', { ID, password, characterName, accessCode, confirmPassword });
-    // 회원가입 로직 추가
+    setErrorMsg('');
+
+    // 이모지 차단
+    if (hasEmoji(ID) || hasEmoji(characterName)) {
+      return setErrorMsg('이모지는 사용할 수 없습니다.');
+    }
+
+    // 비밀번호 확인
+    if (password !== confirmPassword) {
+      return setErrorMsg('비밀번호가 일치하지 않습니다.');
+    }
+
+    axios.post('http://localhost:8081/signup', {
+      id: ID,
+      password,
+      char_name: characterName,
+      accessCode,
+    }, { withCredentials: true })
+      .then(res => {
+        if (res.data.Status === 'Success') {
+          navigate('/login'); // 가입 후 로그인 페이지로 이동
+        } else {
+          setErrorMsg(res.data.Error);
+        }
+      })
+      .catch(() => setErrorMsg('서버 연결에 실패했습니다.'));
   };
 
-    return (
+  return (
+    <div className="min-h-screen bg-main flex items-center justify-center font-nexon-warhaven">
 
-      
+      <div className="absolute inset-0 opacity-[0.05] bg-stark-grid bg-[length:40px_40px] pointer-events-none"></div>
+      {/* Background HUD Grid Layout */}
+      <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+      </div>
 
-      <div className="min-h-screen bg-main flex items-center justify-center font-nexon-warhaven">
+      <div className="w-full max-w-md relative">
 
-        <div className="absolute inset-0 opacity-[0.05] bg-stark-grid bg-[length:40px_40px] pointer-events-none"></div>
-        {/* Background HUD Grid Layout */}
-        <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none" 
-             style={{ backgroundImage: 'linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
-        </div>
+        <div className="relative bg-main/60 border border-border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
 
-        <div className="w-full max-w-md relative">
-
-          <div className="relative bg-main/60 border border-border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
-
-            {/* Top glow line */}
-
-            <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_10px_var(--color-primary-glow)]"></div>
-
-  
+          {/* Top glow line */}
+          <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_10px_var(--color-primary-glow)]"></div>
 
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
-          회원가입
+              회원가입
             </h1>
             <p className="text-xs text-primary/60 dark:text-white/60 tracking-widest">
               AUTHENTICATION REQUIRED
@@ -47,7 +72,7 @@ export default function SignUp() {
             <div className="mt-4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
           </div>
 
-          {/* Login Form */}
+          {/* Sign Up Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* ID Field */}
             <div className="relative">
@@ -55,15 +80,7 @@ export default function SignUp() {
                 ID
               </label>
               <div className="relative group">
-                <div
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'ID'
-                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
-                      : 'text-primary/50'
-                  }`}
-                >
-      
-                </div>
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'ID' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
                 <input
                   type="text"
                   value={ID}
@@ -73,11 +90,7 @@ export default function SignUp() {
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="ID"
                 />
-                <div
-                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'ID' ? 'via-primary/10' : ''
-                  }`}
-                ></div>
+                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'ID' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
 
@@ -87,14 +100,7 @@ export default function SignUp() {
                 CHARACTER NAME
               </label>
               <div className="relative group">
-                <div
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'characterName'
-                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
-                      : 'text-primary/50'
-                  }`}
-                >
-                </div>
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'characterName' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
                 <input
                   type="text"
                   value={characterName}
@@ -104,14 +110,9 @@ export default function SignUp() {
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="Character Name"
                 />
-                <div
-                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'characterName' ? 'via-primary/10' : ''
-                  }`}
-                ></div>
+                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'characterName' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
-
 
             {/* Password Field */}
             <div className="relative">
@@ -119,14 +120,7 @@ export default function SignUp() {
                 PASSWORD
               </label>
               <div className="relative group">
-                <div
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'password'
-                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
-                      : 'text-primary/50'
-                  }`}
-                >
-                </div>
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'password' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
                 <input
                   type="password"
                   value={password}
@@ -136,11 +130,7 @@ export default function SignUp() {
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="PW"
                 />
-                <div
-                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'password' ? 'via-primary/10' : ''
-                  }`}
-                ></div>
+                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'password' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
 
@@ -150,14 +140,7 @@ export default function SignUp() {
                 CONFIRM PASSWORD
               </label>
               <div className="relative group">
-                <div
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'confirmPassword'
-                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
-                      : 'text-primary/50'
-                  }`}
-                >
-                </div>
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'confirmPassword' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -167,29 +150,17 @@ export default function SignUp() {
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="Confirm Password"
                 />
-                <div
-                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'confirmPassword' ? 'via-primary/10' : ''
-                  }`}
-                ></div>
+                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'confirmPassword' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
 
-            
             {/* ACCESS CODE Field */}
             <div className="relative">
               <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
                 ACCESS CODE
               </label>
               <div className="relative group">
-                <div
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    isFocused === 'accessCode'
-                      ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]'
-                      : 'text-primary/50'
-                  }`}
-                >
-                </div>
+                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'accessCode' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
                 <input
                   type="text"
                   value={accessCode}
@@ -199,13 +170,14 @@ export default function SignUp() {
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
                   placeholder="Access Code"
                 />
-                <div
-                  className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${
-                    isFocused === 'accessCode' ? 'via-primary/10' : ''
-                  }`}
-                ></div>
+                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'accessCode' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
+
+            {/* 에러 메시지 */}
+            {errorMsg && (
+              <p className="text-red-400 text-xs text-center tracking-wide">{errorMsg}</p>
+            )}
 
             {/* Submit Button */}
             <button
@@ -213,15 +185,10 @@ export default function SignUp() {
               className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary text-white font-medium py-3 rounded-lg transition-all duration-300 relative overflow-hidden group shadow-stark-glow hover:shadow-[0_0_30px_var(--color-primary-glow)]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent group-hover:via-white/20 transition-all duration-500"></div>
-
               <span className="relative z-10 flex items-center justify-center gap-2 tracking-wide">
                 ACCESS SYSTEM
-
               </span>
             </button>
-
-            {/* Footer Links */}
-
           </form>
 
           {/* Status Indicator */}
