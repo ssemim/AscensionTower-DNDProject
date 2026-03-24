@@ -34,140 +34,6 @@ async function fetchYouTubeTitle(videoId) {
 }
 
 // ───────────────────────────────────────────
-// 로그인 필요 게이트 화면
-// ───────────────────────────────────────────
-function AuthGate() {
-  const [glitch, setGlitch] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGlitch(true);
-      setTimeout(() => setGlitch(false), 200);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-main text-text-main font-mono flex flex-col items-center justify-center relative overflow-hidden">
-      {/* 배경 그리드 장식 */}
-      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
-
-      {/* 배경 글로우 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-primary/8 rounded-full blur-2xl pointer-events-none" />
-
-      {/* 스캔라인 효과 */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)',
-        }}
-      />
-
-      {/* 메인 컨테이너 */}
-      <div className="relative z-10 flex flex-col min-w-[640px] max-w-70vw items-center gap-8 px-8">
-
-        {/* 상단 데코 라인 */}
-        <div className="flex items-center gap-4 w-full max-w-sm">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/60" />
-          <span className="text-primary/60 text-[10px] tracking-[0.3em] font-bold">ACCESS CONTROL</span>
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/60" />
-        </div>
-
-        {/* 아이콘 */}
-        <div className="relative">
-          <div
-            className="w-24 h-24 border border-border-primary flex items-center justify-center relative"
-            style={{
-              boxShadow: '0 0 30px rgba(var(--color-primary-rgb, 99 102 241) / 0.2)',
-            }}
-          >
-            {/* 코너 장식 */}
-            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-primary -translate-x-1 -translate-y-1" />
-            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-primary translate-x-1 -translate-y-1" />
-            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-primary -translate-x-1 translate-y-1" />
-            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-primary translate-x-1 translate-y-1" />
-
-            <span
-              className="text-4xl select-none transition-all duration-100"
-              style={{ filter: glitch ? 'hue-rotate(90deg) blur(1px)' : 'none' }}
-            >
-              🔒
-            </span>
-          </div>
-
-          {/* 펄스 링 */}
-          <div
-            className="absolute inset-0 border border-primary/30 animate-ping"
-            style={{ animationDuration: '2.5s' }}
-          />
-        </div>
-
-        {/* 텍스트 */}
-        <div className="text-center flex flex-col gap-3">
-          <h1
-            className="text-2xl font-bold tracking-[0.2em] text-primary transition-all duration-100"
-            style={{
-              textShadow: glitch
-                ? '2px 0 0 rgba(255,0,0,0.7), -2px 0 0 rgba(0,255,255,0.7)'
-                : '0 0 20px rgba(var(--color-primary-rgb, 99 102 241) / 0.5)',
-            }}
-          >
-            {glitch ? 'AC¢ESS DENIED' : 'ACCESS DENIED'}
-          </h1>
-
-          <p className="text-text-main/50 text-sm font-pf-stardust tracking-widest">
-            AUTHENTICATION REQUIRED
-          </p>
-        </div>
-
-        {/* 구분선 */}
-        <div className="w-full max-w-xs border-t border-border-primary/40 relative">
-          <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-        </div>
-
-        {/* 안내 메시지 */}
-        <div className="border border-border-primary/50 p-5 max-w-xs w-full relative">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-          <p className="text-text-main/60 text-sm font-pf-stardust leading-relaxed text-center">
-            이 페이지는 로그인이 필요합니다.<br />
-            계속하려면 로그인해주세요.
-          </p>
-        </div>
-
-        {/* 로그인 버튼 */}
-        <div className="flex flex-col gap-3 w-full max-w-xs">
-          <a
-            href="/login"
-            className="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 text-center tracking-[0.2em] text-sm transition-all duration-200 relative overflow-hidden group"
-            style={{ boxShadow: '0 0 20px rgba(var(--color-primary-rgb, 99 102 241) / 0.3)' }}
-          >
-            <span className="relative z-10">LOGIN</span>
-            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12" />
-          </a>
-
-          <a
-            href="/"
-            className="w-full border border-border-primary/50 text-text-main/50 hover:text-text-main hover:border-border-primary font-bold py-3 text-center tracking-[0.2em] text-sm transition-all duration-200"
-          >
-            ← BACK TO HOME
-          </a>
-        </div>
-
-        {/* 하단 데코 */}
-        <div className="flex items-center gap-4 w-full max-w-sm">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-border-primary/30" />
-          <span className="text-text-main/20 text-[9px] tracking-[0.3em]">ASCENSION TOWER</span>
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-border-primary/30" />
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────
 // 수령 모달
 // ───────────────────────────────────────────
 function ReceiveModal({ mail, onConfirm, onClose }) {
@@ -176,7 +42,7 @@ function ReceiveModal({ mail, onConfirm, onClose }) {
       <div className="bg-main border border-border-primary rounded-xl p-8 max-w-sm w-full shadow-stark-glow relative">
         <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
         <h3 className="text-primary font-bold text-lg tracking-widest mb-4">INCOMING MAIL</h3>
-        <p className="text-text-main/70 text-sm font-pf-stardust mb-1">from: <span className="text-primary">{mail.sender_name}</span></p>
+        <p className="text-text-main/70 text-sm font-pf-stardust mb-1">from: <span className="text-primary">{mail.sender_name || mail.sender_id}</span></p>
         {mail.item_name && (
           <p className="text-text-main/70 text-sm font-pf-stardust mb-1">
             item: <span className="text-primary">{mail.item_name}</span> x{mail.quantity}
@@ -217,8 +83,18 @@ function MailCard({ mail, onReceive }) {
     <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200">
       <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">[ MAIL ]</div>
       <p className="text-s font-bold truncate text-text-main font-pf-stardust">{mail.item_name || '메시지'}</p>
-      <p className="text-[10px] text-text-main/50 font-pf-stardust truncate">from: {mail.sender_name}</p>
-      <button onClick={() => onReceive(mail)} className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors">수령하기</button>
+      <p className="text-[10px] text-text-main/50 font-pf-stardust truncate">from: {mail.sender_name || mail.sender_id}</p>
+      {mail.message && (
+        <p className="text-[10px] text-text-main/40 font-pf-stardust truncate">"{mail.message}"</p>
+      )}
+      {/* 아이템이 있고 아직 수령 안 했을 때만 버튼 표시 */}
+      {mail.item_id && !mail.item_received ? (
+        <button onClick={() => onReceive(mail)} className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors">
+          수령하기
+        </button>
+      ) : mail.item_id ? (
+        <p className="text-[10px] text-text-main/30 font-pf-stardust text-center">수령 완료</p>
+      ) : null}
     </div>
   );
 }
@@ -348,7 +224,7 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
 
   const handleMouseEnter = () => {
     clearTimeout(timeoutRef.current);
-    if (!video.added_by_name && !video.message) return;
+    if (!video.added_by && !video.message) return;
     const rect = btnRef.current?.getBoundingClientRect();
     if (!rect) return;
 
@@ -356,12 +232,15 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
     let top, left;
 
     if (isMobile) {
+      // 모바일: 아래 공간 있으면 아래, 없으면 위
       const spaceBelow = window.innerHeight - rect.bottom;
       top = spaceBelow >= POPOVER_H + 8
         ? rect.bottom + window.scrollY + 8
         : rect.top + window.scrollY - POPOVER_H - 8;
+      // 화면 안으로 left 클램핑
       left = Math.max(8, Math.min(rect.left, window.innerWidth - POPOVER_W - 8));
     } else {
+      // 데스크탑: 오른쪽 공간 있으면 오른쪽, 없으면 왼쪽
       const spaceRight = window.innerWidth - rect.right;
       left = spaceRight >= POPOVER_W + 8
         ? rect.right + 8
@@ -397,13 +276,13 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
           className="z-[9999] w-52 bg-main border border-border-primary rounded-lg p-3 shadow-stark-glow"
         >
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-t-lg" />
-          {video.added_by_name && (
-            <p className="text-lg text-text-main/70 font-pf-stardust mb-1">
-             <span className="text-primary font-bold"> from: {video.added_by_name}</span>
+          {video.added_by && (
+            <p className="text-xs text-text-main/70 font-pf-stardust mb-1">
+              from: <span className="text-primary font-bold">{video.added_by}</span>
             </p>
           )}
           {video.message && (
-            <p className="text-lg text-text-main font-pf-stardust leading-relaxed border-t border-border-primary/30 pt-2 mt-1">
+            <p className="text-xs text-text-main font-pf-stardust leading-relaxed border-t border-border-primary/30 pt-2 mt-1">
               "{video.message}"
             </p>
           )}
@@ -420,7 +299,6 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
 export default function MyPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [member, setMember] = useState(null);
-  const [authStatus, setAuthStatus] = useState('loading'); // 'loading' | 'authenticated' | 'unauthenticated'
   const [videoLinks, setVideoLinks] = useState([]);
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
   const [player, setPlayer] = useState(null);
@@ -438,14 +316,7 @@ export default function MyPage() {
       setIsLoadingPlaylist(true);
       try {
         const res = await axios.get(`${API}/mypage`, { withCredentials: true });
-
-        // 로그인 안 된 경우 서버에서 401 또는 Status !== 'Success' 반환
-        if (res.data.Status !== 'Success') {
-          setAuthStatus('unauthenticated');
-          return;
-        }
-
-        setAuthStatus('authenticated');
+        if (res.data.Status !== 'Success') return;
         setMember(res.data.member);
         const playlist = res.data.playlist || [];
         const linksWithTitles = await Promise.all(
@@ -458,13 +329,7 @@ export default function MyPage() {
         );
         setVideoLinks(linksWithTitles);
       } catch (err) {
-        // 401 Unauthorized → 로그인 필요
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          setAuthStatus('unauthenticated');
-        } else {
-          console.error('마이페이지 로드 실패:', err);
-          setAuthStatus('unauthenticated');
-        }
+        console.error('마이페이지 로드 실패:', err);
       } finally {
         setIsLoadingPlaylist(false);
       }
@@ -473,11 +338,10 @@ export default function MyPage() {
   }, []);
 
   useEffect(() => {
-    if (authStatus !== 'authenticated') return;
     axios.get(`${API}/mypage/badges`, { withCredentials: true })
       .then(res => { if (res.data.Status === 'Success') setEarnedBadgeIds(res.data.badges.map(b => b.badge_id)); })
       .catch(err => console.error('뱃지 로드 실패:', err));
-  }, [authStatus]);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -489,24 +353,7 @@ export default function MyPage() {
     return () => clearInterval(interval);
   }, [player, isPlaying]);
 
-  // ── 로딩 중 ──
-  if (authStatus === 'loading') {
-    return (
-      <div className="min-h-screen bg-main text-text-main font-mono flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-text-main/50 text-sm tracking-widest font-pf-stardust">LOADING...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── 비로그인 ──
-  if (authStatus === 'unauthenticated') {
-    return <AuthGate />;
-  }
-
-  // ── 이하 기존 핸들러 ──
+  // 이미지 업로드 핸들러
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -573,7 +420,7 @@ export default function MyPage() {
           <section className="px-4 md:px-12 py-12 bg-main relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-4 min-h-0 md:min-h-[30vh] max-h-none md:max-h-[50vh] max-w-6xl mx-auto">
 
-              {/* 프로필 이미지 */}
+              {/* 프로필 이미지 - 클릭하면 업로드 */}
               <div className="border border-border-primary w-full md:w-2/12 aspect-square flex flex-col">
                 <input
                   ref={fileInputRef}
@@ -594,6 +441,7 @@ export default function MyPage() {
                       {isUploading ? 'UPLOADING...' : 'No Image'}
                     </div>
                   )}
+                  {/* 호버 오버레이 */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="text-white text-xs font-bold tracking-widest">
                       {isUploading ? 'UPLOADING...' : 'UPLOAD'}
@@ -610,7 +458,8 @@ export default function MyPage() {
                     <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
                     <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
                     <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
-                    <li className="pb-1">POINT : {member.point}</li>
+                    <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
+                    <li className="pb-1">STAT : {member.point}</li>
                   </ul>
                 ) : (
                   <p className="text-text-main/50 font-pf-stardust">로딩 중...</p>
@@ -647,7 +496,7 @@ export default function MyPage() {
                     <div className="text-s text-text-main/70 mb-1 flex justify-between">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
                     </div>
-                    <input type="range" min="0" max={duration || 0} value={currentTime ?? 0}
+                    <input type="range" min="0" max={duration || 0} value={currentTime}
                       onChange={(e) => handleSeek(parseFloat(e.target.value))}
                       className="w-full h-1 rounded cursor-pointer accent-primary mb-4" />
                     <div className="flex gap-2 mb-4">
