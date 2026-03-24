@@ -1,31 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Menu from '../../components/Menu/Menu';
 import YouTube from 'react-youtube';
 import '../Landing/index.css';
 import badges from './badge.js';
 
-// 유튜브 URL에서 비디오 ID를 추출하는 헬퍼 함수
+const API = 'http://localhost:8081';
+
+// ───────────────────────────────────────────
+// 유틸
+// ───────────────────────────────────────────
 function getYouTubeID(url) {
   if (!url) return null;
-  let regExp = /youtu\.be\/([^?&\s]+)/;
-  let match = url.match(regExp);
-  if (match && match[1]) return match[1];
-  regExp = /[?&]v=([^&\s]+)/;
-  match = url.match(regExp);
-  if (match && match[1]) return match[1];
-  regExp = /embed\/([^?&\s]+)/;
-  match = url.match(regExp);
-  if (match && match[1]) return match[1];
+  let match = url.match(/youtu\.be\/([^?&\s]+)/);
+  if (match) return match[1];
+  match = url.match(/[?&]v=([^&\s]+)/);
+  if (match) return match[1];
+  match = url.match(/embed\/([^?&\s]+)/);
+  if (match) return match[1];
   return null;
 }
 
-// YouTube oEmbed API로 제목 가져오기 (무료, 키 불필요)
 async function fetchYouTubeTitle(videoId) {
   try {
-    const res = await fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-    );
-    if (!res.ok) throw new Error('oEmbed 요청 실패');
+    const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    if (!res.ok) throw new Error();
     const data = await res.json();
     return data.title || null;
   } catch {
@@ -33,49 +32,88 @@ async function fetchYouTubeTitle(videoId) {
   }
 }
 
-// 백엔드 응답 정규화
-// { gifts: [...] } / { items: [...] } / { data: [...] } / [...] 모두 처리
-function normalizeResponse(data) {
-  if (Array.isArray(data)) return data;
-  if (data && Array.isArray(data.gifts)) return data.gifts;
-  if (data && Array.isArray(data.items)) return data.items;
-  if (data && Array.isArray(data.data)) return data.data;
-  return [];
-}
-
-// ─────────────────────────────────────────────
-// 개별 아이템 카드
-// DB 응답 구조가 확정되면 내부 렌더링만 수정하면 됨
-// ─────────────────────────────────────────────
-function ItemCard({ item, tab }) {
+// ───────────────────────────────────────────
+// 수령 모달
+// ───────────────────────────────────────────
+function ReceiveModal({ mail, onConfirm, onClose }) {
   return (
-    <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
-      {/* 썸네일 - DB에서 imageUrl 필드로 교체 예정 */}
-      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">
-        {item.imageUrl
-          ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-          : '[ IMG ]'}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-main border border-border-primary rounded-xl p-8 max-w-sm w-full shadow-stark-glow relative">
+        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+        <h3 className="text-primary font-bold text-lg tracking-widest mb-4">INCOMING MAIL</h3>
+        <p className="text-text-main/70 text-sm font-pf-stardust mb-1">from: <span className="text-primary">{mail.sender_id}</span></p>
+        {mail.item_name && (
+          <p className="text-text-main/70 text-sm font-pf-stardust mb-1">
+            item: <span className="text-primary">{mail.item_name}</span> x{mail.quantity}
+          </p>
+        )}
+        {mail.message && (
+          <p className="text-text-main/50 text-xs font-pf-stardust mt-3 border-t border-border-primary/30 pt-3">
+            "{mail.message}"
+          </p>
+        )}
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-primary hover:bg-primary/80 text-white font-bold py-2 rounded-lg transition-colors tracking-widest text-sm"
+          >
+            RECEIVE
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm"
+          >
+            CLOSE
+          </button>
+        </div>
       </div>
-
-      {/* 이름 */}
-      <p className="text-s font-bold truncate text-text-main font-pf-stardust">
-        {item.name || item.title || `Item_${item.id ?? '??'}`}
-      </p>
-
-      {/* 탭별 부가 정보 */}
-      {tab === 'gifted' && item.senderName && (
-        <p className="text-[10px] text-text-main/50 truncate font-pf-stardust">from: {item.senderName}</p>
-      )}
-      {tab === 'inventory' && item.quantity != null && (
-        <p className="text-[10px] text-text-main/50 font-pf-stardust">x{item.quantity}</p>
-      )}
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-// 탭 전환 인벤토리 섹션
-// ─────────────────────────────────────────────
+// ───────────────────────────────────────────
+// 인벤토리 아이템 카드
+// ───────────────────────────────────────────
+function ItemCard({ item }) {
+  return (
+    <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
+      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">
+        [ IMG ]
+      </div>
+      <p className="text-s font-bold truncate text-text-main font-pf-stardust">
+        {item.item_name || `Item_${item.item_id}`}
+      </p>
+      <p className="text-[10px] text-text-main/50 font-pf-stardust">x{item.quantity}</p>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────
+// 우편함 카드
+// ───────────────────────────────────────────
+function MailCard({ mail, onReceive }) {
+  return (
+    <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200">
+      <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">
+        [ MAIL ]
+      </div>
+      <p className="text-s font-bold truncate text-text-main font-pf-stardust">
+        {mail.item_name || '메시지'}
+      </p>
+      <p className="text-[10px] text-text-main/50 font-pf-stardust truncate">from: {mail.sender_id}</p>
+      <button
+        onClick={() => onReceive(mail)}
+        className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors"
+      >
+        수령하기
+      </button>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────
+// 탭 인벤토리 섹션
+// ───────────────────────────────────────────
 function InventorySection() {
   const TABS = [
     { id: 'friends',   label: 'FRIENDS'   },
@@ -85,192 +123,200 @@ function InventorySection() {
 
   const [activeTab, setActiveTab] = useState('inventory');
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [giftedItems, setGiftedItems] = useState([]);
-  const [friendsItems, setFriendsItems] = useState([]);
+  const [mailboxItems, setMailboxItems] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMail, setSelectedMail] = useState(null);
 
-  // 탭이 바뀔 때마다 해당 데이터 fetch (이미 로드된 탭은 재요청 생략)
+  const fetchTab = async (tab) => {
+    setIsLoading(true);
+    try {
+      const endpointMap = {
+        inventory: `${API}/mypage/inventory`,
+        gifted:    `${API}/mypage/mailbox`,
+        friends:   `${API}/mypage/friends`,
+      };
+      const res = await axios.get(endpointMap[tab], { withCredentials: true });
+      if (tab === 'inventory') setInventoryItems(res.data.inventory || []);
+      else if (tab === 'gifted') setMailboxItems(res.data.mailbox || []);
+      else setFriends(res.data.friends || []);
+    } catch (err) {
+      console.error(`${tab} 로드 실패:`, err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchItems = async () => {
-      const alreadyLoaded =
-        (activeTab === 'inventory' && inventoryItems.length > 0) ||
-        (activeTab === 'gifted'    && giftedItems.length > 0) ||
-        (activeTab === 'friends'   && friendsItems.length > 0);
-      if (alreadyLoaded) return;
+    fetchTab(activeTab);
+  }, [activeTab]);
 
-      setIsLoading(true);
-      try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) return;
-
-        const endpoint =
-          activeTab === 'inventory'
-            ? `/api/inventory/${userId}`   // 백엔드 엔드포인트 확정 시 수정
-            : activeTab === 'gifted'
-            ? `/api/gifts/${userId}`      // 백엔드 엔드포인트 확정 시 수정
-            : `/api/friends/${userId}`;   // 백엔드 엔드포인트 확정 시 수정
-
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error(`${activeTab} 로드 실패`);
-
-        const data = await res.json();
-        const items = normalizeResponse(data);
-
-        if (activeTab === 'inventory') setInventoryItems(items);
-        else if (activeTab === 'gifted') setGiftedItems(items);
-        else setFriendsItems(items);
-      } catch (err) {
-        console.error('아이템 로드 실패:', err);
-      } finally {
-        setIsLoading(false);
+  const confirmReceive = async () => {
+    if (!selectedMail) return;
+    try {
+      const res = await axios.post(`${API}/mypage/mailbox/receive`, { mail_id: selectedMail.mail_id }, { withCredentials: true });
+      if (res.data.Status === 'Success') {
+        setMailboxItems(prev => prev.filter(m => m.mail_id !== selectedMail.mail_id));
+        setInventoryItems([]); // 인벤토리 탭 전환 시 재로드되도록 초기화
+        setSelectedMail(null);
+      } else {
+        alert(res.data.Error || '수령 실패');
       }
-    };
-
-    fetchItems();
-  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const currentItems = activeTab === 'inventory' ? inventoryItems : activeTab === 'gifted' ? giftedItems : friendsItems;
+    } catch (err) {
+      console.error('수령 실패:', err);
+    }
+  };
 
   return (
-    <section className="px-12 py-6 bg-main border-y border-border-primary relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
+    <>
+      {selectedMail && (
+        <ReceiveModal
+          mail={selectedMail}
+          onConfirm={confirmReceive}
+          onClose={() => setSelectedMail(null)}
+        />
+      )}
 
-      <div className="flex flex-col gap-4 max-w-6xl mx-auto">
+      <section className="px-12 py-6 bg-main border-y border-border-primary relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
+        <div className="flex flex-col gap-4 max-w-6xl mx-auto">
 
-        {/* 탭 헤더 */}
-        <div className="flex items-end gap-0 border-b border-border-primary">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                text-s font-bold tracking-widest px-6 py-2 transition-colors duration-150
-                ${activeTab === tab.id
-                  ? 'text-primary border-b-2 border-border-primary -mb-px bg-primary/10'
-                  : 'text-text-main/40 hover:text-text-main/70'}
-              `}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          {/* 탭 헤더 */}
+          <div className="flex items-end gap-0 border-b border-border-primary">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  text-s font-bold tracking-widest px-6 py-2 transition-colors duration-150
+                  ${activeTab === tab.id
+                    ? 'text-primary border-b-2 border-border-primary -mb-px bg-primary/10'
+                    : 'text-text-main/40 hover:text-text-main/70'}
+                `}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        {/* 아이템 목록 */}
-        {activeTab === 'friends' ? (
-          <div className="min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4 flex items-center justify-left">
-            {isLoading ? (
-              <p className="text-text-main/50 text-s font-pf-stardust">로딩 중...</p>
-            ) : currentItems.length > 0 ? (
-              <div className="space-y-2 w-full">
-                {currentItems.map((friend, index) => (
-                  <div key={friend.id ?? index} className="border border-border-primary p-4 flex items-center gap-4 hover:bg-primary/10 transition-colors">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary/50">👤</div>
-                    <div>
-                      <p className="font-bold text-text-main font-pf-stardust">{friend.name || `Friend ${index + 1}`}</p>
-                      <p className="text-sm text-text-main/50">{friend.status || 'Online'}</p>
+          {/* FRIENDS */}
+          {activeTab === 'friends' && (
+            <div className="min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4">
+              {isLoading ? (
+                <p className="text-text-main/50 text-s font-pf-stardust">로딩 중...</p>
+              ) : friends.length > 0 ? (
+                <div className="space-y-2 w-full">
+                  {friends.map((friend) => (
+                    <div key={friend.id} className="border border-border-primary p-4 flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                        {friend.image_url
+                          ? <img src={friend.image_url} alt={friend.char_name} className="w-full h-full object-cover" />
+                          : <span className="text-primary/50">👤</span>
+                        }
+                      </div>
+                      <div>
+                        <p className="font-bold text-text-main font-pf-stardust">{friend.char_name}</p>
+                        <p className="text-sm text-text-main/50">{friend.position || '-'}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-text-main/50 text-lg font-pf-stardust">친구가 없습니다.</p>
-            )}
-          </div>
-        ) : (
-          <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {isLoading ? (
-              <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
-            ) : currentItems.length > 0 ? (
-              currentItems.map((item, index) => (
-                <ItemCard key={item.id ?? index} item={item} tab={activeTab} />
-              ))
-            ) : (
-              <p className="text-text-main/50 text-lg self-center font-pf-stardust">
-                {activeTab === 'inventory'
-                  ? '보유한 아이템이 없습니다.'
-                  : '선물받은 아이템이 없습니다.'}
-              </p>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-main/50 text-lg font-pf-stardust mt-8">친구가 없습니다.</p>
+              )}
+            </div>
+          )}
 
-      </div>
-    </section>
+          {/* INVENTORY */}
+          {activeTab === 'inventory' && (
+            <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {isLoading ? (
+                <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
+              ) : inventoryItems.length > 0 ? (
+                inventoryItems.map((item) => <ItemCard key={item.inv_id} item={item} />)
+              ) : (
+                <p className="text-text-main/50 text-lg self-center font-pf-stardust">보유한 아이템이 없습니다.</p>
+              )}
+            </div>
+          )}
+
+          {/* GIFTED */}
+          {activeTab === 'gifted' && (
+            <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {isLoading ? (
+                <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
+              ) : mailboxItems.length > 0 ? (
+                mailboxItems.map((mail) => (
+                  <MailCard key={mail.mail_id} mail={mail} onReceive={setSelectedMail} />
+                ))
+              ) : (
+                <p className="text-text-main/50 text-lg self-center font-pf-stardust">수령할 메일이 없습니다.</p>
+              )}
+            </div>
+          )}
+
+        </div>
+      </section>
+    </>
   );
 }
 
-// ─────────────────────────────────────────────
+// ───────────────────────────────────────────
 // 메인 페이지
-// ─────────────────────────────────────────────
+// ───────────────────────────────────────────
 export default function MyPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-
-  // 사용자 정보
-  const [userInfo, setUserInfo] = useState({ name: '', age: '', position: '', point: 0 });
-
-  // 플레이리스트
+  const [member, setMember] = useState(null);
   const [videoLinks, setVideoLinks] = useState([]);
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
   const [player, setPlayer] = useState(null);
   const [nowPlayingIndex, setNowPlayingIndex] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-
-  // 플레이어 상태
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(100);
+  const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
 
+  // 마이페이지 기본 데이터
   useEffect(() => {
-    const fetchUserGifts = async () => {
+    const fetchMyPage = async () => {
       setIsLoadingPlaylist(true);
       try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) { setIsLoadingPlaylist(false); return; }
+        const res = await axios.get(`${API}/mypage`, { withCredentials: true });
+        if (res.data.Status !== 'Success') return;
+        setMember(res.data.member);
 
-        const response = await fetch(`/api/gifts/${userId}`);
-        if (!response.ok) throw new Error('플레이리스트 로드 실패');
-
-        const data = await response.json();
-        const fetchedLinks = normalizeResponse(data);
-
+        const playlist = res.data.playlist || [];
         const linksWithTitles = await Promise.all(
-          fetchedLinks.map(async (link, index) => {
-            if (link.title) return link;
-            const videoId = getYouTubeID(link.url);
-            if (!videoId) return { ...link, title: link.url || `Track ${index + 1}` };
+          playlist.map(async (track, index) => {
+            const videoId = getYouTubeID(track.youtube_url);
+            if (!videoId) return { ...track, url: track.youtube_url, title: `Track ${index + 1}` };
             const title = await fetchYouTubeTitle(videoId);
-            return { ...link, title: title || link.url || `Track ${index + 1}` };
+            return { ...track, url: track.youtube_url, title: title || `Track ${index + 1}` };
           })
         );
-
         setVideoLinks(linksWithTitles);
-      } catch (error) {
-        console.error('플레이리스트 로드 실패:', error);
-        setVideoLinks([]);
+      } catch (err) {
+        console.error('마이페이지 로드 실패:', err);
       } finally {
         setIsLoadingPlaylist(false);
       }
     };
-    fetchUserGifts();
+    fetchMyPage();
   }, []);
 
+  // 뱃지
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      const userId = localStorage.getItem('userId');
-      if (!userId) return;
-      try {
-        const res = await fetch(`/api/user/${userId}`);
-        if (!res.ok) throw new Error('User info fetch failed');
-        const data = await res.json();
-        setUserInfo(data);
-      } catch (err) {
-        console.error('User info fetch error:', err);
-      }
-    };
-    fetchUserInfo();
+    axios.get(`${API}/mypage/badges`, { withCredentials: true })
+      .then(res => {
+        if (res.data.Status === 'Success') {
+          setEarnedBadgeIds(res.data.badges.map(b => b.badge_id));
+        }
+      })
+      .catch(err => console.error('뱃지 로드 실패:', err));
   }, []);
 
+  // 플레이어 타이머
   useEffect(() => {
     const interval = setInterval(() => {
       if (player && isPlaying) {
@@ -282,227 +328,175 @@ export default function MyPage() {
   }, [player, isPlaying]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const handleImageUpload = (e) => {
-    if (e.target.files?.[0]) setProfileImage(URL.createObjectURL(e.target.files[0]));
-  };
-
-  const youtubePlayerOptions = {
-    height: '0', width: '0',
-    playerVars: { autoplay: 0 },
-  };
-
-  const onPlayerReady = (event) => {
-    setPlayer(event.target);
-    event.target.setVolume(volume);
-  };
-
-  const onPlayerStateChange = (event) => {
-    setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
-    if (event.data === window.YT.PlayerState.ENDED) {
+  const youtubePlayerOptions = { height: '0', width: '0', playerVars: { autoplay: 0 } };
+  const onPlayerReady = (e) => { setPlayer(e.target); e.target.setVolume(volume); };
+  const onPlayerStateChange = (e) => {
+    setIsPlaying(e.data === window.YT.PlayerState.PLAYING);
+    if (e.data === window.YT.PlayerState.ENDED) {
       const next = nowPlayingIndex + 1;
-      if (next < videoLinks.length) {
-        handlePlay(next);
-      } else {
-        setNowPlayingIndex(null);
-        setCurrentTime(0);
-        setDuration(0);
-      }
+      if (next < videoLinks.length) handlePlay(next);
+      else { setNowPlayingIndex(null); setCurrentTime(0); setDuration(0); }
     }
   };
-
   const handlePlay = (index) => {
     if (nowPlayingIndex === index && isPlaying) { player?.pauseVideo(); return; }
     const videoId = getYouTubeID(videoLinks[index]?.url);
-    if (player && videoId) {
-      setNowPlayingIndex(index);
-      player.loadVideoById(videoId);
-      player.playVideo();
-    }
+    if (player && videoId) { setNowPlayingIndex(index); player.loadVideoById(videoId); player.playVideo(); }
   };
-
-  const handlePlayPause = () => {
-    if (!player || nowPlayingIndex === null) return;
-    isPlaying ? player.pauseVideo() : player.playVideo();
-  };
-
+  const handlePlayPause = () => { if (!player || nowPlayingIndex === null) return; isPlaying ? player.pauseVideo() : player.playVideo(); };
   const handlePrev = () => { if (nowPlayingIndex > 0) handlePlay(nowPlayingIndex - 1); };
   const handleNext = () => { if (nowPlayingIndex < videoLinks.length - 1) handlePlay(nowPlayingIndex + 1); };
-
   const handleSeek = (time) => { player?.seekTo(time, true); setCurrentTime(time); };
-
-  const handleVolumeChange = (newVolume) => { player?.setVolume(newVolume); setVolume(newVolume); };
-
-  const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const handleVolumeChange = (v) => { player?.setVolume(v); setVolume(v); };
+  const formatTime = (s) => {
+    if (!s || isNaN(s)) return '0:00';
+    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
   };
 
   return (
-  <>
-    <div className="min-h-screen bg-main text-text-main font-mono relative">
-      <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
-      <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
+    <>
+      <div className="min-h-screen bg-main text-text-main font-mono relative">
+        <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
+        <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
 
-      {/* 숨겨진 YouTube 플레이어 - 항상 마운트 유지 */}
-      <div className="hidden">
-        <YouTube onReady={onPlayerReady} onStateChange={onPlayerStateChange} opts={youtubePlayerOptions} />
-      </div>
-
-      <main className="relative z-10">
-
-        {/* 프로필 + 정보 + 플레이리스트 */}
-        <section className="px-4 md:px-12 py-12 bg-main relative overflow-hidden">
-          <div className="flex flex-col md:flex-row gap-4 min-h-0 md:min-h-[30vh] max-h-none md:max-h-[50vh] max-w-6xl mx-auto">
-            {/* 프로필 이미지 */}
-            <div className="border border-border-primary w-full md:w-2/12 aspect-square flex flex-col">
-              <input type="file" id="profile-upload" className="hidden" onChange={handleImageUpload} accept="image/*" />
-              {/* 이미지 표시 영역 */}
-              <div className="flex-1 flex items-center justify-center p-4">
-                {profileImage
-                  ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary/50">No Image</div>
-                }
-              </div>
-              {/* 구분선 */}
-              <div className="border-t border-border-primary"></div>
-              {/* 업로드 버튼 */}
-              <label htmlFor="profile-upload" className="cursor-pointer bg-primary hover:bg-primary/80 text-white text-center py-2 px-4 text-sm font-bold transition-colors">
-                Upload
-              </label>
-            </div>
-
-          {/* 정보 */}
-          <div className="w-full md:w-6/12 border border-border-primary p-4">
-          <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">INFO</h4>
-          <ul className="space-y-2 font-pf-stardust text-lg text-text-main/70">
-            <li className="border-b border-border-primary/30 pb-1">NAME : {userInfo.name}</li>
-            <li className="border-b border-border-primary/30 pb-1">AGE : {userInfo.age}</li>
-            <li className="border-b border-border-primary/30 pb-1">POSITION : {userInfo.position}</li>
-            <li className="pb-1">POINT : {userInfo.point}</li>
-          </ul>
-          </div>
-
-          {/* 플레이리스트 */}
-          <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col overflow-hidden">
-            <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">PLAYLIST</h4>
-
-            <div className="flex-1 overflow-y-auto min-h-0">
-              {isLoadingPlaylist ? (
-                <p className="text-text-main/50 text-sm font-pf-stardust">로딩 중...</p>
-              ) : videoLinks.length > 0 ? (
-                <div className="space-y-2">
-                  {videoLinks.map((video, index) => (
-                    <button
-                      key={video.id ?? index}
-                      onClick={() => handlePlay(index)}
-                      className={`w-full text-left p-2 rounded transition-colors duration-00 ${
-                        nowPlayingIndex === index ? 'bg-primary/30 text-text-main' : 'hover:bg-primary/10'
-                      }`}
-                    >
-                      <span className="font-bold">{nowPlayingIndex === index && isPlaying ? '▶' : '▷'}</span>
-                      <span className="ml-3 text-sm truncate">{video.title}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-text-main/50 text-lg font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
-              )}
-            </div>
-
-            {nowPlayingIndex !== null && (
-              <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
-                <p className="text-s text-primary truncate mb-2 font-pf-stardust">♪ {videoLinks[nowPlayingIndex]?.title}</p>
-
-                <div className="text-s text-text-main/70 mb-1 flex justify-between">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-
-                <input
-                  type="range" min="0" max={duration || 0} value={currentTime}
-                  onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-primary/0 rounded cursor-pointer accent-primary mb-4"
-                />
-
-                <div className="flex gap-2 mb-4">
-                  <button onClick={handlePrev} disabled={nowPlayingIndex === 0}
-                    className="bg-primary/0 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
-                  <button onClick={handlePlayPause}
-                    className="flex-1 bg-primary/0 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">
-                    {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
-                  </button>
-                  <button onClick={handleNext} disabled={nowPlayingIndex === videoLinks.length - 1}
-                    className="bg-primary/0 hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-s text-text-main/70">🔊</span>
-                  <input type="range" min="0" max="100" value={volume}
-                    onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-                    className="flex-1 h-1 bg-primary/0 rounded cursor-pointer accent-primary" />
-                  <span className="text-xs text-text-main/70 w-8 text-right">{volume}</span>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="hidden">
+          <YouTube onReady={onPlayerReady} onStateChange={onPlayerStateChange} opts={youtubePlayerOptions} />
         </div>
-        </section>
 
-        {/* 탭형 인벤토리 / 선물 섹션 */}
-        <InventorySection />
+        <main className="relative z-10">
 
-        {/* ARCHIVE_HISTORY */}
-        <section className="px-12 py-12 bg-main border-b border-border-primary relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
-          <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
-            <div className="md:w-1/4">
-              <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
-              <p className="text-text-main/50 text-s leading-relaxed font-pf-stardust">
-                무엇을 해냈나요?
-              </p>
-            </div>
-            <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
-              {badges.map((badge) => (
-                <div
-                  key={badge.id}
-                  className={`
-                    aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-pf-stardust text-lg text-text-main/70
-                    ${badge.isEmpty 
-                      ? 'border-border-primary bg-main/40 opacity-30' 
-                      : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}
-                  `}
-                >
-                  {!badge.isEmpty && (
-                    <>
-                      <div className="text-sm font-bold opacity-100 group-hover:opacity-0 transition-opacity">{badge.name}</div>
-                      <div className="absolute inset-0 bg-main/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                        <div className="text-center text-xs">
-                          {badge.desc}
-                        </div>
-                      </div>
-                    </>
+          {/* 프로필 + 정보 + 플레이리스트 */}
+          <section className="px-4 md:px-12 py-12 bg-main relative overflow-hidden">
+            <div className="flex flex-col md:flex-row gap-4 min-h-0 md:min-h-[30vh] max-h-none md:max-h-[50vh] max-w-6xl mx-auto">
+
+              {/* 프로필 이미지 */}
+              <div className="border border-border-primary w-full md:w-2/12 aspect-square flex flex-col">
+                <div className="flex-1 flex items-center justify-center p-4">
+                  {member?.image_url
+                    ? <img src={member.image_url} alt="Profile" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary/50">No Image</div>
+                  }
+                </div>
+              </div>
+
+              {/* 정보 */}
+              <div className="w-full md:w-6/12 border border-border-primary p-4">
+                <h4 className="text-lg font-bold mb-4 text-primary">INFO</h4>
+                {member ? (
+                  <ul className="space-y-2 font-pf-stardust text-lg text-text-main/70">
+                    <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
+                    <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
+                    <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
+                    <li className="pb-1">POINT : {member.point}</li>
+                  </ul>
+                ) : (
+                  <p className="text-text-main/50 font-pf-stardust">로딩 중...</p>
+                )}
+              </div>
+
+              {/* 플레이리스트 */}
+              <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col overflow-hidden">
+                <h4 className="text-lg font-bold mb-4 text-primary">PLAYLIST</h4>
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  {isLoadingPlaylist ? (
+                    <p className="text-text-main/50 text-sm font-pf-stardust">로딩 중...</p>
+                  ) : videoLinks.length > 0 ? (
+                    <div className="space-y-2">
+                      {videoLinks.map((video, index) => (
+                        <button key={video.track_id ?? index} onClick={() => handlePlay(index)}
+                          className={`w-full text-left p-2 rounded transition-colors duration-200 ${nowPlayingIndex === index ? 'bg-primary/30' : 'hover:bg-primary/10'}`}>
+                          <span className="font-bold">{nowPlayingIndex === index && isPlaying ? '▶' : '▷'}</span>
+                          <span className="ml-3 text-sm truncate">{video.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-text-main/50 text-lg font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
                   )}
-                  <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
                 </div>
-              ))}
+
+                {nowPlayingIndex !== null && (
+                  <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
+                    <p className="text-s text-primary truncate mb-2 font-pf-stardust">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                    <div className="text-s text-text-main/70 mb-1 flex justify-between">
+                      <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
+                    </div>
+                    <input type="range" min="0" max={duration || 0} value={currentTime}
+                      onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                      className="w-full h-1 rounded cursor-pointer accent-primary mb-4" />
+                    <div className="flex gap-2 mb-4">
+                      <button onClick={handlePrev} disabled={nowPlayingIndex === 0}
+                        className="hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
+                      <button onClick={handlePlayPause}
+                        className="flex-1 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">
+                        {isPlaying ? '⏸ PAUSE' : '▶ PLAY'}
+                      </button>
+                      <button onClick={handleNext} disabled={nowPlayingIndex === videoLinks.length - 1}
+                        className="hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-s text-text-main/70">🔊</span>
+                      <input type="range" min="0" max="100" value={volume}
+                        onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
+                        className="flex-1 h-1 rounded cursor-pointer accent-primary" />
+                      <span className="text-xs text-text-main/70 w-8 text-right">{volume}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+          </section>
+
+          {/* 탭형 인벤토리 */}
+          <InventorySection />
+
+          {/* 뱃지 */}
+          <section className="px-12 py-12 bg-main border-b border-border-primary relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
+            <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
+              <div className="md:w-1/4">
+                <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
+                <p className="text-text-main/50 text-s leading-relaxed font-pf-stardust">무엇을 해냈나요?</p>
+              </div>
+              <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
+                {badges.map((badge) => {
+                  const isEarned = earnedBadgeIds.includes(badge.id);
+                  return (
+                    <div key={badge.id}
+                      className={`
+                        aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-pf-stardust text-lg text-text-main/70
+                        ${badge.isEmpty || !isEarned
+                          ? 'border-border-primary bg-main/40 opacity-30'
+                          : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}
+                      `}
+                    >
+                      {!badge.isEmpty && isEarned && (
+                        <>
+                          <div className="text-sm font-bold opacity-100 group-hover:opacity-0 transition-opacity">{badge.name}</div>
+                          <div className="absolute inset-0 bg-main/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                            <div className="text-center text-xs">{badge.desc}</div>
+                          </div>
+                        </>
+                      )}
+                      <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+        </main>
+
+        <footer className="px-12 py-8 border-t border-border-primary bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
+          <div className="flex gap-12">
+            <p className="font-pf-stardust">Local_Time: ?</p>
+            <p className="font-pf-stardust">System_Temp: 15°C</p>
+            <p className="font-pf-stardust">Link_Strength: 98%</p>
           </div>
-        </section>
-
-      </main>
-
-      <footer className="px-12 py-8 border-t border-border-primary bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
-        <div className="flex gap-12">
-          <p className="font-pf-stardust">Local_Time: ?</p>
-          <p className="font-pf-stardust">System_Temp: 15°C</p>
-          <p className="font-pf-stardust">Link_Strength: 98%</p>
-        </div>
-        <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>
-      </footer>
-    </div>
-  </>
+          <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>
+        </footer>
+      </div>
+    </>
   );
 }
