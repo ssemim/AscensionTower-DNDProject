@@ -5,6 +5,8 @@ import Menu from '../../components/Menu/Menu';
 import YouTube from 'react-youtube';
 import '../Landing/index.css';
 import badges from './badge.js';
+import { useDispatch } from 'react-redux';
+import { login } from '../../store/authSlice';
 
 const API = 'http://localhost:8081';
 
@@ -87,14 +89,33 @@ function MailCard({ mail, onReceive }) {
       {mail.message && (
         <p className="text-[10px] text-text-main/40 font-pf-stardust truncate">"{mail.message}"</p>
       )}
-      {/* 아이템이 있고 아직 수령 안 했을 때만 버튼 표시 */}
-      {mail.item_id && !mail.item_received ? (
-        <button onClick={() => onReceive(mail)} className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors">
+      {/* 아이템 있음 + 미수령: 수령 버튼 */}
+      {mail.item_id && !mail.item_received && (
+        <button
+          onClick={() => onReceive(mail)}
+          className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors"
+        >
           수령하기
         </button>
-      ) : mail.item_id ? (
-        <p className="text-[10px] text-text-main/30 font-pf-stardust text-center">수령 완료</p>
+      )}
+      {/* 아이템 있음 + 수령 완료: disabled 버튼 */}
+      {mail.item_id && mail.item_received ? (
+        <button
+          disabled
+          className="text-[10px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed"
+        >
+          이미 수령 완료한 메일입니다
+        </button>
       ) : null}
+      {/* 아이템 없음 (메시지만): disabled 버튼 */}
+      {!mail.item_id && (
+        <button
+          disabled
+          className="text-[10px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed"
+        >
+          이미 수령 완료한 메일입니다
+        </button>
+      )}
     </div>
   );
 }
@@ -142,7 +163,14 @@ function InventorySection() {
     try {
       const res = await axios.post(`${API}/mypage/mailbox/receive`, { mail_id: selectedMail.mail_id }, { withCredentials: true });
       if (res.data.Status === 'Success') {
-        setMailboxItems(prev => prev.filter(m => m.mail_id !== selectedMail.mail_id));
+        // 메시지가 있으면 카드 유지하되 item_received만 1로 업데이트, 없으면 제거
+        if (selectedMail.message) {
+          setMailboxItems(prev => prev.map(m =>
+            m.mail_id === selectedMail.mail_id ? { ...m, item_received: 1 } : m
+          ));
+        } else {
+          setMailboxItems(prev => prev.filter(m => m.mail_id !== selectedMail.mail_id));
+        }
         setInventoryItems([]);
         setSelectedMail(null);
       } else {
@@ -297,6 +325,7 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
 // 메인 페이지
 // ───────────────────────────────────────────
 export default function MyPage() {
+  const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [member, setMember] = useState(null);
   const [videoLinks, setVideoLinks] = useState([]);
@@ -317,6 +346,7 @@ export default function MyPage() {
       try {
         const res = await axios.get(`${API}/mypage`, { withCredentials: true });
         if (res.data.Status !== 'Success') return;
+        dispatch(login());
         setMember(res.data.member);
         const playlist = res.data.playlist || [];
         const linksWithTitles = await Promise.all(
@@ -407,7 +437,6 @@ export default function MyPage() {
   return (
     <>
       <div className="min-h-screen bg-main text-text-main font-mono relative">
-        <Menu isOpen={isMenuOpen} onToggle={toggleMenu} />
         <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
 
         <div className="hidden">
@@ -458,8 +487,7 @@ export default function MyPage() {
                     <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
                     <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
                     <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
-                    <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
-                    <li className="pb-1">STAT : {member.point}</li>
+                    <li className="pb-1">POINT : {member.point}</li>
                   </ul>
                 ) : (
                   <p className="text-text-main/50 font-pf-stardust">로딩 중...</p>
