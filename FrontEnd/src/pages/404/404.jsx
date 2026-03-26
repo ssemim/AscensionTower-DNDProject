@@ -7,25 +7,22 @@ function NotFound() {
     
     <div className="not-found-container min-h-screen bg-black text-text-main flex items-center justify-center p-10 relative">
       <div className="error">
+        <p className="text-4xl font-bold text-purple-500 mb-4">ERROR 404!</p>
         <div className="wrap">
           <pre className="font-mono leading-relaxed">
             <code>
-              <span className="text-green-400">&lt;!</span><span>???</span><span className="text-green-400">&gt;</span><br />
-              <span className="text-orange-400 font-bold">&lt;너&gt;</span><br />
-              <span className="text-orange-400 text-4xl">&lt;완전히&gt;</span><br />
-              &nbsp;&nbsp;* &#123;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-green-400 text-3xl">길을</span>:<span className="text-blue-400 font-bold">멋지다!</span>;<br />
-              &nbsp;&nbsp;&#125;<br />
-              <span className="text-orange-400 text-4xl">&lt;잃었어&gt;</span><br />
-              <span className="text-orange-400">&lt;여기&gt;</span><br />
               <br />
               <span className="text-2xl font-bold">ERROR 404!</span><br />
               <span className="text-xl">아무것도 없어!</span><br />
               <br />
               <span className="text-gray-500 italic">&lt;!--THE TOWER,<br />
               &nbsp;&nbsp;?ASCEN?TION.--&gt;</span><br />
-              <span className="text-orange-400">&lt;/돌아가자&gt;</span><br />
-              <span className="text-orange-400">&lt;/밖으로&gt;</span>
+              <span className="text-2xl text-purple-500 font-bold">접근 제한 구역입니다. 놀라셨나요?</span><br />
+              <span className="text-lg text-gray-400">이곳은 존재하지 않는 페이지입니다.</span><br />
+                <span className="text-2xl text-purple-400 font-bold">그냥 왼쪽 구석을 한 번 눌러보세요 </span><br />
+                <span className="text-lg text-purple-700 font-bold">메뉴 버튼이 있던 자리 말이에요.</span><br />
+                <span className="text-xl text-purple-400 font-bold">바깥으로 바로 보내드리겠습니다. </span><br />
+                
             </code>
           </pre>
         </div>

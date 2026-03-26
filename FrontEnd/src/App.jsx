@@ -11,6 +11,7 @@ import MyPage from './pages/MyPage/MyPage'
 import Shop from './pages/Shop/Shop'
 import World from './pages/World/World'
 import Blackjack from './pages/BlackJack/Blackjack'
+import Member from './pages/Member/Member'
 import NotFound from './pages/404/404'
 import MouseEffect from './components/MouseEffect/MouseEffect'
 import { useDispatch } from 'react-redux'
@@ -70,6 +71,7 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/world" element={<World />} />
             <Route path="/blackjack" element={<Blackjack />} />
+            <Route path="/member" element={<Member />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ThemeProvider>

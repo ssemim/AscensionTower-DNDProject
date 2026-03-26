@@ -63,7 +63,7 @@ const Shop = () => {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-pf-stardust font-black text-text-main italic tracking-widest">
+          <div className="text-3xl font-one-store-mobile-gothic-body font-black text-text-main italic tracking-widest">
             {point !== null ? point : '...'} <span className="text-primary/80 text-sm italic">CR</span>
           </div>
         </div>

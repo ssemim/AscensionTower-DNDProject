@@ -286,7 +286,7 @@ const BuyItemModal = ({
                   {/* 검색 결과 없음 */}
                   {showDropdown && searchResults.length === 0 && searchQuery && !isSearching && (
                     <div className={`absolute top-full left-0 right-0 z-50 border ${isDark ? 'bg-main border-slate-700' : 'bg-main border-slate-200'} px-4 py-3`}>
-                      <p className="text-xs text-text-main/50 font-pf-stardust">검색 결과가 없습니다.</p>
+                      <p className="text-xs text-text-main/50 font-one-store-mobile-gothic-body">검색 결과가 없습니다.</p>
                     </div>
                   )}
                 </div>

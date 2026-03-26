@@ -35,44 +35,17 @@ async function fetchYouTubeTitle(videoId) {
   }
 }
 
-// ───────────────────────────────────────────
-// 수령 모달
-// ───────────────────────────────────────────
-function ReceiveModal({ mail, onConfirm, onClose }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-main border border-border-primary rounded-xl p-8 max-w-sm w-full shadow-stark-glow relative">
-        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-        <h3 className="text-primary font-bold text-lg tracking-widest mb-4">INCOMING MAIL</h3>
-        <p className="text-text-main/70 text-sm font-pf-stardust mb-1">from: <span className="text-primary">{mail.sender_name || mail.sender_id}</span></p>
-        {mail.item_name && (
-          <p className="text-text-main/70 text-sm font-pf-stardust mb-1">
-            item: <span className="text-primary">{mail.item_name}</span> x{mail.quantity}
-          </p>
-        )}
-        {mail.message && (
-          <p className="text-text-main/50 text-xs font-pf-stardust mt-3 border-t border-border-primary/30 pt-3">
-            "{mail.message}"
-          </p>
-        )}
-        <div className="flex gap-3 mt-6">
-          <button onClick={onConfirm} className="flex-1 bg-primary hover:bg-primary/80 text-white font-bold py-2 rounded-lg transition-colors tracking-widest text-sm">RECEIVE</button>
-          <button onClick={onClose} className="flex-1 border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm">CLOSE</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import ReceiveAndUseModal from '../../components/Modal/ReceiveAndUseModal';
 
 // ───────────────────────────────────────────
 // 인벤토리 아이템 카드
 // ───────────────────────────────────────────
-function ItemCard({ item }) {
+function ItemCard({ item, onClick }) {
   return (
-    <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
+    <div onClick={onClick} className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200 cursor-pointer">
       <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">[ IMG ]</div>
-      <p className="text-s font-bold truncate text-text-main font-pf-stardust">{item.item_name || `Item_${item.item_id}`}</p>
-      <p className="text-[10px] text-text-main/50 font-pf-stardust">x{item.quantity}</p>
+      <p className="text-s font-bold truncate text-text-main font-one-store-mobile-gothic-body">{item.item_name || `Item_${item.item_id}`}</p>
+      <p className="text-[10px] text-text-main/50 font-one-store-mobile-gothic-body">x{item.quantity}</p>
     </div>
   );
 }
@@ -81,19 +54,31 @@ function ItemCard({ item }) {
 // 우편함 카드
 // ───────────────────────────────────────────
 function MailCard({ mail, onReceive }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const messageIsLong = mail.message && mail.message.length > 20;
+
   return (
     <div className="flex-shrink-0 w-36 border border-border-primary p-3 flex flex-col gap-2 hover:bg-primary/10 transition-colors duration-200">
       <div className="w-full aspect-square bg-primary/10 flex items-center justify-center text-primary/30 text-s">[ MAIL ]</div>
-      <p className="text-s font-bold truncate text-text-main font-pf-stardust">{mail.item_name || '메시지'}</p>
-      <p className="text-[10px] text-text-main/50 font-pf-stardust truncate">from: {mail.sender_name || mail.sender_id}</p>
+      <p className="text-s font-bold truncate text-text-main font-one-store-mobile-gothic-body">{mail.item_name || '메시지'}</p>
+      <p className="text-[10px] text-text-main/50 font-one-store-mobile-gothic-body truncate">from: {mail.sender_name || mail.sender_id}</p>
       {mail.message && (
-        <p className="text-[10px] text-text-main/40 font-pf-stardust truncate">"{mail.message}"</p>
+        <div className="text-[14px] text-text-main/40 font-one-store-mobile-gothic-body">
+          <p className={!isExpanded ? 'truncate' : ''}>
+            "{mail.message}"
+          </p>
+          {messageIsLong && (
+            <button onClick={() => setIsExpanded(!isExpanded)} className="text-xs text-primary/70 hover:underline mt-1">
+              {isExpanded ? '접기' : '더보기'}
+            </button>
+          )}
+        </div>
       )}
       {/* 아이템 있음 + 미수령: 수령 버튼 */}
       {mail.item_id && !mail.item_received && (
         <button
           onClick={() => onReceive(mail)}
-          className="text-[10px] bg-primary/20 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors"
+          className="text-[14px] border-primary border-border-primary/30 hover:bg-primary/40 text-primary font-bold py-1 rounded transition-colors mt-auto"
         >
           수령하기
         </button>
@@ -102,18 +87,18 @@ function MailCard({ mail, onReceive }) {
       {mail.item_id && mail.item_received ? (
         <button
           disabled
-          className="text-[10px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed"
+          className="text-[14px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed mt-auto"
         >
-          이미 수령 완료한 메일입니다
+          수령 완료
         </button>
       ) : null}
       {/* 아이템 없음 (메시지만): disabled 버튼 */}
       {!mail.item_id && (
         <button
           disabled
-          className="text-[10px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed"
+          className="text-[14px] bg-transparent border border-border-primary/30 text-text-main/30 font-bold py-1 rounded cursor-not-allowed mt-auto"
         >
-          이미 수령 완료한 메일입니다
+          수령 완료
         </button>
       )}
     </div>
@@ -136,6 +121,7 @@ function InventorySection() {
   const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMail, setSelectedMail] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchTab = async (tab) => {
     setIsLoading(true);
@@ -146,7 +132,20 @@ function InventorySection() {
         friends:   `${API}/mypage/friends`,
       };
       const res = await axios.get(endpointMap[tab], { withCredentials: true });
-      if (tab === 'inventory') setInventoryItems(res.data.inventory || []);
+      if (tab === 'inventory') {
+        const items = res.data.inventory || [];
+        // 각 아이템에 description 추가
+        const itemsWithDetails = await Promise.all(items.map(async (item) => {
+          try {
+            const itemRes = await axios.get(`${API}/items/${item.item_id}`);
+            return { ...item, description: itemRes.data.description };
+          } catch (err) {
+            console.error(`아이템 상세 정보 로드 실패 (ID: ${item.item_id}):`, err);
+            return { ...item, description: '상세 정보를 불러올 수 없습니다.' };
+          }
+        }));
+        setInventoryItems(itemsWithDetails);
+      }
       else if (tab === 'gifted') setMailboxItems(res.data.mailbox || []);
       else setFriends(res.data.friends || []);
     } catch (err) {
@@ -163,7 +162,6 @@ function InventorySection() {
     try {
       const res = await axios.post(`${API}/mypage/mailbox/receive`, { mail_id: selectedMail.mail_id }, { withCredentials: true });
       if (res.data.Status === 'Success') {
-        // 메시지가 있으면 카드 유지하되 item_received만 1로 업데이트, 없으면 제거
         if (selectedMail.message) {
           setMailboxItems(prev => prev.map(m =>
             m.mail_id === selectedMail.mail_id ? { ...m, item_received: 1 } : m
@@ -171,7 +169,7 @@ function InventorySection() {
         } else {
           setMailboxItems(prev => prev.filter(m => m.mail_id !== selectedMail.mail_id));
         }
-        setInventoryItems([]);
+        fetchTab('inventory'); 
         setSelectedMail(null);
       } else {
         alert(res.data.Error || '수령 실패');
@@ -181,9 +179,43 @@ function InventorySection() {
     }
   };
 
+  const confirmUse = async () => {
+    if (!selectedItem) return;
+    alert(`[${selectedItem.item_name}] 아이템을 사용합니다. (API 미구현)`);
+    console.log("사용된 아이템:", selectedItem);
+    // 향후 API 호출 구현...
+    // 예: await axios.post(`${API}/mypage/inventory/use`, { inv_id: selectedItem.inv_id });
+    setSelectedItem(null);
+  };
+
   return (
     <>
-      {selectedMail && <ReceiveModal mail={selectedMail} onConfirm={confirmReceive} onClose={() => setSelectedMail(null)} />}
+      {/* 메일 수령 모달 */}
+      {selectedMail && (
+        <ReceiveAndUseModal
+          title="INCOMING MAIL"
+          confirmText="RECEIVE"
+          from={selectedMail.sender_name || selectedMail.sender_id}
+          itemName={selectedMail.item_name}
+          quantity={selectedMail.quantity}
+          description={selectedMail.message}
+          onConfirm={confirmReceive}
+          onClose={() => setSelectedMail(null)}
+        />
+      )}
+
+      {/* 아이템 사용 모달 */}
+      {selectedItem && (
+        <ReceiveAndUseModal
+          title="USE ITEM"
+          confirmText="USE"
+          itemName={selectedItem.item_name}
+          quantity={selectedItem.quantity}
+          description={selectedItem.description}
+          onConfirm={confirmUse}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
 
       <section className="px-12 py-6 bg-main border-y border-border-primary relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
@@ -199,7 +231,7 @@ function InventorySection() {
 
           {activeTab === 'friends' && (
             <div className="min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4">
-              {isLoading ? <p className="text-text-main/50 text-s font-pf-stardust">로딩 중...</p>
+              {isLoading ? <p className="text-text-main/50 text-s font-one-store-mobile-gothic-body">로딩 중...</p>
                 : friends.length > 0 ? (
                   <div className="space-y-2 w-full">
                     {friends.map((friend) => (
@@ -208,29 +240,29 @@ function InventorySection() {
                           {friend.image_url ? <img src={friend.image_url} alt={friend.char_name} className="w-full h-full object-cover" /> : <span className="text-primary/50">👤</span>}
                         </div>
                         <div>
-                          <p className="font-bold text-text-main font-pf-stardust">{friend.char_name}</p>
+                          <p className="font-bold text-text-main font-one-store-mobile-gothic-body">{friend.char_name}</p>
                           <p className="text-sm text-text-main/50">{friend.position || '-'}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                ) : <p className="text-text-main/50 text-lg font-pf-stardust mt-8">친구가 없습니다.</p>}
+                ) : <p className="text-text-main/50 text-lg font-one-store-mobile-gothic-body mt-8">친구가 없습니다.</p>}
             </div>
           )}
 
           {activeTab === 'inventory' && (
             <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-              {isLoading ? <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
-                : inventoryItems.length > 0 ? inventoryItems.map((item) => <ItemCard key={item.inv_id} item={item} />)
-                : <p className="text-text-main/50 text-lg self-center font-pf-stardust">보유한 아이템이 없습니다.</p>}
+              {isLoading ? <p className="text-text-main/50 text-s self-center font-one-store-mobile-gothic-body">로딩 중...</p>
+                : inventoryItems.length > 0 ? inventoryItems.map((item) => <ItemCard key={item.inv_id} item={item} onClick={() => setSelectedItem(item)} />)
+                : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">보유한 아이템이 없습니다.</p>}
             </div>
           )}
 
           {activeTab === 'gifted' && (
             <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-              {isLoading ? <p className="text-text-main/50 text-s self-center font-pf-stardust">로딩 중...</p>
+              {isLoading ? <p className="text-text-main/50 text-s self-center font-one-store-mobile-gothic-body">로딩 중...</p>
                 : mailboxItems.length > 0 ? mailboxItems.map((mail) => <MailCard key={mail.mail_id} mail={mail} onReceive={setSelectedMail} />)
-                : <p className="text-text-main/50 text-lg self-center font-pf-stardust">수령할 메일이 없습니다.</p>}
+                : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">수령할 메일이 없습니다.</p>}
             </div>
           )}
         </div>
@@ -305,12 +337,12 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
         >
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-t-lg" />
           {video.added_by && (
-            <p className="text-xs text-text-main/70 font-pf-stardust mb-1">
-              from: <span className="text-primary font-bold">{video.added_by}</span>
+            <p className="text-xs text-text-main/70 font-one-store-mobile-gothic-body mb-1">
+              <span className='text-text-main font-bold text-sm'>from:</span> <span className="text-primary font-bold text-lg">{video.added_by}</span>
             </p>
           )}
           {video.message && (
-            <p className="text-xs text-text-main font-pf-stardust leading-relaxed border-t border-border-primary/30 pt-2 mt-1">
+            <p className="text-lg text-text-main font-one-store-mobile-gothic-body leading-relaxed border-t border-border-primary/30 pt-2 mt-1">
               "{video.message}"
             </p>
           )}
@@ -406,7 +438,7 @@ if (authStatus === 'unauthenticated') {
     <div className="min-h-screen bg-main flex items-center justify-center text-text-main font-mono">
       <div className="text-center p-8 bg-main-secondary border border-border-primary rounded-lg shadow-stark-glow">
         <h1 className="text-2xl font-bold text-primary mb-4 uppercase tracking-widest">Access Restricted</h1>
-        <p className="mb-8 font-pf-stardust">로그인이 필요한 페이지입니다.</p>
+        <p className="mb-8 font-one-store-mobile-gothic-body">로그인이 필요한 페이지입니다.</p>
         <button
           onClick={() => navigate('/login')}
           className="bg-primary hover:bg-primary/80 text-white font-bold py-3 px-10 rounded-lg transition-colors tracking-widest text-sm"
@@ -515,14 +547,15 @@ if (authStatus === 'unauthenticated') {
               <div className="w-full md:w-6/12 border border-border-primary p-4">
                 <h4 className="text-lg font-bold mb-4 text-primary">INFO</h4>
                 {member ? (
-                  <ul className="space-y-2 font-pf-stardust text-lg text-text-main/70">
+                  <ul className="space-y-2 font-one-store-mobile-gothic-body text-sm text-text-main/70">
                     <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
                     <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
                     <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
-                    <li className="pb-1">POINT : {member.point}</li>
+                    <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
+                    <li className="pb-1">STAT : {member.point}</li>
                   </ul>
                 ) : (
-                  <p className="text-text-main/50 font-pf-stardust">로딩 중...</p>
+                  <p className="text-text-main/50 font-one-store-mobile-gothic-body">로딩 중...</p>
                 )}
               </div>
 
@@ -531,7 +564,7 @@ if (authStatus === 'unauthenticated') {
                 <h4 className="text-lg font-bold mb-4 text-primary">PLAYLIST</h4>
                 <div className="flex-1 overflow-y-auto min-h-0">
                   {isLoadingPlaylist ? (
-                    <p className="text-text-main/50 text-sm font-pf-stardust">로딩 중...</p>
+                    <p className="text-text-main/50 text-sm font-one-store-mobile-gothic-body">로딩 중...</p>
                   ) : videoLinks.length > 0 ? (
                     <div className="space-y-2">
                       {videoLinks.map((video, index) => (
@@ -546,13 +579,13 @@ if (authStatus === 'unauthenticated') {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-text-main/50 text-lg font-pf-stardust">선물받은 BGM이 아직 없습니다.</p>
+                    <p className="text-text-main/50 text-lg font-one-store-mobile-gothic-body">선물받은 BGM이 아직 없습니다.</p>
                   )}
                 </div>
 
                 {nowPlayingIndex !== null && (
                   <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
-                    <p className="text-s text-primary truncate mb-2 font-pf-stardust">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                    <p className="text-s text-primary truncate mb-2 font-one-store-mobile-gothic-body">♪ {videoLinks[nowPlayingIndex]?.title}</p>
                     <div className="text-s text-text-main/70 mb-1 flex justify-between">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
                     </div>
@@ -586,14 +619,14 @@ if (authStatus === 'unauthenticated') {
             <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
               <div className="md:w-1/4">
                 <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
-                <p className="text-text-main/50 text-s leading-relaxed font-pf-stardust">무엇을 해냈나요?</p>
+                <p className="text-text-main/50 text-s leading-relaxed font-one-store-mobile-gothic-body">무엇을 해냈나요?</p>
               </div>
               <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
                 {badges.map((badge) => {
                   const isEarned = earnedBadgeIds.includes(badge.id);
                   return (
                     <div key={badge.id}
-                      className={`aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-pf-stardust text-lg text-text-main/70
+                      className={`aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-one-store-mobile-gothic-body text-lg text-text-main/70
                         ${badge.isEmpty || !isEarned ? 'border-border-primary bg-main/40 opacity-30' : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}`}
                     >
                       {!badge.isEmpty && isEarned && (
@@ -616,11 +649,11 @@ if (authStatus === 'unauthenticated') {
 
         <footer className="px-12 py-8 border-t border-border-primary bg-main flex justify-between items-center text-[9px] font-bold text-text-main/50 uppercase tracking-widest">
           <div className="flex gap-12">
-            <p className="font-pf-stardust">Local_Time: ?</p>
-            <p className="font-pf-stardust">System_Temp: 15°C</p>
-            <p className="font-pf-stardust">Link_Strength: 98%</p>
+            <p className="font-one-store-mobile-gothic-body">Local_Time: ?</p>
+            <p className="font-one-store-mobile-gothic-body">System_Temp: 15°C</p>
+            <p className="font-one-store-mobile-gothic-body">Link_Strength: 98%</p>
           </div>
-          <p className="text-primary font-pf-stardust">© ASCENSION TOWER</p>
+          <p className="text-primary font-one-store-mobile-gothic-body">© ASCENSION TOWER</p>
         </footer>
       </div>
     </>

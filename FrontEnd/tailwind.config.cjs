@@ -7,9 +7,9 @@ module.exports = {
 
       fontFamily: {
         'dos-gothic': ['DosGothic', 'sans-serif'],
-        'pf-stardust': ['PfStardust30S', 'sans-serif'],
         'nexon-warhaven': ['NexonWarhaven', 'sans-serif'],
         'joseon': ['JoseonGaneGothic', 'sans-serif'],
+        'one-store-mobile-gothic-body': ['OneStoreMobileGothicBody', 'sans-serif'],
       },
 
       colors: {

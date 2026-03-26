@@ -134,6 +134,7 @@ export default function Menu({ isOpen, onToggle }) {
             {[
               { to: '/shop', label: 'Shop' },
               { to: '/blackjack', label: 'Game' },
+              { to: '/member', label: 'Member' },
               { to: '/mypage', label: 'My Page' },
             ].map(item => (
               <NavLink
