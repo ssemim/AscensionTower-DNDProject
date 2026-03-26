@@ -17,6 +17,7 @@ import { useDispatch } from 'react-redux'
 import { login } from './store/authSlice'  
 import axios from 'axios'                 
 import './index.css';
+import { ThemeProvider } from './components/ThemeProvider/ThemeProvider';
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -60,16 +61,18 @@ function App() {
       
 
       <main className={isMenuOpen ? 'content with-sidebar' : 'content'}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/world" element={<World />} />
-          <Route path="/blackjack" element={<Blackjack />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <ThemeProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/world" element={<World />} />
+            <Route path="/blackjack" element={<Blackjack />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ThemeProvider>
       </main>
     </>
   )

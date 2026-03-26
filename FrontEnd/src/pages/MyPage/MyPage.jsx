@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import Menu from '../../components/Menu/Menu';
 import YouTube from 'react-youtube';
 import '../Landing/index.css';
 import badges from './badge.js';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const API = 'http://localhost:8081';
 
-// ───────────────────────────────────────────
+// ───────────────────────────────────────────ㅉ
 // 유틸
 // ───────────────────────────────────────────
 function getYouTubeID(url) {
@@ -326,7 +326,8 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
 // ───────────────────────────────────────────
 export default function MyPage() {
   const dispatch = useDispatch();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const [authStatus, setAuthStatus] = useState('loading'); 
   const [member, setMember] = useState(null);
   const [videoLinks, setVideoLinks] = useState([]);
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
@@ -341,31 +342,40 @@ export default function MyPage() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchMyPage = async () => {
-      setIsLoadingPlaylist(true);
-      try {
-        const res = await axios.get(`${API}/mypage`, { withCredentials: true });
-        if (res.data.Status !== 'Success') return;
-        dispatch(login());
-        setMember(res.data.member);
-        const playlist = res.data.playlist || [];
-        const linksWithTitles = await Promise.all(
-          playlist.map(async (track, index) => {
-            const videoId = getYouTubeID(track.youtube_url);
-            if (!videoId) return { ...track, url: track.youtube_url, title: `Track ${index + 1}` };
-            const title = await fetchYouTubeTitle(videoId);
-            return { ...track, url: track.youtube_url, title: title || `Track ${index + 1}` };
-          })
-        );
-        setVideoLinks(linksWithTitles);
-      } catch (err) {
-        console.error('마이페이지 로드 실패:', err);
-      } finally {
-        setIsLoadingPlaylist(false);
+  const fetchMyPage = async () => {
+    setIsLoadingPlaylist(true);
+    try {
+      const res = await axios.get(`${API}/mypage`, { withCredentials: true });
+
+      if (res.data.Status !== 'Success') {
+        setAuthStatus('unauthenticated');
+        return;
       }
-    };
-    fetchMyPage();
-  }, []);
+
+      setAuthStatus('authenticated');
+      dispatch(login());
+      setMember(res.data.member);
+
+      const playlist = res.data.playlist || [];
+      const linksWithTitles = await Promise.all(
+        playlist.map(async (track, index) => {
+          const videoId = getYouTubeID(track.youtube_url);
+          if (!videoId) return { ...track, url: track.youtube_url, title: `Track ${index + 1}` };
+          const title = await fetchYouTubeTitle(videoId);
+          return { ...track, url: track.youtube_url, title: title || `Track ${index + 1}` };
+        })
+      );
+      setVideoLinks(linksWithTitles);
+    } catch (err) {
+      console.error('마이페이지 로드 실패:', err);
+      setAuthStatus('unauthenticated');
+    } finally {
+      setIsLoadingPlaylist(false);
+    }
+  };
+  fetchMyPage();
+}, []);
+
 
   useEffect(() => {
     axios.get(`${API}/mypage/badges`, { withCredentials: true })
@@ -383,7 +393,30 @@ export default function MyPage() {
     return () => clearInterval(interval);
   }, [player, isPlaying]);
 
-  // 이미지 업로드 핸들러
+  if (authStatus === 'loading') {
+  return (
+    <div className="min-h-screen bg-main flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
+
+if (authStatus === 'unauthenticated') {
+  return (
+    <div className="min-h-screen bg-main flex items-center justify-center text-text-main font-mono">
+      <div className="text-center p-8 bg-main-secondary border border-border-primary rounded-lg shadow-stark-glow">
+        <h1 className="text-2xl font-bold text-primary mb-4 uppercase tracking-widest">Access Restricted</h1>
+        <p className="mb-8 font-pf-stardust">로그인이 필요한 페이지입니다.</p>
+        <button
+          onClick={() => navigate('/login')}
+          className="bg-primary hover:bg-primary/80 text-white font-bold py-3 px-10 rounded-lg transition-colors tracking-widest text-sm"
+        >
+          INITIATE LOGIN
+        </button>
+      </div>
+    </div>
+  );
+}
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -408,7 +441,6 @@ export default function MyPage() {
     }
   };
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const youtubePlayerOptions = { height: '0', width: '0', playerVars: { autoplay: 0 } };
   const onPlayerReady = (e) => { setPlayer(e.target); e.target.setVolume(volume); };
   const onPlayerStateChange = (e) => {
