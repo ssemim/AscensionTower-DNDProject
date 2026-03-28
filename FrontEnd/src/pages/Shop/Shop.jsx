@@ -47,7 +47,7 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-main text-text-main font-mono p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-main text-text-main font-one-store-mobile-gothic-body p-4 md:p-8 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
       </div>
@@ -84,7 +84,7 @@ const Shop = () => {
             </div>
           </HUDBox>
           <HUDBox className="p-4 bg-main/60">
-            <div className="text-[14px] leading-relaxed font-dos-gothic font-bold text-text-main/80 italic">
+            <div className="text-[14px] leading-relaxed font-one-store-mobile-gothic-body font-bold text-text-main/80 italic">
               "{merchantDialog && (
                 <Typewriter
                   onInit={(typewriter) => {
@@ -120,7 +120,7 @@ const Shop = () => {
         </div>
 
         {/* Right: Inspection & Cart */}
-        <div className="col-span-12 lg:col-span-4 flex flex-col font-dos-gothic">
+        <div className="col-span-12 lg:col-span-4 flex flex-col font-one-store-mobile-gothic-body">
           <div className="flex border-b border-border-primary">
             <button
               onClick={() => setRightPanelTab('inspect')}
@@ -193,7 +193,7 @@ const Shop = () => {
                         </div>
                         <div className="col-span-4 text-center flex justify-around items-center">
                           <button onClick={() => dispatch(decreaseItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">-</button>
-                          <p className="text-base font-mono">x{item.quantity}</p>
+                          <p className="text-base font-one-store-mobile-gothic-body">x{item.quantity}</p>
                           <button onClick={() => dispatch(addItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">+</button>
                         </div>
                         <div className="col-span-2 text-right">

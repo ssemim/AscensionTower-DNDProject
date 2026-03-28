@@ -108,6 +108,7 @@ function MailCard({ mail, onReceive }) {
 // ───────────────────────────────────────────
 // 탭 인벤토리 섹션
 // ───────────────────────────────────────────
+
 function InventorySection() {
   const TABS = [
     { id: 'friends',   label: 'FRIENDS'   },
@@ -133,21 +134,12 @@ function InventorySection() {
       };
       const res = await axios.get(endpointMap[tab], { withCredentials: true });
       if (tab === 'inventory') {
-        const items = res.data.inventory || [];
-        // 각 아이템에 description 추가
-        const itemsWithDetails = await Promise.all(items.map(async (item) => {
-          try {
-            const itemRes = await axios.get(`${API}/items/${item.item_id}`);
-            return { ...item, description: itemRes.data.description };
-          } catch (err) {
-            console.error(`아이템 상세 정보 로드 실패 (ID: ${item.item_id}):`, err);
-            return { ...item, description: '상세 정보를 불러올 수 없습니다.' };
-          }
-        }));
-        setInventoryItems(itemsWithDetails);
+        setInventoryItems(res.data.inventory || []);
+      } else if (tab === 'gifted') {
+        setMailboxItems(res.data.mailbox || []);
+      } else {
+        setFriends(res.data.friends || []);
       }
-      else if (tab === 'gifted') setMailboxItems(res.data.mailbox || []);
-      else setFriends(res.data.friends || []);
     } catch (err) {
       console.error(`${tab} 로드 실패:`, err);
     } finally {
@@ -169,7 +161,7 @@ function InventorySection() {
         } else {
           setMailboxItems(prev => prev.filter(m => m.mail_id !== selectedMail.mail_id));
         }
-        fetchTab('inventory'); 
+        fetchTab('inventory');
         setSelectedMail(null);
       } else {
         alert(res.data.Error || '수령 실패');
@@ -177,15 +169,6 @@ function InventorySection() {
     } catch (err) {
       console.error('수령 실패:', err);
     }
-  };
-
-  const confirmUse = async () => {
-    if (!selectedItem) return;
-    alert(`[${selectedItem.item_name}] 아이템을 사용합니다. (API 미구현)`);
-    console.log("사용된 아이템:", selectedItem);
-    // 향후 API 호출 구현...
-    // 예: await axios.post(`${API}/mypage/inventory/use`, { inv_id: selectedItem.inv_id });
-    setSelectedItem(null);
   };
 
   return (
@@ -201,6 +184,7 @@ function InventorySection() {
           description={selectedMail.message}
           onConfirm={confirmReceive}
           onClose={() => setSelectedMail(null)}
+          isGacha={false}
         />
       )}
 
@@ -212,7 +196,14 @@ function InventorySection() {
           itemName={selectedItem.item_name}
           quantity={selectedItem.quantity}
           description={selectedItem.description}
-          onConfirm={confirmUse}
+          invId={selectedItem.inv_id}
+          itemId={selectedItem.item_id}
+          isGacha={selectedItem.item_id === 12}
+          onUseSuccess={() => fetchTab('inventory')}
+          onConfirm={() => {
+            alert(`[${selectedItem.item_name}] 사용 (API 미구현)`);
+            setSelectedItem(null);
+          }}
           onClose={() => setSelectedItem(null)}
         />
       )}
@@ -253,16 +244,18 @@ function InventorySection() {
           {activeTab === 'inventory' && (
             <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
               {isLoading ? <p className="text-text-main/50 text-s self-center font-one-store-mobile-gothic-body">로딩 중...</p>
-                : inventoryItems.length > 0 ? inventoryItems.map((item) => <ItemCard key={item.inv_id} item={item} onClick={() => setSelectedItem(item)} />)
-                : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">보유한 아이템이 없습니다.</p>}
+                : inventoryItems.length > 0
+                  ? inventoryItems.map((item) => <ItemCard key={item.inv_id} item={item} onClick={() => setSelectedItem(item)} />)
+                  : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">보유한 아이템이 없습니다.</p>}
             </div>
           )}
 
           {activeTab === 'gifted' && (
             <div className="min-h-[30vh] max-h-[60vh] flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
               {isLoading ? <p className="text-text-main/50 text-s self-center font-one-store-mobile-gothic-body">로딩 중...</p>
-                : mailboxItems.length > 0 ? mailboxItems.map((mail) => <MailCard key={mail.mail_id} mail={mail} onReceive={setSelectedMail} />)
-                : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">수령할 메일이 없습니다.</p>}
+                : mailboxItems.length > 0
+                  ? mailboxItems.map((mail) => <MailCard key={mail.mail_id} mail={mail} onReceive={setSelectedMail} />)
+                  : <p className="text-text-main/50 text-lg self-center font-one-store-mobile-gothic-body">수령할 메일이 없습니다.</p>}
             </div>
           )}
         </div>
@@ -338,7 +331,7 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-t-lg" />
           {video.added_by && (
             <p className="text-xs text-text-main/70 font-one-store-mobile-gothic-body mb-1">
-              <span className='text-text-main font-bold text-sm'>from:</span> <span className="text-primary font-bold text-lg">{video.added_by}</span>
+              <span className='text-text-main font-bold text-sm'>from:</span> <span className="text-primary font-bold text-lg">{video.added_by_name}</span>
             </p>
           )}
           {video.message && (
@@ -361,6 +354,7 @@ export default function MyPage() {
   const navigate = useNavigate();
   const [authStatus, setAuthStatus] = useState('loading'); 
   const [member, setMember] = useState(null);
+  const [stats, setStats] = useState(null);
   const [videoLinks, setVideoLinks] = useState([]);
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
   const [player, setPlayer] = useState(null);
@@ -371,50 +365,57 @@ export default function MyPage() {
   const [volume, setVolume] = useState(100);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef(null);
-
-  useEffect(() => {
-  const fetchMyPage = async () => {
-    setIsLoadingPlaylist(true);
-    try {
-      const res = await axios.get(`${API}/mypage`, { withCredentials: true });
-
-      if (res.data.Status !== 'Success') {
-        setAuthStatus('unauthenticated');
-        return;
-      }
-
-      setAuthStatus('authenticated');
-      dispatch(login());
-      setMember(res.data.member);
-
-      const playlist = res.data.playlist || [];
-      const linksWithTitles = await Promise.all(
-        playlist.map(async (track, index) => {
-          const videoId = getYouTubeID(track.youtube_url);
-          if (!videoId) return { ...track, url: track.youtube_url, title: `Track ${index + 1}` };
-          const title = await fetchYouTubeTitle(videoId);
-          return { ...track, url: track.youtube_url, title: title || `Track ${index + 1}` };
-        })
-      );
-      setVideoLinks(linksWithTitles);
-    } catch (err) {
-      console.error('마이페이지 로드 실패:', err);
-      setAuthStatus('unauthenticated');
-    } finally {
-      setIsLoadingPlaylist(false);
-    }
-  };
-  fetchMyPage();
-}, []);
-
-
-  useEffect(() => {
-    axios.get(`${API}/mypage/badges`, { withCredentials: true })
-      .then(res => { if (res.data.Status === 'Success') setEarnedBadgeIds(res.data.badges.map(b => b.badge_id)); })
-      .catch(err => console.error('뱃지 로드 실패:', err));
-  }, []);
-
+    const fileInputRef = useRef(null);
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        setIsLoadingPlaylist(true);
+        try {
+          const [myPageRes, statsRes] = await Promise.all([
+            axios.get(`${API}/mypage`, { withCredentials: true }),
+            axios.get(`${API}/mypage/stat`, { withCredentials: true })
+          ]);
+  
+          if (myPageRes.data.Status !== 'Success') {
+            setAuthStatus('unauthenticated');
+            return;
+          }
+  
+          setAuthStatus('authenticated');
+          dispatch(login());
+          setMember(myPageRes.data.member);
+  
+          if (statsRes.data.Status === 'Success') {
+            setStats(statsRes.data.stat);
+          }
+  
+          const playlist = myPageRes.data.playlist || [];
+          const linksWithTitles = await Promise.all(
+            playlist.map(async (track, index) => {
+              const videoId = getYouTubeID(track.youtube_url);
+              if (!videoId) return { ...track, url: track.youtube_url, title: `Track ${index + 1}` };
+              const title = await fetchYouTubeTitle(videoId);
+              return { ...track, url: track.youtube_url, title: title || `Track ${index + 1}` };
+            })
+          );
+          setVideoLinks(linksWithTitles);
+  
+        } catch (err) {
+          console.error('마이페이지 데이터 로드 실패:', err);
+          setAuthStatus('unauthenticated');
+        } finally {
+          setIsLoadingPlaylist(false);
+        }
+      };
+      fetchData();
+    }, [dispatch]);
+  
+  
+    useEffect(() => {
+      axios.get(`${API}/mypage/badges`, { withCredentials: true })
+        .then(res => { if (res.data.Status === 'Success') setEarnedBadgeIds(res.data.badges.map(b => b.badge_id)); })
+        .catch(err => console.error('뱃지 로드 실패:', err));
+    }, []);
   useEffect(() => {
     const interval = setInterval(() => {
       if (player && isPlaying) {
@@ -547,13 +548,26 @@ if (authStatus === 'unauthenticated') {
               <div className="w-full md:w-6/12 border border-border-primary p-4">
                 <h4 className="text-lg font-bold mb-4 text-primary">INFO</h4>
                 {member ? (
-                  <ul className="space-y-2 font-one-store-mobile-gothic-body text-sm text-text-main/70">
-                    <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
-                    <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
-                    <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
-                    <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
-                    <li className="pb-1">STAT : {member.point}</li>
-                  </ul>
+                  <>
+                    <ul className="space-y-2 font-one-store-mobile-gothic-body text-sm text-text-main/70">
+                      <li className="border-b border-border-primary/30 pb-1">NAME : {member.char_name}</li>
+                      <li className="border-b border-border-primary/30 pb-1">AGE : {member.char_age}</li>
+                      <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
+                      <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
+                      {stats && (
+                        <li className="pb-1">
+                          STATS
+                          <div className="grid grid-cols-5 gap-1 pt-1 text-center">
+                            <div><span className="font-bold text-primary">ATK</span><br/>{stats.ATK}</div>
+                            <div><span className="font-bold text-primary">DEF</span><br/>{stats.DEF}</div>
+                            <div><span className="font-bold text-primary">DEX</span><br/>{stats.DEX}</div>
+                            <div><span className="font-bold text-primary">LUCK</span><br/>{stats.LUCK}</div>
+                            <div><span className="font-bold text-primary">REMAIN</span><br/>{stats.REMAIN || 0}</div>
+                          </div>
+                        </li>
+                      )}
+                    </ul>
+                  </>
                 ) : (
                   <p className="text-text-main/50 font-one-store-mobile-gothic-body">로딩 중...</p>
                 )}
@@ -585,7 +599,9 @@ if (authStatus === 'unauthenticated') {
 
                 {nowPlayingIndex !== null && (
                   <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
-                    <p className="text-s text-primary truncate mb-2 font-one-store-mobile-gothic-body">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                    <div className="overflow-hidden">
+                      <p className="inline-block text-s text-primary mb-2 font-one-store-mobile-gothic-body whitespace-nowrap animate-marquee">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                    </div>
                     <div className="text-s text-text-main/70 mb-1 flex justify-between">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
                     </div>
@@ -631,9 +647,9 @@ if (authStatus === 'unauthenticated') {
                     >
                       {!badge.isEmpty && isEarned && (
                         <>
-                          <div className="text-sm font-bold opacity-100 group-hover:opacity-0 transition-opacity">{badge.name}</div>
+                          <img src={badge.imgUrl} alt={badge.name} className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-main/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                            <div className="text-center text-xs">{badge.desc}</div>
+                            <div className="text-center text-xs text-text-main font-primary">{badge.desc}</div>
                           </div>
                         </>
                       )}
