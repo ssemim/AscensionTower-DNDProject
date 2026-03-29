@@ -1,6 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { createDeck, shuffleDeck, calculateScore, getWinner } from './GameLogic';
+import dialogBlackJack from './dialogBlackJack';
+import './Blackjack.css';
+
+// ── Typing Effect Hook ──
+const useTypingEffect = (text, duration = 50) => {
+    const [typedText, setTypedText] = useState('');
+
+    useEffect(() => {
+        if (!text) return;
+
+        const interval = setInterval(() => {
+            setTypedText(prev => {
+                if (prev.length < text.length) {
+                    return text.substring(0, prev.length + 1);
+                } else {
+                    clearInterval(interval);
+                    return prev;
+                }
+            });
+        }, duration);
+
+        return () => clearInterval(interval);
+    }, [text, duration]);
+
+    return typedText;
+};
 
 const API = 'http://localhost:8081';
 const MAX_BET = 1000;
@@ -26,13 +52,13 @@ function BettingModal({ onBet, onCancel, balance }) {
             <div className="bg-main border border-border-primary p-6 rounded-lg shadow-stark-glow flex flex-col gap-4 w-full max-w-sm animate-slide-in">
                 <h2 className="text-xl font-bold text-primary tracking-widest uppercase">얼마를 거시겠습니까?</h2>
                 <p className="text-sm text-text-main/70">보유 포인트: {balance} P</p>
-                <p className="text-xs text-text-main/40">최대 베팅: {MAX_BET} P</p>
+                <p className="text-xs text-text-main/70">최대 베팅: {MAX_BET} P</p>
                 <input
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder={`베팅 금액 입력 (최대 ${MAX_BET}P)`}
-                    className="bg-primary/10 border border-border-primary/50 p-2 text-text-main w-full focus:outline-none focus:border-primary"
+                    className="bg-primary/10 border border-border-primary/50 p-2 text-black w-full focus:outline-none focus:border-primary"
                     max={MAX_BET}
                     autoFocus
                 />
@@ -58,16 +84,19 @@ function BlackJack() {
     const [balance, setBalance] = useState(null);
     const [hearts, setHearts] = useState(3);
     const [isBetting, setIsBetting] = useState(false);
-    const [roundResult, setRoundResult] = useState(null); // null | 숫자
+    const [roundResult, setRoundResult] = useState(null);
     const [gameOver, setGameOver] = useState(false);
 
     const [authStatus, setAuthStatus] = useState('loading');
     const [isUpdatingPoints, setIsUpdatingPoints] = useState(false);
     const [canPlay, setCanPlay] = useState(null);
+    
+    const [dialog, setDialog] = useState('');
+    const typedDialog = useTypingEffect(dialog);
 
     const isBlackjack = playerScore === 21 && playerHand.length === 2;
 
-    // ── 초기화 ──
+    // ── 초기화: 포인트 + 서버 게임 상태 복원 ──
     useEffect(() => {
         const init = async () => {
             try {
@@ -75,6 +104,7 @@ function BlackJack() {
                     axios.get(`${API}/shop/point`, { withCredentials: true }),
                     axios.get(`${API}/blackjack/can-play`, { withCredentials: true })
                 ]);
+
                 if (pointRes.data.Status === 'Success') {
                     setBalance(pointRes.data.point);
                     setAuthStatus('authenticated');
@@ -82,14 +112,36 @@ function BlackJack() {
                     setAuthStatus('unauthenticated');
                     return;
                 }
-                setCanPlay(canPlayRes.data.canPlay);
+
+                const { canPlay: cp, hearts: h } = canPlayRes.data;
+                setCanPlay(cp);
+                if (cp && h < 3) {
+                    setHearts(h);
+                }
+                if (!cp) setGameOver(true);
+
             } catch (err) {
                 console.error("초기화 실패:", err);
                 setAuthStatus('unauthenticated');
             }
         };
         init();
+        
+        const randomIndex = Math.floor(Math.random() * dialogBlackJack.length);
+        setDialog(dialogBlackJack[randomIndex]);
     }, []);
+
+    // ── 게임 진행 중 이탈 방지 ──
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            if (gameStatus === 'PLAYING' || gameStatus === 'DEALER_TURN' || gameStatus === 'BETTING') {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [gameStatus]);
 
     const stand = useCallback(() => {
         if (gameStatus !== 'PLAYING') return;
@@ -124,8 +176,21 @@ function BlackJack() {
         if (initialPlayerScore === 21) stand();
     }, [stand]);
 
-    const handleStartBetting = () => {
+    // ── 게임 시작: 서버에 로그 생성 ──
+    const handleStartBetting = async () => {
         if (gameOver || isUpdatingPoints || !canPlay) return;
+
+        try {
+            const res = await axios.post(`${API}/blackjack/start`, {}, { withCredentials: true });
+            if (res.data.Status !== 'Success') {
+                alert(res.data.Error || '게임 시작 실패');
+                return;
+            }
+        } catch (err) {
+            console.error('게임 시작 실패:', err);
+            return;
+        }
+
         setRoundResult(null);
         setGameStatus('BETTING');
         setIsBetting(true);
@@ -152,23 +217,21 @@ function BlackJack() {
     // ── 결과 처리 ──
     const processGameResult = useCallback(async (winnerResult, newHearts) => {
         setIsUpdatingPoints(true);
-        const isGameOver = newHearts <= 0;
 
-        // 라운드 수익 계산 (베팅금은 이미 차감됨)
         let roundProfit = 0;
-        if (winnerResult === 'PLAYER') roundProfit = betAmount;      // 순수익
-        else if (winnerResult === 'PUSH') roundProfit = 0;           // 본전
-        else roundProfit = -betAmount;                               // 손실
+        if (winnerResult === 'PLAYER') roundProfit = betAmount;
+        else if (winnerResult === 'PUSH') roundProfit = 0;
+        else roundProfit = -betAmount;
         setRoundResult(roundProfit);
 
         try {
             const res = await axios.post(`${API}/blackjack/result`,
-                { winnerResult, betAmount, isGameOver },
+                { winnerResult, betAmount, newHearts },
                 { withCredentials: true }
             );
             if (res.data.Status === 'Success') {
                 setBalance(res.data.newBalance);
-                if (isGameOver) setCanPlay(false);
+                if (newHearts <= 0) setCanPlay(false);
             } else {
                 alert(res.data.Error || '결과 처리 실패');
             }
@@ -188,6 +251,7 @@ function BlackJack() {
             let currentDealerHand = dealerHand.map(c => ({ ...c, hidden: false }));
             let currentDealerScore = calculateScore(currentDealerHand);
             let currentDeck = [...deck];
+
             if (playerScore <= 21) {
                 while (currentDealerScore < 17) {
                     const newCard = currentDeck.pop();
@@ -195,6 +259,7 @@ function BlackJack() {
                     currentDealerScore = calculateScore(currentDealerHand);
                 }
             }
+
             setDealerHand(currentDealerHand);
             setDealerScore(currentDealerScore);
             setDeck(currentDeck);
@@ -202,7 +267,6 @@ function BlackJack() {
             const winnerResult = getWinner(playerScore, currentDealerScore, playerHand.length);
             setWinner(winnerResult);
 
-            // 하트 계산을 여기서 미리 해서 processGameResult에 넘김
             let newHearts = hearts;
             if (winnerResult === 'DEALER') {
                 newHearts = hearts - 1;
@@ -212,11 +276,12 @@ function BlackJack() {
 
             processGameResult(winnerResult, newHearts);
         };
+
         const timer = setTimeout(playDealerTurn, 1000);
         return () => clearTimeout(timer);
     }, [gameStatus, dealerHand, deck, playerScore, playerHand.length, processGameResult, hearts]);
 
-    // ── 자동 재시작: 하트 남아있고 canPlay면 ──
+    // ── 자동 재시작 ──
     useEffect(() => {
         if (gameStatus === 'ENDED' && !gameOver && canPlay) {
             const timer = setTimeout(() => handleStartBetting(), 3000);
@@ -232,8 +297,18 @@ function BlackJack() {
     }
 
     return (
-        <div className={`min-h-screen p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
-
+        <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
+      <header className="max-w-7xl mx-auto flex justify-between items-end pt-4 mb-8 border-b border-border-primary pb-4 relative z-10">
+        <div className="flex items-center gap-6">
+          <div className="w-14 h-14 border-2 border-border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
+            <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-black italic font-nexon-warhaven tracking-tighter text-text-main uppercase drop-shadow-[0_0_10px_var(--color-primary-glow)]">36TH FLOOR</h1>
+            <p className="text-[10px] text-primary/70 font-bold tracking-[0.4em] uppercase">Authorized Access Only // Sector_04</p>
+          </div>
+        </div>
+      </header>
             {isBetting && (
                 <BettingModal
                     balance={balance}
@@ -274,9 +349,9 @@ function BlackJack() {
                         </div>
                     </div>
 
-                    <div className="relative font-one-store-mobile-gothic-body">
+                    <div className="relative font-dos-gothic">
                         {gameStatus === 'ENDED' && winner && (
-                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 bg-primary text-black text-lg font-black italic animate-bounce">
+                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 bg-primary text-main text-lg font-black italic animate-bounce">
                                 {winner === 'PLAYER' && '승리!'}
                                 {winner === 'DEALER' && (playerScore > 21 ? '버스트!' : '패배')}
                                 {winner === 'PUSH' && '무승부'}
@@ -306,11 +381,21 @@ function BlackJack() {
                     </div>
                 </section>
 
-                <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-one-store-mobile-gothic-body">
-                    <div>
+                <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-dos-gothic">
+                    <div className="text-center">
+                        <div className="blackjack-container my-6 p-12 border border-border-primary/30">
+                            <div className="blackjack-glow"></div>
+                            <img src="/images/NPCS/blackjackNPC.gif" alt="Blackjack Dealer" className="sway-animation w-48 h-48 object-contain" />
+                        </div>
+                        <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_B3AR-B</p>
+                        <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">B3AR-B</h3>
+                        
+                        <div className="h-24 text-center mt-4 mb-4 border border-border-primary/30 flex items-center justify-center">
+                            <p className="text-lg font-one-store-mobile-gothic-body text-text-main/70 m-4">"{typedDialog}"</p>
+                        </div>
+
                         <div className="text-center mb-4 p-4 border border-border-primary/30">
-                            <p className="text-sm text-text-main/70 mb-1">"얼마 걸건데?"</p>
-                            <p className="text-yellow-400 text-4xl font-black h-12 flex items-center justify-center">
+                            <p className="text-primary text-4xl font-black h-12 flex items-center justify-center">
                                 {betAmount > 0 && gameStatus !== 'IDLE' ? `${betAmount} P` : '...'}
                             </p>
                             {betAmount > 0 && gameStatus === 'PLAYING' && (

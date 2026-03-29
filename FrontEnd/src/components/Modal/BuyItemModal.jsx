@@ -75,7 +75,6 @@ const BuyItemModal = ({
 
   const isBuy = type === 'buy';
 
-  // 프론트 id 8 = DB item_id 7 (1씩 차이)
   const hasPlaylistItem = items.some(item => item.id === 8 || item.id === '8');
 
   const isValidYoutubeUrl = (url) => {
@@ -131,7 +130,7 @@ const BuyItemModal = ({
 
     // DB item_id로 변환 (프론트 id - 1)
     const convertedItems = items.map(item => ({
-      db_item_id: (parseInt(item.id) - 1),
+      db_item_id: (parseInt(item.id)),
       quantity: item.quantity,
       price: parseFloat(String(item.price).replace(/,/g, '')),
     }));

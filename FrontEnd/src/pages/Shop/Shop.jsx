@@ -6,6 +6,7 @@ import { addItem, removeItem, clearCart, decreaseItem } from '../../store/cartSl
 import dialog from './dialog';
 import itemsData from './item.js';
 import BuyItemModal from '../../components/Modal/BuyItemModal.jsx';
+import './Shop.css';
 
 const API = 'http://localhost:8081';
 
@@ -75,12 +76,13 @@ const Shop = () => {
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
           <HUDBox className="aspect-[4/5] overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-pulse">
-              <div className="w-32 h-32 border-2 border-border-primary rounded-full mb-6 flex items-center justify-center">
-                <div className="w-24 h-24 border border-border-primary rounded-full animate-spin-slow"></div>
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+              <div className="merchant-container">
+                <div className="merchant-glow"></div>
+                <img src="/images/NPCS/merchant.gif" alt="Merchant" className="sway-animation w-48 h-48 object-contain" />
               </div>
-              <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_K3-V4</p>
-              <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">The_Merchant</h3>
+              <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_B3AR-S</p>
+              <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">B3AR-S</h3>
             </div>
           </HUDBox>
           <HUDBox className="p-4 bg-main/60">

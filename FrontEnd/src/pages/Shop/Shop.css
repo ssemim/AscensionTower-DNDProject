@@ -1,0 +1,50 @@
+@keyframes sway {
+  0%, 100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(-10px) rotate(-5deg);
+  }
+  75% {
+    transform: translateX(10px) rotate(5deg);
+  }
+}
+
+.sway-animation {
+  animation: sway 4s ease-in-out infinite;
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 40px 10px rgba(21, 206, 235, 0.3), 0 0 50px 20px rgba(21, 206, 235, 0.2);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 50px 15px rgba(21, 206, 235, 0.4), 0 0 60px 25px rgba(21, 206, 235, 0.3);
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.merchant-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  background-color: rgba(21, 206, 235, 0.1);
+  border-radius: 50%;
+  animation: pulse-glow 5s ease-in-out infinite;
+  z-index: 1;
+}
+
+.merchant-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 192px; /* w-48 */
+  height: 192px; /* h-48 */
+  margin-bottom: 1.5rem; /* mb-6 */
+}

@@ -7,7 +7,6 @@ const hasEmoji = (str) => /\p{Emoji_Presentation}/u.test(str);
 export default function SignUp() {
   const [ID, setID] = useState('');
   const [password, setPassword] = useState('');
-  const [serialNumber, setSerialNumber] = useState('');
   const [characterName, setCharacterName] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -92,26 +91,6 @@ export default function SignUp() {
                   placeholder="ID"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'ID' ? 'via-primary/10' : ''}`}></div>
-              </div>
-            </div>
-
-            {/* Serial Number Field */}
-            <div className="relative">
-              <label className="block text-sm text-primary/80 dark:text-white/80 mb-2 tracking-wide">
-                SERIAL NUMBER
-              </label>
-              <div className="relative group">
-                <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300 ${isFocused === 'characterName' ? 'text-primary filter drop-shadow-[0_0_8px_var(--color-primary-glow)]' : 'text-primary/50'}`}></div>
-                <input
-                  type="text"
-                  value={serialNumber}
-                  onChange={(e) => setSerialNumber(e.target.value)}
-                  onFocus={() => setIsFocused('serialNumber')}
-                  onBlur={() => setIsFocused(null)}
-                  className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="Serial Number"
-                />
-                <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'characterName' ? 'via-primary/10' : ''}`}></div>
               </div>
             </div>
 

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 const API = 'http://localhost:8081';
 
-// ───────────────────────────────────────────ㅉ
+// ───────────────────────────────────────────
 // 유틸
 // ───────────────────────────────────────────
 function getYouTubeID(url) {
@@ -271,6 +271,27 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
   const [popoverPos, setPopoverPos] = useState(null);
   const timeoutRef = useRef(null);
   const btnRef = useRef(null);
+  const titleRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+        if (titleRef.current) {
+            const el = titleRef.current;
+            const isNowOverflowing = el.scrollWidth > el.clientWidth;
+            if (isNowOverflowing !== isOverflowing) {
+                setIsOverflowing(isNowOverflowing);
+            }
+        }
+    };
+    // Using a timeout to ensure the DOM has been updated.
+    const id = setTimeout(checkOverflow, 50);
+    window.addEventListener('resize', checkOverflow);
+    return () => {
+        clearTimeout(id);
+        window.removeEventListener('resize', checkOverflow);
+    };
+  }, [video.title, isOverflowing]);
 
   const POPOVER_W = 208;
   const POPOVER_H = 90;
@@ -315,10 +336,17 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
         onClick={() => onPlay(index)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`w-full text-left p-2 rounded transition-colors duration-200 ${isActive ? 'bg-primary/30' : 'hover:bg-primary/10'}`}
+        className={`w-full text-left p-2 rounded transition-colors duration-200 flex items-center ${isActive ? 'bg-primary/30' : 'hover:bg-primary/10'}`}
       >
         <span className="font-bold">{isActive && isPlaying ? '▶' : '▷'}</span>
-        <span className="ml-3 text-sm truncate">{video.title}</span>
+        <div className="ml-3 text-sm overflow-hidden flex-1">
+            <p
+                ref={titleRef}
+                className={`whitespace-nowrap ${isOverflowing && isActive && isPlaying ? "animate-marquee" : "truncate"}`}
+            >
+                {video.title}
+            </p>
+        </div>
       </button>
 
       {popoverPos && createPortal(
@@ -365,7 +393,9 @@ export default function MyPage() {
   const [volume, setVolume] = useState(100);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-    const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isMainTitleOverflowing, setIsMainTitleOverflowing] = useState(false);
+  const mainTitleRef = useRef(null);
   
     useEffect(() => {
       const fetchData = async () => {
@@ -425,6 +455,24 @@ export default function MyPage() {
     }, 100);
     return () => clearInterval(interval);
   }, [player, isPlaying]);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (mainTitleRef.current) {
+        const { scrollWidth, clientWidth } = mainTitleRef.current;
+        const isOverflowing = scrollWidth > clientWidth;
+        if (isOverflowing !== isMainTitleOverflowing) {
+            setIsMainTitleOverflowing(isOverflowing);
+        }
+      }
+    };
+    const timeoutId = setTimeout(checkOverflow, 50);
+    window.addEventListener('resize', checkOverflow);
+    return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', checkOverflow);
+    };
+  }, [nowPlayingIndex, videoLinks, isMainTitleOverflowing]);
 
   if (authStatus === 'loading') {
   return (
@@ -600,7 +648,12 @@ if (authStatus === 'unauthenticated') {
                 {nowPlayingIndex !== null && (
                   <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
                     <div className="overflow-hidden">
-                      <p className="inline-block text-s text-primary mb-2 font-one-store-mobile-gothic-body whitespace-nowrap animate-marquee">♪ {videoLinks[nowPlayingIndex]?.title}</p>
+                      <p
+                        ref={mainTitleRef}
+                        className={`inline-block text-s text-primary mb-2 font-one-store-mobile-gothic-body whitespace-nowrap ${isMainTitleOverflowing && isPlaying ? 'animate-marquee' : ''}`}
+                      >
+                        ♪ {videoLinks[nowPlayingIndex]?.title}
+                      </p>
                     </div>
                     <div className="text-s text-text-main/70 mb-1 flex justify-between">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
