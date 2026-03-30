@@ -1,10 +1,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import InformationModal from '../../components/Modal/InformationModal';
 
 const API = 'http://localhost:8081';
 
-const GalleryItem = ({ title, serial, imageUrl }) => {
+const GalleryItem = ({ member, onOpenModal }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -21,8 +22,8 @@ const GalleryItem = ({ title, serial, imageUrl }) => {
 
       <div className="aspect-square bg-primary/5 mb-4 overflow-hidden relative">
         <img 
-          src={imageUrl} 
-          alt={title} 
+          src={member.image_url ? `${API}${member.image_url}` : ''} 
+          alt={member.char_name} 
           className={`w-full h-full object-cover transition-all duration-500 ${isHovered ? 'scale-110 grayscale-0' : 'grayscale brightness-95'}`}
         />
         <div className={`absolute inset-0 bg-primary/5 pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
@@ -30,12 +31,13 @@ const GalleryItem = ({ title, serial, imageUrl }) => {
 
       <div className="flex-1">
         <h3 className={`text-lg font-black italic tracking-tighter uppercase transition-colors duration-300 ${isHovered ? 'text-primary' : 'text-text-main'}`}>
-          {title}
+          {member.char_name}
         </h3>
-        <p className="text-[10px] text-text-main/60 font-bold tracking-widest mt-1">SN: {serial}</p>
+        <p className="text-[10px] text-text-main/60 font-bold tracking-widest mt-1">SN: {member.serial}</p>
       </div>
 
       <button 
+        onClick={() => onOpenModal(member)}
         className={`mt-6 w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border
           ${isHovered 
             ? 'bg-primary border-primary text-white dark:shadow-lg dark:shadow-primary/20' 
@@ -51,10 +53,22 @@ const GalleryItem = ({ title, serial, imageUrl }) => {
 };
 
 export default function Member() {
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTab, setActiveTab] = useState('AKERO');
   const [members, setMembers] = useState([]);
   const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  const handleOpenModal = (member) => {
+    setSelectedMember(member);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMember(null);
+  };
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -125,9 +139,8 @@ const filteredMembers = activeTab === 'AKERO'
             {filteredMembers.map((member) => (
               <GalleryItem
                 key={member.id}
-                title={member.char_name}
-                serial={member.serial}
-                imageUrl={member.image_url ? `${API}${member.image_url}` : ''}
+                member={member}
+                onOpenModal={handleOpenModal}
               />
             ))}
           </div>
@@ -144,6 +157,15 @@ const filteredMembers = activeTab === 'AKERO'
           </div>
         </footer>
       </div>
+      {isModalOpen && selectedMember && (
+        <InformationModal 
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          moduleName={selectedMember.char_name}
+          moduleId={selectedMember.serial}
+          clearance={selectedMember.position}
+        />
+      )}
     </div>
   );
 }

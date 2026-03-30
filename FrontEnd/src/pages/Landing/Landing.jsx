@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import './index.css'  
 import CommonModal from '../../components/Modal/CommonModal';
-import shedule from '../../../public/images/schedule.png';
 
 export default function Landing(){
   const deptLinks = {
@@ -41,7 +40,7 @@ export default function Landing(){
             𝙳𝚘 𝚗𝚘𝚝 𝚏𝚎𝚊𝚛 𝚏𝚘𝚛 𝙸 𝚑𝚊𝚟𝚎 𝚛𝚎𝚍𝚎𝚎𝚖𝚎𝚍 𝚢𝚘𝚞.
 𝙸 𝚑𝚊𝚟𝚎 𝚜𝚞𝚖𝚖𝚘𝚗𝚎𝚍 𝚢𝚘𝚞 𝚋𝚢 𝚗𝚊𝚖𝚎, 𝚢𝚘𝚞 𝚊𝚛𝚎 𝚖𝚒𝚗𝚎.
           </p>
-      <img src={shedule} alt="Schedule" className="w-full max-w-[80rem] object-contain" />
+      <img src="/images/schedule.png" alt="Schedule" className="w-full max-w-[80rem] object-contain" />
          <div className="absolute -top-10 -left-10 w-32 h-32 border border-primary rounded-full opacity-50 animate-ping"></div>
          <div className="absolute -bottom-10 -right-10 w-24 h-24 border border-primary rounded-full opacity-50 animate-ping"></div>
         </section>
