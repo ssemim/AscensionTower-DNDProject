@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import axios from 'axios';
-import YouTube from 'react-youtube';
 import '../Landing/index.css';
 import badges from './badge.js';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
 import { useNavigate } from 'react-router-dom';
+import PlaylistPlayer from '../../components/PlayListPlayer/PlayListPlayer.jsx';
+import ReceiveAndUseModal from '../../components/Modal/ReceiveAndUseModal';
 
 const API = 'http://localhost:8081';
 
@@ -34,8 +34,6 @@ async function fetchYouTubeTitle(videoId) {
     return null;
   }
 }
-
-import ReceiveAndUseModal from '../../components/Modal/ReceiveAndUseModal';
 
 // ───────────────────────────────────────────
 // 인벤토리 아이템 카드
@@ -74,7 +72,6 @@ function MailCard({ mail, onReceive }) {
           )}
         </div>
       )}
-      {/* 아이템 있음 + 미수령: 수령 버튼 */}
       {mail.item_id && !mail.item_received && (
         <button
           onClick={() => onReceive(mail)}
@@ -83,7 +80,6 @@ function MailCard({ mail, onReceive }) {
           수령하기
         </button>
       )}
-      {/* 아이템 있음 + 수령 완료: disabled 버튼 */}
       {mail.item_id && mail.item_received ? (
         <button
           disabled
@@ -92,7 +88,6 @@ function MailCard({ mail, onReceive }) {
           수령 완료
         </button>
       ) : null}
-      {/* 아이템 없음 (메시지만): disabled 버튼 */}
       {!mail.item_id && (
         <button
           disabled
@@ -173,7 +168,6 @@ function InventorySection() {
 
   return (
     <>
-      {/* 메일 수령 모달 */}
       {selectedMail && (
         <ReceiveAndUseModal
           title="INCOMING MAIL"
@@ -188,7 +182,6 @@ function InventorySection() {
         />
       )}
 
-      {/* 아이템 사용 모달 */}
       {selectedItem && (
         <ReceiveAndUseModal
           title="USE ITEM"
@@ -265,116 +258,6 @@ function InventorySection() {
 }
 
 // ───────────────────────────────────────────
-// 플레이리스트 트랙 버튼 (포털 popover)
-// ───────────────────────────────────────────
-function TrackButton({ video, index, isPlaying, isActive, onPlay }) {
-  const [popoverPos, setPopoverPos] = useState(null);
-  const timeoutRef = useRef(null);
-  const btnRef = useRef(null);
-  const titleRef = useRef(null);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  useEffect(() => {
-    const checkOverflow = () => {
-        if (titleRef.current) {
-            const el = titleRef.current;
-            const isNowOverflowing = el.scrollWidth > el.clientWidth;
-            if (isNowOverflowing !== isOverflowing) {
-                setIsOverflowing(isNowOverflowing);
-            }
-        }
-    };
-    // Using a timeout to ensure the DOM has been updated.
-    const id = setTimeout(checkOverflow, 50);
-    window.addEventListener('resize', checkOverflow);
-    return () => {
-        clearTimeout(id);
-        window.removeEventListener('resize', checkOverflow);
-    };
-  }, [video.title, isOverflowing]);
-
-  const POPOVER_W = 208;
-  const POPOVER_H = 90;
-
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutRef.current);
-    if (!video.added_by && !video.message) return;
-    const rect = btnRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const isMobile = window.innerWidth < 768;
-    let top, left;
-
-    if (isMobile) {
-      // 모바일: 아래 공간 있으면 아래, 없으면 위
-      const spaceBelow = window.innerHeight - rect.bottom;
-      top = spaceBelow >= POPOVER_H + 8
-        ? rect.bottom + window.scrollY + 8
-        : rect.top + window.scrollY - POPOVER_H - 8;
-      // 화면 안으로 left 클램핑
-      left = Math.max(8, Math.min(rect.left, window.innerWidth - POPOVER_W - 8));
-    } else {
-      // 데스크탑: 오른쪽 공간 있으면 오른쪽, 없으면 왼쪽
-      const spaceRight = window.innerWidth - rect.right;
-      left = spaceRight >= POPOVER_W + 8
-        ? rect.right + 8
-        : rect.left - POPOVER_W - 8;
-      top = rect.top + window.scrollY;
-    }
-
-    setPopoverPos({ top, left });
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setPopoverPos(null), 150);
-  };
-
-  return (
-    <>
-      <button
-        ref={btnRef}
-        onClick={() => onPlay(index)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        className={`w-full text-left p-2 rounded transition-colors duration-200 flex items-center ${isActive ? 'bg-primary/30' : 'hover:bg-primary/10'}`}
-      >
-        <span className="font-bold">{isActive && isPlaying ? '▶' : '▷'}</span>
-        <div className="ml-3 text-sm overflow-hidden flex-1">
-            <p
-                ref={titleRef}
-                className={`whitespace-nowrap ${isOverflowing && isActive && isPlaying ? "animate-marquee" : "truncate"}`}
-            >
-                {video.title}
-            </p>
-        </div>
-      </button>
-
-      {popoverPos && createPortal(
-        <div
-          onMouseEnter={() => clearTimeout(timeoutRef.current)}
-          onMouseLeave={handleMouseLeave}
-          style={{ position: 'absolute', top: popoverPos.top, left: popoverPos.left }}
-          className="z-[9999] w-52 bg-main border border-border-primary rounded-lg p-3 shadow-stark-glow"
-        >
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-t-lg" />
-          {video.added_by && (
-            <p className="text-xs text-text-main/70 font-one-store-mobile-gothic-body mb-1">
-              <span className='text-text-main font-bold text-sm'>from:</span> <span className="text-primary font-bold text-lg">{video.added_by_name}</span>
-            </p>
-          )}
-          {video.message && (
-            <p className="text-lg text-text-main font-one-store-mobile-gothic-body leading-relaxed border-t border-border-primary/30 pt-2 mt-1">
-              "{video.message}"
-            </p>
-          )}
-        </div>,
-        document.body
-      )}
-    </>
-  );
-}
-
-// ───────────────────────────────────────────
 // 메인 페이지
 // ───────────────────────────────────────────
 export default function MyPage() {
@@ -385,17 +268,9 @@ export default function MyPage() {
   const [stats, setStats] = useState(null);
   const [videoLinks, setVideoLinks] = useState([]);
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(true);
-  const [player, setPlayer] = useState(null);
-  const [nowPlayingIndex, setNowPlayingIndex] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(100);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  const [isMainTitleOverflowing, setIsMainTitleOverflowing] = useState(false);
-  const mainTitleRef = useRef(null);
   
     useEffect(() => {
       const fetchData = async () => {
@@ -446,33 +321,6 @@ export default function MyPage() {
         .then(res => { if (res.data.Status === 'Success') setEarnedBadgeIds(res.data.badges.map(b => b.badge_id)); })
         .catch(err => console.error('뱃지 로드 실패:', err));
     }, []);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (player && isPlaying) {
-        setCurrentTime(player.getCurrentTime());
-        setDuration(player.getDuration());
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [player, isPlaying]);
-
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (mainTitleRef.current) {
-        const { scrollWidth, clientWidth } = mainTitleRef.current;
-        const isOverflowing = scrollWidth > clientWidth;
-        if (isOverflowing !== isMainTitleOverflowing) {
-            setIsMainTitleOverflowing(isOverflowing);
-        }
-      }
-    };
-    const timeoutId = setTimeout(checkOverflow, 50);
-    window.addEventListener('resize', checkOverflow);
-    return () => {
-        clearTimeout(timeoutId);
-        window.removeEventListener('resize', checkOverflow);
-    };
-  }, [nowPlayingIndex, videoLinks, isMainTitleOverflowing]);
 
   if (authStatus === 'loading') {
   return (
@@ -522,39 +370,10 @@ if (authStatus === 'unauthenticated') {
     }
   };
 
-  const youtubePlayerOptions = { height: '0', width: '0', playerVars: { autoplay: 0 } };
-  const onPlayerReady = (e) => { setPlayer(e.target); e.target.setVolume(volume); };
-  const onPlayerStateChange = (e) => {
-    setIsPlaying(e.data === window.YT.PlayerState.PLAYING);
-    if (e.data === window.YT.PlayerState.ENDED) {
-      const next = nowPlayingIndex + 1;
-      if (next < videoLinks.length) handlePlay(next);
-      else { setNowPlayingIndex(null); setCurrentTime(0); setDuration(0); }
-    }
-  };
-  const handlePlay = (index) => {
-    if (nowPlayingIndex === index && isPlaying) { player?.pauseVideo(); return; }
-    const videoId = getYouTubeID(videoLinks[index]?.url);
-    if (player && videoId) { setNowPlayingIndex(index); player.loadVideoById(videoId); player.playVideo(); }
-  };
-  const handlePlayPause = () => { if (!player || nowPlayingIndex === null) return; isPlaying ? player.pauseVideo() : player.playVideo(); };
-  const handlePrev = () => { if (nowPlayingIndex > 0) handlePlay(nowPlayingIndex - 1); };
-  const handleNext = () => { if (nowPlayingIndex < videoLinks.length - 1) handlePlay(nowPlayingIndex + 1); };
-  const handleSeek = (time) => { player?.seekTo(time, true); setCurrentTime(time); };
-  const handleVolumeChange = (v) => { player?.setVolume(v); setVolume(v); };
-  const formatTime = (s) => {
-    if (!s || isNaN(s)) return '0:00';
-    return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
-  };
-
   return (
     <>
       <div className="min-h-screen bg-main text-text-main font-mono relative">
         <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-0 dark:opacity-100" />
-
-        <div className="hidden">
-          <YouTube onReady={onPlayerReady} onStateChange={onPlayerStateChange} opts={youtubePlayerOptions} />
-        </div>
 
         <main className="relative z-10">
 
@@ -622,59 +441,16 @@ if (authStatus === 'unauthenticated') {
               </div>
 
               {/* 플레이리스트 */}
-              <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col overflow-hidden">
-                <h4 className="text-lg font-bold mb-4 text-primary">PLAYLIST</h4>
-                <div className="flex-1 overflow-y-auto min-h-0">
-                  {isLoadingPlaylist ? (
-                    <p className="text-text-main/50 text-sm font-one-store-mobile-gothic-body">로딩 중...</p>
-                  ) : videoLinks.length > 0 ? (
-                    <div className="space-y-2">
-                      {videoLinks.map((video, index) => (
-                        <TrackButton
-                          key={video.track_id ?? index}
-                          video={video}
-                          index={index}
-                          isActive={nowPlayingIndex === index}
-                          isPlaying={isPlaying}
-                          onPlay={handlePlay}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-text-main/50 text-lg font-one-store-mobile-gothic-body">선물받은 BGM이 아직 없습니다.</p>
-                  )}
+              <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col">
+                <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">PLAYLIST</h4>
+                <div className="flex-1 min-h-0">
+                    <PlaylistPlayer 
+                        playlist={videoLinks} 
+                        isLoading={isLoadingPlaylist}
+                        showPopover={true}
+                        className="h-full"
+                    />
                 </div>
-
-                {nowPlayingIndex !== null && (
-                  <div className="mt-4 pt-4 border-t border-border-primary flex-shrink-0">
-                    <div className="overflow-hidden">
-                      <p
-                        ref={mainTitleRef}
-                        className={`inline-block text-s text-primary mb-2 font-one-store-mobile-gothic-body whitespace-nowrap ${isMainTitleOverflowing && isPlaying ? 'animate-marquee' : ''}`}
-                      >
-                        ♪ {videoLinks[nowPlayingIndex]?.title}
-                      </p>
-                    </div>
-                    <div className="text-s text-text-main/70 mb-1 flex justify-between">
-                      <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
-                    </div>
-                    <input type="range" min="0" max={duration || 0} value={currentTime}
-                      onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                      className="w-full h-1 rounded cursor-pointer accent-primary mb-4" />
-                    <div className="flex gap-2 mb-4">
-                      <button onClick={handlePrev} disabled={nowPlayingIndex === 0} className="hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏮</button>
-                      <button onClick={handlePlayPause} className="flex-1 hover:bg-primary/30 text-primary py-2 px-4 rounded font-bold transition-colors">{isPlaying ? '⏸ PAUSE' : '▶ PLAY'}</button>
-                      <button onClick={handleNext} disabled={nowPlayingIndex === videoLinks.length - 1} className="hover:bg-primary/30 text-primary py-2 px-3 rounded font-bold transition-colors disabled:opacity-30">⏭</button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-s text-text-main/70">🔊</span>
-                      <input type="range" min="0" max="100" value={volume}
-                        onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-                        className="flex-1 h-1 rounded cursor-pointer accent-primary" />
-                      <span className="text-xs text-text-main/70 w-8 text-right">{volume}</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </section>

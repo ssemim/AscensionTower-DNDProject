@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer from './cartSlice';
 import authReducer from './authSlice';
+import playerReducer from './playerSlice';
 
 const saveState = (state) => {
   try {
@@ -15,6 +16,7 @@ export const store = configureStore({
   reducer: {
     cart: cartReducer,
     auth: authReducer,
+    player: playerReducer,
   },
 });
 

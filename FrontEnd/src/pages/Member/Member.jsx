@@ -1,15 +1,16 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import InformationModal from '../../components/Modal/InformationModal';
-
+import MemberDetailModal from "../../components/Modal/MemberDetailModal";
+import PlaylistPlayer from '../../components/PlayListPlayer/PlayListPlayer.jsx'; 
 const API = 'http://localhost:8081';
 
-const GalleryItem = ({ member, onOpenModal }) => {
+// ── GalleryItem ───────────────────────────────────────────────
+// memberId, onViewDetail 추가
+const GalleryItem = ({ memberId, title, serial, imageUrl, onViewDetail }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       className={`relative bg-main border transition-all duration-300 p-4 flex flex-col h-full group
         ${isHovered ? 'border-primary shadow-stark-glow' : 'border-border-primary/30 shadow-sm'}
       `}
@@ -21,67 +22,54 @@ const GalleryItem = ({ member, onOpenModal }) => {
       </div>
 
       <div className="aspect-square bg-primary/5 mb-4 overflow-hidden relative">
-        <img 
-          src={member.image_url ? `${API}${member.image_url}` : ''} 
-          alt={member.char_name} 
+        <img
+          src={imageUrl}
+          alt={title}
           className={`w-full h-full object-cover transition-all duration-500 ${isHovered ? 'scale-110 grayscale-0' : 'grayscale brightness-95'}`}
         />
-        <div className={`absolute inset-0 bg-primary/5 pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
+        <div className={`absolute inset-0 bg-primary/5 pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
       </div>
 
       <div className="flex-1">
         <h3 className={`text-lg font-black italic tracking-tighter uppercase transition-colors duration-300 ${isHovered ? 'text-primary' : 'text-text-main'}`}>
-          {member.char_name}
+          {title}
         </h3>
-        <p className="text-[10px] text-text-main/60 font-bold tracking-widest mt-1">SN: {member.serial}</p>
+        <p className="text-[10px] text-text-main/60 font-bold tracking-widest mt-1">SN: {serial}</p>
       </div>
 
-      <button 
-        onClick={() => onOpenModal(member)}
+      {/* ↓ onClick 연결 */}
+      <button
+        onClick={() => onViewDetail(memberId)}
         className={`mt-6 w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border
-          ${isHovered 
-            ? 'bg-primary border-primary text-white dark:shadow-lg dark:shadow-primary/20' 
+          ${isHovered
+            ? 'bg-primary border-primary text-white dark:shadow-lg dark:shadow-primary/20'
             : 'bg-transparent border-border-primary/30 text-text-main/50 hover:border-primary hover:text-primary'}
         `}
       >
         View Details
       </button>
 
-      <div className={`absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-primary transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-primary transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
     </div>
   );
 };
 
+// ── Member (Gallery 페이지) ───────────────────────────────────
 export default function Member() {
-  const [activeTab, setActiveTab] = useState('AKERO');
-  const [members, setMembers] = useState([]);
-  const [positions, setPositions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [activeTab,  setActiveTab]  = useState('AKERO');
+  const [members,    setMembers]    = useState([]);
+  const [isLoading,  setIsLoading]  = useState(true);
 
-  const handleOpenModal = (member) => {
-    setSelectedMember(member);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedMember(null);
-  };
+  // 모달 상태
+  const [selectedMemberId, setSelectedMemberId] = useState(null);
+  const isModalOpen = selectedMemberId !== null;
 
   useEffect(() => {
     const fetchMembers = async () => {
       setIsLoading(true);
       try {
         const res = await axios.get(`${API}/members`, { withCredentials: true });
-        if (res.data.Status === 'Success') {
-          const data = res.data.members;
-          setMembers(data);
-          // position 목록 중복 제거 (null 제외)
-          const uniquePositions = [...new Set(data.map(m => m.position).filter(Boolean))];
-          setPositions(uniquePositions);
-        }
+        if (res.data.Status === 'Success') setMembers(res.data.members);
       } catch (err) {
         console.error('멤버 로드 실패:', err);
       } finally {
@@ -91,17 +79,18 @@ export default function Member() {
     fetchMembers();
   }, []);
 
-const tabs = ['AKERO', 'MERKI', 'MAEBAM', 'HASHA'];
+  const tabs = ['AKERO', 'MERKI', 'MAEBAM', 'HASHA'];
 
-const filteredMembers = activeTab === 'AKERO'
-  ? members
-  : members.filter(m => m.position === activeTab);
+  const filteredMembers = activeTab === 'AKERO'
+    ? members
+    : members.filter(m => m.position === activeTab);
 
   return (
     <div className="min-h-screen bg-main text-text-main font-mono p-10 selection:bg-primary/20 selection:text-primary">
       <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-100" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
+        {/* 탭 헤더 */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 border-b-2 border-border-primary/20 pb-6">
           <div className="flex gap-12 flex-wrap">
             {tabs.map((tab, index) => (
@@ -114,7 +103,7 @@ const filteredMembers = activeTab === 'AKERO'
               >
                 {tab}
                 {activeTab === tab && (
-                  <span className="absolute -bottom-[26px] left-0 w-full h-[2px] bg-primary"></span>
+                  <span className="absolute -bottom-[26px] left-0 w-full h-[2px] bg-primary" />
                 )}
                 <span className="absolute -top-4 left-0 text-[8px] opacity-40">{String(index + 1).padStart(2, '0')}</span>
               </button>
@@ -124,12 +113,13 @@ const filteredMembers = activeTab === 'AKERO'
           <div className="mt-6 md:mt-0 flex items-center gap-4 text-[10px] font-bold text-text-main/40">
             <span className="tracking-widest italic uppercase">Access_Level: Security_04</span>
             <div className="flex gap-1 items-center">
-              <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
-              <div className="w-1 h-1 bg-primary/30 rounded-full"></div>
+              <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+              <div className="w-1 h-1 bg-primary/30 rounded-full" />
             </div>
           </div>
         </div>
 
+        {/* 갤러리 그리드 */}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -139,8 +129,11 @@ const filteredMembers = activeTab === 'AKERO'
             {filteredMembers.map((member) => (
               <GalleryItem
                 key={member.id}
-                member={member}
-                onOpenModal={handleOpenModal}
+                memberId={member.id}           // ← 추가
+                title={member.char_name}
+                serial={member.id}             // serial 필드가 없어서 id로 대체, 있으면 member.serial로 교체
+                imageUrl={member.image_url ? `${API}${member.image_url}` : ''}
+                onViewDetail={setSelectedMemberId} // ← 추가
               />
             ))}
           </div>
@@ -157,15 +150,13 @@ const filteredMembers = activeTab === 'AKERO'
           </div>
         </footer>
       </div>
-      {isModalOpen && selectedMember && (
-        <InformationModal 
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          moduleName={selectedMember.char_name}
-          moduleId={selectedMember.serial}
-          clearance={selectedMember.position}
-        />
-      )}
+
+      {/* ↓ MemberDetailModal — CommonModal 기반 */}
+      <MemberDetailModal
+        memberId={selectedMemberId}
+        isOpen={isModalOpen}
+        onClose={() => setSelectedMemberId(null)}
+      />
     </div>
   );
 }

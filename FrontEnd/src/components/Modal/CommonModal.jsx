@@ -36,7 +36,7 @@ const CommonModal = ({
 
       {/* Main Module Container */}
       <div 
-        className={`relative w-full max-w-2xl ${theme.container} border shadow-[0_0_15px_var(--color-primary)] overflow-hidden animate-in fade-in zoom-in duration-300`}
+        className={`relative w-full max-w-6xl ${theme.container} border shadow-[0_0_15px_var(--color-primary)] overflow-hidden animate-in fade-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -100,18 +100,7 @@ const CommonModal = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <button 
-              className="flex-1 bg-primar hover:bg-primary text-white font-black py-4 text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-[0.98]"
-              onClick={onClose}
-            >
-              ACKNOWLEDGE
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
+
         </div>
 
         {/* Footer HUD Markers */}

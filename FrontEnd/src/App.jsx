@@ -19,6 +19,7 @@ import { login } from './store/authSlice'
 import axios from 'axios'                 
 import './index.css';
 import { ThemeProvider } from './components/ThemeProvider/ThemeProvider';
+import GlobalPlayer from './components/GlobalPlayer/GlobalPlayer';
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -76,6 +77,8 @@ function App() {
           </Routes>
         </ThemeProvider>
       </main>
+
+      <GlobalPlayer />
     </>
   )
 }

@@ -7,7 +7,7 @@ export default function World(){
     <div>
 
           <div className="absolute inset-0 pointer-events-none bg-stark-grid opacity-20 dark:opacity-100"></div>
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="absolute inset-0 bg-main"></div>
             
        <section className="px-0 py-0 flex flex-col items-center text-center relative z-10 inset-0 bg-black bg-opacity-50">
           <img src={mapImage} alt="Map" className="w-3/4" />
