@@ -36,7 +36,7 @@ const CommonModal = ({
 
       {/* Main Module Container */}
       <div 
-        className={`relative w-full max-w-2xl ${theme.container} border shadow-[0_20px_50px_rgba(37,99,235,0.15)] overflow-hidden animate-in fade-in zoom-in duration-300`}
+        className={`relative w-full max-w-2xl ${theme.container} border shadow-[0_0_15px_var(--color-primary)] overflow-hidden animate-in fade-in zoom-in duration-300`}
         onClick={(e) => e.stopPropagation()}
       >
         
