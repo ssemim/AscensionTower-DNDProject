@@ -15,105 +15,111 @@ const CommonModal = ({
 
   if (!isOpen) return null;
 
-  // 테마별 색상 정의
-  const theme = {
-    overlay: isDark ? 'bg-slate-950/80' : 'bg-slate-900/40',
-    container: isDark ? 'bg-main border-slate-700' : 'bg-main border-blue-200',
-    textMain: isDark ? 'text-white' : 'text-slate-900',
-    textSub: isDark ? 'text-slate-400' : 'text-slate-500',
-    gridBg: isDark ? 'opacity-[0.05]' : 'opacity-[0.03]',
-    metaBox: isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50/50 border-slate-100',
-    footerBorder: isDark ? 'border-slate-800' : 'border-slate-50'
-  };
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-['Space_Grotesk',sans-serif]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-one-store-mobile-gothic-body">
+
       {/* Backdrop */}
-      <div 
-        className={`fixed inset-0 ${theme.overlay} backdrop-blur-sm transition-opacity`} 
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Main Module Container */}
-      <div 
-        className={`relative w-full max-w-6xl ${theme.container} border shadow-[0_0_15px_var(--color-primary)] overflow-hidden animate-in fade-in zoom-in duration-300`}
+      {/* Main Modal Container — mirrors VortexLayout main console */}
+      <div
+        className="relative w-full max-w-6xl bg-main border border-primary rounded-xl shadow-[0_0_20px_var(--color-primary-glow)] overflow-hidden animate-in fade-in zoom-in duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        
-        {/* Subtle Background Grid Pattern */}
-        <div className={`absolute inset-0 ${theme.gridBg} pointer-events-none`} 
-             style={{ backgroundImage: 'linear-gradient(#2563eb 1px, transparent 1px), linear-gradient(90deg, #2563eb 1px, transparent 1px)', backgroundSize: '20px 20px' }} 
+
+        {/* 1. CRT Scanlines */}
+        <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(to_bottom,var(--color-primary)_50%,transparent_50%)] bg-[length:100%_4px]" />
+
+        {/* 2. Grid Background */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'linear-gradient(to right, var(--color-primary-faint, rgba(57,255,20,0.05)) 2px, transparent 2px), linear-gradient(to bottom, var(--color-primary-faint, rgba(57,255,20,0.05)) 2px, transparent 2px)',
+            backgroundSize: '40px 40px',
+          }}
         />
 
-        {/* Tactical Header Bar */}
-        <div className="relative z-10 flex justify-between items-center px-6 py-3 bg-primary text-white">
-          <div className="flex items-center gap-3">
-            <div className="flex gap-0.5">
-              <div className="w-1 h-3 bg-white/40"></div>
-              <div className="w-1 h-3 bg-white"></div>
-              <div className="w-1 h-3 bg-white/40"></div>
+        {/* 3. Corner Accents */}
+        <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-primary z-10" />
+        <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-primary z-10" />
+        <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-primary z-10" />
+        <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-primary z-10" />
+
+        {/* Header */}
+        <header className="relative z-10 flex justify-between items-end border-b border-primary/50 px-6 py-4 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center bg-black shadow-[0_0_15px_var(--color-primary-glow)]">
+              <span className="text-primary text-xs font-black animate-pulse">●</span>
             </div>
-            <span className="text-[11px] font-black tracking-[0.3em] uppercase">{title}</span>
+            <div>
+              <h1 className="text-2xl  tracking-widest text-primary [text-shadow:0_0_8px_var(--color-primary-glow)]">
+                {title}
+              </h1>
+              <p className="text-[10px] text-primary/40 tracking-[0.4em] uppercase font-bold">
+                Visual Operations Terminal
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex gap-1">
-              <div className="w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
-              <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="text-[10px] text-primary/60 flex items-center gap-2">
+              SYSTEM ONLINE
+              <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_5px_var(--color-primary-glow)]" />
             </div>
-            <button 
+            <button
               onClick={onClose}
-              className="hover:rotate-90 transition-transform duration-200 opacity-80 hover:opacity-100"
+              className="w-8 h-8 border border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center text-primary hover:shadow-[0_0_8px_var(--color-primary-glow)] transition-all duration-200"
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
                 <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* Content Section */}
+        {/* Content */}
         <div className="relative z-10 p-8 md:p-10">
+
+          {/* Status + Headline */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-primar"></div>
-              <span className="text-[10px] font-bold text-primar tracking-widest uppercase">{status}</span>
+              <div className="w-2 h-2 bg-primary animate-pulse shadow-[0_0_6px_var(--color-primary-glow)]" />
+              <span className="text-[10px] font-black text-primary tracking-[0.5em] uppercase animate-pulse">
+                {status}
+              </span>
             </div>
-            <h2 className={`text-3xl md:text-4xl font-black italic ${theme.textMain} tracking-tighter text-text-main leading-none border-b-2 ${isDark ? 'border-white/5' : 'border-slate-900/5'} pb-4`}>
+            <h2 className="text-3xl md:text-4xl font-black italic text-primary tracking-tighter leading-none border-b border-primary/20 pb-4 [text-shadow:0_0_8px_var(--color-primary-glow)]">
               {headline}
             </h2>
           </div>
 
-          {/* Children: 실제 모달에 들어갈 내용 */}
-          <div className={`${theme.textSub} text-sm leading-relaxed mb-8`}>
+          {/* Children */}
+          <div className="text-primary/70 text-sm leading-relaxed mb-8">
             {children}
           </div>
 
-          {/* Tactical Metadata Grid */}
-          <div className={`grid grid-cols-2 border ${theme.metaBox} mb-8`}>
-            <div className={`p-4 border-r ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">MODULE_ID</p>
-              <p className={`text-xs font-black ${theme.textMain}`}>{moduleId}</p>
+          {/* Metadata Grid */}
+          <div className="bg-black/40 border border-primary/30 rounded p-4 grid grid-cols-2 divide-x divide-primary/20 mb-2">
+            <div className="pr-4">
+              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">MODULE_ID</p>
+              <p className="text-xs font-black text-primary">{moduleId}</p>
             </div>
-            <div className="p-4">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">TIMESTAMP</p>
-              <p className={`text-xs font-black ${theme.textMain}`}>{timestamp}</p>
+            <div className="pl-4">
+              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">TIMESTAMP</p>
+              <p className="text-xs font-black text-primary">{timestamp}</p>
             </div>
           </div>
-
 
         </div>
 
-        {/* Footer HUD Markers */}
-        <div className={`px-6 py-4 border-t ${theme.footerBorder} flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase tracking-widest`}>
-          <div className="flex gap-4">
-            <span>SECURE_HANDSHAKE: <span className="text-blue-500">ACTIVE</span></span>
-            <span>ENCRYPTION: 256-AES</span>
-          </div>
+        {/* Footer */}
+        <footer className="relative z-10 px-6 py-3 border-t border-primary/30 flex justify-between items-center text-[8px] font-bold text-primary/50 uppercase tracking-[0.3em]">
+          <span>SECURE_HANDSHAKE: <span className="text-primary">ACTIVE</span> // ENCRYPTION: 256-AES</span>
           <span>UNIT: ALPHA-7</span>
-        </div>
+        </footer>
 
-        {/* Decorative HUD Corner */}
-        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primar"></div>
       </div>
     </div>
   );

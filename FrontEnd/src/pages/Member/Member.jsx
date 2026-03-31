@@ -17,7 +17,7 @@ const GalleryItem = ({ memberId, title, serial, imageUrl, onViewDetail }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`absolute top-2 right-2 px-2 py-0.5 text-[14px] font-black uppercase tracking-widest transition-opacity duration-300 ${isHovered ? 'opacity-100 bg-primary text-white' : 'opacity-0'}`}>
+      <div className={`absolute top-2 right-2 z-50 px-2 py-0.5 text-lg font-black uppercase tracking-widest transition-opacity duration-300 ${isHovered ? 'opacity-100 bg-primary text-white' : 'opacity-0'}`}>
         Selected
       </div>
 
@@ -86,12 +86,12 @@ export default function Member() {
     : members.filter(m => m.position === activeTab);
 
   return (
-    <div className="min-h-screen bg-main text-text-main font-mono p-10 selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen bg-main text-text-main font-mono p-10 selection:bg-primary/20 selection:text-primary font-nexon-warhaven">
       <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-100" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
         {/* 탭 헤더 */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 border-b-2 border-border-primary/20 pb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 border-b-2 border-border-primary/20 pb-6 font-nexon-warhaven text-lg">
           <div className="flex gap-12 flex-wrap">
             {tabs.map((tab, index) => (
               <button
