@@ -155,7 +155,7 @@ export default function GlobalPlayer() {
             onChange={handleSeek}
             className="w-full h-1 rounded cursor-pointer accent-primary"
           />
-          <div className="text-xs flex justify-between mt-1 text-text-main/70">
+          <div className="text-xs flex justify-between mt-1 text-text-main">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
