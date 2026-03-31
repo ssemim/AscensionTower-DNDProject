@@ -78,7 +78,7 @@ const CommonModal = ({
               <div className="w-2 h-2 bg-primar"></div>
               <span className="text-[10px] font-bold text-primar tracking-widest uppercase">{status}</span>
             </div>
-            <h2 className={`text-3xl md:text-4xl font-black italic ${theme.textMain} tracking-tighter leading-none border-b-2 ${isDark ? 'border-white/5' : 'border-slate-900/5'} pb-4`}>
+            <h2 className={`text-3xl md:text-4xl font-black italic ${theme.textMain} tracking-tighter text-text-main leading-none border-b-2 ${isDark ? 'border-white/5' : 'border-slate-900/5'} pb-4`}>
               {headline}
             </h2>
           </div>
