@@ -11,7 +11,7 @@ const CommonModal = ({
   timestamp = "14:22:09:44",
   children 
 }) => {
-  const { isDark } = useTheme();
+  useTheme();
 
   if (!isOpen) return null;
 
@@ -49,7 +49,7 @@ const CommonModal = ({
         <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-primary z-10" />
 
         {/* Header */}
-        <header className="relative z-10 flex justify-between items-end border-b border-primary/50 px-6 py-4 shrink-0">
+        <header className="relative z-10 flex justify-between items-end border-b border-primary/50 px-6 py-4 shrink-0 font-nexon-warhaven">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center bg-black shadow-[0_0_15px_var(--color-primary-glow)]">
               <span className="text-primary text-xs font-black animate-pulse">●</span>
@@ -101,14 +101,14 @@ const CommonModal = ({
           </div>
 
           {/* Metadata Grid */}
-          <div className="bg-black/40 border border-primary/30 rounded p-4 grid grid-cols-2 divide-x divide-primary/20 mb-2">
+          <div className="bg-primary border border-primary/30 rounded p-4 grid grid-cols-2 divide-x divide-primary/20 mb-2 font-nexon-warhaven">
             <div className="pr-4">
-              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">POSITION</p>
-              <p className="text-xs font-black text-primary">{moduleId}</p>
+              <p className="text-sm font-bold text-border-main uppercase tracking-widest mb-1">POSITION</p>
+              <p className="text-sm text-white">{moduleId}</p>
             </div>
             <div className="pl-4">
-              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">AGE</p>
-              <p className="text-xs font-black text-primary">{timestamp}</p>
+              <p className="text-sm font-bold text-border-main uppercase tracking-widest mb-1">AGE</p>
+              <p className="text-sm text-white">{timestamp}</p>
             </div>
           </div>
 

@@ -299,8 +299,8 @@ function BlackJack() {
         return <div className="min-h-screen bg-main flex items-center justify-center text-primary">Loading...</div>;
     }
     return (
-        <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
-      <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-border-primary pt-4 pb-8 relative z-10 font-one-store-mobile-gothic-body">
+        <div className={`min-h-screen p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
+      <header className="max-w-7xl mx-auto flex justify-between items-end border-b border-border-primary pt-4 pb-8 relative z-10 font-one-store-mobile-gothic-body">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 border-2 border-border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
             <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
@@ -396,7 +396,7 @@ function BlackJack() {
 
                 <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-one-store-mobile-gothic-body">
                     <div className="text-center">
-                        <div className="blackjack-container my-6 p-12">
+                        <div className="blackjack-container my-3 p-6">
                             <div className="blackjack-glow"></div>
                             <img src="/images/NPCS/blackjackNPC.gif" alt="Blackjack Dealer" className="sway-animation w-48 h-48 object-contain" />
                         </div>
@@ -417,7 +417,7 @@ function BlackJack() {
                                     <p className="text-red-400">LOSE: -{betAmount} P</p>
                                 </div>
                             )}
-                            <p className="text-lg font-one-store-mobile-gothic-body text-text-main/50 mt-2">
+                            <p className="text-sm font-one-store-mobile-gothic-body text-text-main/50 mt-1">
                                 보유 포인트: {balance === null ? '...' : `${balance} P`}
                             </p>
                             {canPlay === false && (

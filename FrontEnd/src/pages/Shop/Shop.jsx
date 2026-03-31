@@ -164,10 +164,6 @@ const Shop = () => {
               </div>
               <div className="space-y-6 flex-1">
                 <div>
-                  <div className="flex justify-between text-[12px] font-black uppercase tracking-widest mb-1">
-                    <span className="text-primary/70">임의 스텟</span>
-                    <span className="text-text-main text-[12px]">{selected?.stats?.ATK || 0}%</span>
-                  </div>
                   <div className="w-full h-1 bg-primary/10 rounded-full overflow-hidden">
                     <div className="h-full bg-primary shadow-stark-glow transition-all duration-700 ease-out" style={{ width: `${selected?.stats?.ATK || 0}%` }}></div>
                   </div>

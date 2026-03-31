@@ -107,7 +107,7 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
       status={member ? `ID: ${member.id}` : 'LOADING...'}
       headline={member?.char_name ?? '———'}
       moduleId={member?.position ?? 'UNKNOWN'}
-      timestamp={member?.char_age ? `AGE: ${member.char_age}` : '—'}
+      timestamp={member?.char_age ? ` ${member.char_age}` : '—'}
     >
       {/* ── 에러 ── */}
       {error && (
@@ -136,13 +136,9 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-primary/30 text-3xl">👤</span>
+                <span className="text-primary/30 text-3xl">-</span>
               )}
             </div>
-            <ul className="text-xs text-text-main/60 font-one-store-mobile-gothic-body space-y-1 text-center">
-              {member.position && <li className="text-primary font-bold">{member.position}</li>}
-              {member.char_age && <li>{member.char_age}</li>}
-            </ul>
           </div>
 
           {/* 오른쪽: 플레이리스트 */}
@@ -155,7 +151,7 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
               playlist={playlist}
               isLoading={false}
               ownerName={member?.char_name} 
-              className="max-h-80"
+              className="max-h-60"
             />
           </div>
         </div>

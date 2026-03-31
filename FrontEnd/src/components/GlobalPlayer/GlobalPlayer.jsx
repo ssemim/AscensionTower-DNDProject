@@ -191,10 +191,10 @@ export default function GlobalPlayer() {
       </div>
 
       {isPlaylistVisible && (
-        <div className="fixed bottom-48 right-4 w-96 h-[40vh] bg-main border border-border-primary z-40 rounded-lg shadow-lg flex flex-col transition-all duration-300">
+        <div className="fixed bottom-48 right-4 w-96 h-[36vh] bg-main border border-border-primary z-40 rounded-lg shadow-lg flex flex-col transition-all duration-300">
           <div className="p-4 border-b border-border-primary flex justify-between items-center flex-shrink-0">
             <h3 className="font-bold text-lg text-primary">
-              Playlist{ownerName ? ` : ${ownerName}` : ''} {/* ← 핵심 */}
+              Playlist {ownerName ? ` : ${ownerName}` : ''} 
             </h3>
             <button onClick={() => setIsPlaylistVisible(false)} className="text-text-main hover:text-primary transition-colors">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -203,7 +203,7 @@ export default function GlobalPlayer() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-2 text-text-main">
-            <PlayListPlayer playlist={playlist} isLoading={false} showPopover={false} />
+            <PlayListPlayer playlist={playlist} isLoading={false} showPopover={false} className="h-full" />
           </div>
         </div>
       )}

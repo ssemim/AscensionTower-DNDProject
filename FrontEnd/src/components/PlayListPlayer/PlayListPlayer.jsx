@@ -118,6 +118,7 @@ export default function PlayListPlayer({
   showPopover = false,
   className = '',
   ownerName = null, 
+  containerClassName = '',
 }) {
   const dispatch = useDispatch();
   const { nowPlayingIndex: globalPlayingIndex, playlist: globalPlaylist, isPlaying } = useSelector(state => state.player);
@@ -130,11 +131,11 @@ export default function PlayListPlayer({
   const isThisPlaylistActive = JSON.stringify(playlist) === JSON.stringify(globalPlaylist);
 
   return (
-    <div className={className}>
+    <div className={containerClassName}>
       {isLoading ? (
         <p className="text-text-main/50 text-sm font-one-store-mobile-gothic-body">로딩 중...</p>
       ) : playlist.length > 0 ? (
-        <div className="space-y-2">
+       <div className={`space-y-2 pr-1 ${className} overflow-y-auto`}>
           {playlist.map((video, index) => (
             <TrackButton
               key={video.track_id ?? index}

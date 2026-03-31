@@ -5,7 +5,7 @@ import badges from './badge.js';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
 import { useNavigate } from 'react-router-dom';
-import PlaylistPlayer from '../../components/PlayListPlayer/PlayListPlayer.jsx';
+import PlayListPlayer from '../../components/PlayListPlayer/PlayListPlayer.jsx';
 import ReceiveAndUseModal from '../../components/Modal/ReceiveAndUseModal';
 
 const API = 'http://localhost:8081';
@@ -179,6 +179,7 @@ function InventorySection() {
           onConfirm={confirmReceive}
           onClose={() => setSelectedMail(null)}
           isGacha={false}
+          
         />
       )}
 
@@ -192,9 +193,10 @@ function InventorySection() {
           invId={selectedItem.inv_id}
           itemId={selectedItem.item_id}
           isGacha={selectedItem.item_id === 12}
+          isFriendItem={selectedItem.item_id === 11}
           onUseSuccess={() => fetchTab('inventory')}
           onConfirm={() => {
-            alert(`[${selectedItem.item_name}] 사용 (API 미구현)`);
+            alert(`[${selectedItem.item_name}] 사용 (API 미구현-8,11,12제외)`);
             setSelectedItem(null);
           }}
           onClose={() => setSelectedItem(null)}
@@ -214,23 +216,26 @@ function InventorySection() {
           </div>
 
           {activeTab === 'friends' && (
-            <div className="min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4">
-              {isLoading ? <p className="text-text-main/50 text-s font-one-store-mobile-gothic-body">로딩 중...</p>
-                : friends.length > 0 ? (
-                  <div className="space-y-2 w-full">
-                    {friends.map((friend) => (
-                      <div key={friend.id} className="border border-border-primary p-4 flex items-center gap-4 hover:bg-primary/10 transition-colors">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
-                          {friend.image_url ? <img src={friend.image_url} alt={friend.char_name} className="w-full h-full object-cover" /> : <span className="text-primary/50">👤</span>}
-                        </div>
-                        <div>
-                          <p className="font-bold text-text-main font-one-store-mobile-gothic-body">{friend.char_name}</p>
-                          <p className="text-sm text-text-main/50">{friend.position || '-'}</p>
-                        </div>
+            <div className={`min-h-[30vh] max-h-[60vh] overflow-y-auto pb-4 ${friends.length === 0 ? 'flex items-center' : ''}`}>
+              {isLoading ? (
+                <p className="text-text-main/50 text-s font-one-store-mobile-gothic-body">로딩 중...</p>
+              ) : friends.length > 0 ? (
+                <div className="space-y-2 w-full">
+                  {friends.map((friend) => (
+                    <div key={friend.id} className="border border-border-primary p-4 flex items-center gap-4 hover:bg-primary/10 transition-colors">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                        {friend.image_url ? <img src={friend.image_url} alt={friend.char_name} className="w-full h-full object-cover" /> : <span className="text-primary/50">👤</span>}
                       </div>
-                    ))}
-                  </div>
-                ) : <p className="text-text-main/50 text-lg font-one-store-mobile-gothic-body mt-8">친구가 없습니다.</p>}
+                      <div>
+                        <p className="font-bold text-text-main font-one-store-mobile-gothic-body">{friend.char_name}</p>
+                        <p className="text-sm text-text-main/50">{friend.position || '-'}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-main/50 text-lg font-one-store-mobile-gothic-body ">친구가 없습니다.</p>
+              )}
             </div>
           )}
 
@@ -379,7 +384,7 @@ if (authStatus === 'unauthenticated') {
 
           {/* 프로필 + 정보 + 플레이리스트 */}
           <section className="px-4 md:px-12 py-12 bg-main relative overflow-hidden">
-            <div className="flex flex-col md:flex-row gap-4 min-h-0 md:min-h-[30vh] max-h-none md:max-h-[50vh] max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-4 md:h-[32vh] max-w-6xl mx-auto">
 
               {/* 프로필 이미지 - 클릭하면 업로드 */}
               <div className="border border-border-primary w-full md:w-2/12 aspect-square flex flex-col">
@@ -412,7 +417,7 @@ if (authStatus === 'unauthenticated') {
               </div>
 
               {/* 정보 */}
-              <div className="w-full md:w-6/12 border border-border-primary p-4">
+              <div className="w-full md:w-6/12 border border-border-primary p-4 overflow-y-auto">
                 <h4 className="text-lg font-bold mb-4 text-primary">INFO</h4>
                 {member ? (
                   <>
@@ -422,9 +427,9 @@ if (authStatus === 'unauthenticated') {
                       <li className="border-b border-border-primary/30 pb-1">POSITION : {member.position || '-'}</li>
                       <li className="border-b border-border-primary/30 pb-1">POINT : {member.point}</li>
                       {stats && (
-                        <li className="pb-1">
+                        <li className="pb-2">
                           STATS
-                          <div className="grid grid-cols-5 gap-1 pt-1 text-center">
+                          <div className="grid grid-cols-5 gap-1 pt-4 text-center">
                             <div><span className="font-bold text-primary">ATK</span><br/>{stats.ATK}</div>
                             <div><span className="font-bold text-primary">DEF</span><br/>{stats.DEF}</div>
                             <div><span className="font-bold text-primary">DEX</span><br/>{stats.DEX}</div>
@@ -443,13 +448,8 @@ if (authStatus === 'unauthenticated') {
               {/* 플레이리스트 */}
               <div className="w-full md:w-4/12 border border-border-primary p-4 flex flex-col">
                 <h4 className="text-lg font-bold mb-4 text-primary flex-shrink-0">PLAYLIST</h4>
-                <div className="flex-1 min-h-0">
-                    <PlaylistPlayer 
-                        playlist={videoLinks} 
-                        isLoading={isLoadingPlaylist}
-                        showPopover={true}
-                        className="h-full"
-                    />
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  <PlayListPlayer playlist={videoLinks} isLoading={isLoadingPlaylist} showPopover={true} />
                 </div>
               </div>
             </div>
@@ -483,8 +483,8 @@ if (authStatus === 'unauthenticated') {
     />
 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 
   flex items-center justify-center p-2
-  bg-border-primary/30 backdrop-blur-md          
-  dark:bg-border-primary/30 dark:backdrop-blur-md"
+  bg-white/50 backdrop-blur-xl          
+  dark:bg-black/50 dark:backdrop-blur-xl"
 >
   <div className="text-center text-lg font-bold font-one-store-mobile-gothic-body text-primary leading-relaxed drop-shadow">
     {badge.desc}

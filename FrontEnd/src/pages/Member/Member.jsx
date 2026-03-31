@@ -137,7 +137,7 @@ export default function Member() {
     : DUMMY_MEMBERS;
 
   return (
-    <div className="min-h-screen bg-main text-text-main font-mono p-10 selection:bg-primary/20 selection:text-primary font-nexon-warhaven">
+    <div className="min-h-screen bg-main text-text-main p-10 selection:bg-primary/20 selection:text-primary font-nexon-warhaven">
       <div className="fixed inset-0 pointer-events-none bg-stark-grid opacity-100" />
 
       <div className="max-w-[1400px] mx-auto relative z-10">
