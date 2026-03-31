@@ -471,17 +471,27 @@ if (authStatus === 'unauthenticated') {
                   const isEarned = earnedBadgeIds.includes(badge.id);
                   return (
                     <div key={badge.id}
-                      className={`aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-one-store-mobile-gothic-body text-lg text-text-main/70
+                      className={`aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-one-store-mobile-gothic-body text-lg text-text-main/70 overflow-hidden
                         ${badge.isEmpty || !isEarned ? 'border-border-primary bg-main/40 opacity-30' : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}`}
                     >
                       {!badge.isEmpty && isEarned && (
-                        <>
-                          <img src={badge.imgUrl} alt={badge.name} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-main/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                            <div className="text-center text-xs text-text-main font-primary">{badge.desc}</div>
-                          </div>
-                        </>
-                      )}
+  <>
+    <img
+      src={badge.imgUrl}
+      alt={badge.name}
+      className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
+    />
+<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+  flex items-center justify-center p-2
+  bg-border-primary/30 backdrop-blur-md          
+  dark:bg-border-primary/30 dark:backdrop-blur-md"
+>
+  <div className="text-center text-lg font-bold font-one-store-mobile-gothic-body text-primary leading-relaxed drop-shadow">
+    {badge.desc}
+  </div>
+</div>
+  </>
+)}
                       <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
                     </div>
                   );
