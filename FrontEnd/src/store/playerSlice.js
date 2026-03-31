@@ -5,6 +5,7 @@ const initialState = {
   nowPlayingIndex: null,
   isPlaying: false,
   showPlayer: false,
+  ownerName: null, // ← 추가
 };
 
 const playerSlice = createSlice({
@@ -12,11 +13,12 @@ const playerSlice = createSlice({
   initialState,
   reducers: {
     setPlaylist: (state, action) => {
-      const { playlist, startIndex = 0 } = action.payload;
+      const { playlist, startIndex = 0, ownerName = null } = action.payload;
       state.playlist = playlist;
       state.nowPlayingIndex = startIndex;
       state.isPlaying = true;
       state.showPlayer = true;
+      state.ownerName = ownerName;
     },
     playNext: (state) => {
       if (state.playlist.length > 0) {
@@ -36,14 +38,15 @@ const playerSlice = createSlice({
       state.isPlaying = action.payload;
     },
     setShowPlayer: (state, action) => {
-        state.showPlayer = action.payload;
+      state.showPlayer = action.payload;
     },
     clearPlaylist: (state) => {
-        state.playlist = [];
-        state.nowPlayingIndex = null;
-        state.isPlaying = false;
-        state.showPlayer = false;
-    }
+      state.playlist = [];
+      state.nowPlayingIndex = null;
+      state.isPlaying = false;
+      state.showPlayer = false;
+      state.ownerName = null;
+    },
   },
 });
 

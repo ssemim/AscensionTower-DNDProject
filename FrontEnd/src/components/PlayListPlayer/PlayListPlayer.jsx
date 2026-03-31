@@ -62,7 +62,17 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay, showPopover })
         className={`w-full text-left p-2 rounded transition-colors duration-200 flex items-center
           ${isActive ? 'bg-primary/30' : 'hover:bg-primary/10'}`}
       >
-        <span className="font-bold">{isActive && isPlaying ? '▶' : '▷'}</span>
+        <span className="flex-shrink-0">
+  {isActive && isPlaying ? (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-primary">
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-text-main/40">
+      <path d="M8 5.14v14l11-7-11-7z" />
+    </svg>
+  )}
+</span>
         <div className="ml-3 text-sm overflow-hidden flex-1">
           <p
             ref={titleRef}
@@ -107,16 +117,16 @@ export default function PlayListPlayer({
   isLoading = false,
   showPopover = false,
   className = '',
+  ownerName = null, 
 }) {
   const dispatch = useDispatch();
   const { nowPlayingIndex: globalPlayingIndex, playlist: globalPlaylist, isPlaying } = useSelector(state => state.player);
 
   const handlePlay = (index) => {
-    dispatch(setPlaylist({ playlist, startIndex: index }));
+    dispatch(setPlaylist({ playlist, startIndex: index, ownerName }));
   };
 
-  // Check if the displayed playlist is the one active in the global player.
-  // This could be improved with unique IDs for playlists.
+
   const isThisPlaylistActive = JSON.stringify(playlist) === JSON.stringify(globalPlaylist);
 
   return (

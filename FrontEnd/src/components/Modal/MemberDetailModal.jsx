@@ -154,6 +154,7 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
             <PlaylistPlayer
               playlist={playlist}
               isLoading={false}
+              ownerName={member?.char_name} 
               className="max-h-80"
             />
           </div>
