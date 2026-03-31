@@ -21,25 +21,32 @@ const HUDBox = ({ children, className = "" }) => (
 const Shop = () => {
   const [rightPanelTab, setRightPanelTab] = useState('inspect');
   const dispatch = useDispatch();
+  
+  // 리덕스에서 로그인 상태 및 카트 아이템 가져오기
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
   const cartItems = useSelector(state => state.cart.items);
+  
   const [merchantDialog] = useState(() => {
     const randomIndex = Math.floor(Math.random() * dialog.length);
     return dialog[randomIndex];
   });
+  
   const [isAcquiring, setIsAcquiring] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [point, setPoint] = useState(null);
   const [items] = useState(itemsData);
   const [selected, setSelected] = useState(items[0]);
 
-  // 포인트 조회
+  // 포인트 조회 (로그인 된 경우에만 시도)
   useEffect(() => {
-    axios.get(`${API}/shop/point`, { withCredentials: true })
-      .then(res => {
-        if (res.data.Status === 'Success') setPoint(res.data.point);
-      })
-      .catch(err => console.error('포인트 조회 실패:', err));
-  }, []);
+    if (isLoggedIn) {
+      axios.get(`${API}/shop/point`, { withCredentials: true })
+        .then(res => {
+          if (res.data.Status === 'Success') setPoint(res.data.point);
+        })
+        .catch(err => console.error('포인트 조회 실패:', err));
+    }
+  }, [isLoggedIn]);
 
   // 구매/선물 완료 후 포인트 갱신
   const handlePurchaseSuccess = (newPoint) => {
@@ -47,7 +54,6 @@ const Shop = () => {
     dispatch(clearCart());
   };
 
-  // 8번 아이템 수량 체크 (id가 숫자/문자열 둘 다 대응)
   const item8InCart = cartItems.find(item => item.id === 8 || item.id === '8');
   const isItem8Exceeded = item8InCart && item8InCart.quantity >= 2;
 
@@ -67,15 +73,22 @@ const Shop = () => {
             <p className="text-[10px] text-primary/70 font-bold tracking-[0.4em] uppercase">Authorized Access Only // Sector_04</p>
           </div>
         </div>
+        
+        {/* 포인트 표시 조건부 렌더링 */}
         <div className="text-right">
-          <div className="text-3xl font-one-store-mobile-gothic-body font-black text-text-main italic tracking-widest">
-            {point !== null ? point : '...'} <span className="text-primary/80 text-sm italic">CR</span>
-          </div>
+          {isLoggedIn ? (
+            <div className="text-3xl font-one-store-mobile-gothic-body font-black text-text-main italic tracking-widest animate-fade-in">
+              {point !== null ? point.toLocaleString() : '...'} <span className="text-primary/80 text-sm italic">CR</span>
+            </div>
+          ) : (
+            <div className="text-sm font-bold text-primary/60 italic tracking-tighter px-4 py-2 bg-primary/5 rounded-sm">
+              로그인 후 구매가 가능합니다
+            </div>
+          )}
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6 relative z-10">
-
         {/* Left: NPC & Dialogue */}
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
           <HUDBox className="aspect-[4/5] overflow-hidden group">
@@ -166,18 +179,28 @@ const Shop = () => {
               {(() => {
                 const selectedIsItem8 = selected?.id === 8 || selected?.id === '8';
                 const blockAdd = selectedIsItem8 && !!item8InCart;
+                
+                // 로그인 여부에 따른 버튼 텍스트 및 상태
+                const buttonText = !isLoggedIn 
+                  ? '로그인이 필요합니다' 
+                  : isAcquiring 
+                    ? '불러오는 중...' 
+                    : blockAdd 
+                      ? '오르골은 1개만 담을 수 있습니다' 
+                      : `장바구니 담기 // ${selected?.price || '0'} CR`;
+
                 return (
                   <button
                     onClick={() => {
-                      if (selected && !selected.isEmpty && !isAcquiring && !blockAdd) {
+                      if (isLoggedIn && selected && !selected.isEmpty && !isAcquiring && !blockAdd) {
                         setIsAcquiring(true);
                         dispatch(addItem(selected));
                         setTimeout(() => setIsAcquiring(false), 1000);
                       }
                     }}
-                    disabled={!selected || selected.isEmpty || isAcquiring || blockAdd}
+                    disabled={!isLoggedIn || !selected || selected.isEmpty || isAcquiring || blockAdd}
                     className="mt-8 bg-primary hover:bg-text-main text-main font-black py-4 text-sm uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isAcquiring ? '불러오는 중...' : blockAdd ? '오르골은 1개만 담을 수 있습니다' : `장바구니 담기 // ${selected?.price || '0'} CR`}
+                    {buttonText}
                   </button>
                 );
               })()}
@@ -231,15 +254,15 @@ const Shop = () => {
                   )}
                   <div className="mt-4 pt-4 border-t border-border-primary flex justify-end gap-4">
                     <button
-                      onClick={() => !isItem8Exceeded && setModalType('buy')}
-                      disabled={isItem8Exceeded}
-                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${isItem8Exceeded ? 'opacity-40 cursor-not-allowed' : 'hover:bg-text-main'}`}
-                    >구매하기</button>
+                      onClick={() => isLoggedIn && !isItem8Exceeded && setModalType('buy')}
+                      disabled={!isLoggedIn || isItem8Exceeded}
+                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${(!isLoggedIn || isItem8Exceeded) ? 'opacity-40 cursor-not-allowed filter grayscale' : 'hover:bg-text-main'}`}
+                    >{isLoggedIn ? '구매하기' : '로그인 필요'}</button>
                     <button
-                      onClick={() => !isItem8Exceeded && setModalType('gift')}
-                      disabled={isItem8Exceeded}
-                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${isItem8Exceeded ? 'opacity-40 cursor-not-allowed' : 'hover:bg-text-main'}`}
-                    >선물하기</button>
+                      onClick={() => isLoggedIn && !isItem8Exceeded && setModalType('gift')}
+                      disabled={!isLoggedIn || isItem8Exceeded}
+                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${(!isLoggedIn || isItem8Exceeded) ? 'opacity-40 cursor-not-allowed filter grayscale' : 'hover:bg-text-main'}`}
+                    >{isLoggedIn ? '선물하기' : '로그인 필요'}</button>
                   </div>
                 </>
               )}

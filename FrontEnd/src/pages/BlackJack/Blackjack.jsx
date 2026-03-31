@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useSelector} from 'react-redux';
 import { createDeck, shuffleDeck, calculateScore, getWinner } from './GameLogic';
 import dialogBlackJack from './dialogBlackJack';
 import './Blackjack.css';
@@ -79,7 +80,7 @@ function BlackJack() {
     const [dealerScore, setDealerScore] = useState(0);
     const [winner, setWinner] = useState(null);
     const [gameStatus, setGameStatus] = useState('IDLE');
-
+    
     const [betAmount, setBetAmount] = useState(0);
     const [balance, setBalance] = useState(null);
     const [hearts, setHearts] = useState(3);
@@ -95,6 +96,7 @@ function BlackJack() {
     const typedDialog = useTypingEffect(dialog);
 
     const isBlackjack = playerScore === 21 && playerHand.length === 2;
+    const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
 
     // ── 초기화: 포인트 + 서버 게임 상태 복원 ──
     useEffect(() => {
@@ -130,6 +132,8 @@ function BlackJack() {
         const randomIndex = Math.floor(Math.random() * dialogBlackJack.length);
         setDialog(dialogBlackJack[randomIndex]);
     }, []);
+
+    
 
     // ── 게임 진행 중 이탈 방지 ──
     useEffect(() => {
@@ -184,10 +188,12 @@ function BlackJack() {
             const res = await axios.post(`${API}/blackjack/start`, {}, { withCredentials: true });
             if (res.data.Status !== 'Success') {
                 alert(res.data.Error || '게임 시작 실패');
+                setGameStatus('IDLE'); 
                 return;
             }
         } catch (err) {
             console.error('게임 시작 실패:', err);
+            setGameStatus('IDLE');
             return;
         }
 
@@ -297,8 +303,8 @@ function BlackJack() {
     }
 
     return (
-        <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
-      <header className="max-w-7xl mx-auto flex justify-between items-end pt-4 mb-8 border-b border-border-primary pb-4 relative z-10">
+        <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
+      <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-border-primary pt-4 pb-8 relative z-10 font-one-store-mobile-gothic-body">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 border-2 border-border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
             <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
@@ -308,6 +314,17 @@ function BlackJack() {
             <p className="text-[10px] text-primary/70 font-bold tracking-[0.4em] uppercase">Authorized Access Only // Sector_04</p>
           </div>
         </div>
+        
+        {/* 포인트 표시 조건부 렌더링 */}
+{isLoggedIn ? (
+  <div className="text-3xl font-one-store-mobile-gothic-body font-black text-text-main italic tracking-widest animate-fade-in">
+    {balance !== null ? balance.toLocaleString() : '...'} <span className="text-primary/80 text-sm italic">CR</span>
+  </div>
+) : (
+  <div className="text-sm font-bold text-primary/60 italic tracking-tighter px-4 py-2 bg-primary/5 rounded-sm">
+    로그인 후 플레이가 가능합니다
+  </div>
+)}
       </header>
             {isBetting && (
                 <BettingModal
@@ -349,7 +366,7 @@ function BlackJack() {
                         </div>
                     </div>
 
-                    <div className="relative font-dos-gothic">
+                    <div className="relative font-one-store-mobile-gothic-body">
                         {gameStatus === 'ENDED' && winner && (
                             <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max px-4 py-1 bg-primary text-main text-lg font-black italic animate-bounce">
                                 {winner === 'PLAYER' && '승리!'}
@@ -362,7 +379,7 @@ function BlackJack() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center font-dos-gothic">
+                    <div className="flex flex-col items-center font-one-store-mobile-gothic-body">
                         <div className="flex gap-4 h-36 items-center overflow-x-auto p-4">
                             {playerHand.map((card) => (
                                 <div key={card.id} className="w-24 h-36 border-2 flex-shrink-0 border-border-primary bg-main flex items-center justify-center relative shadow-stark-glow animate-slide-in overflow-hidden">
@@ -381,16 +398,16 @@ function BlackJack() {
                     </div>
                 </section>
 
-                <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-dos-gothic">
+                <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-one-store-mobile-gothic-body">
                     <div className="text-center">
-                        <div className="blackjack-container my-6 p-12 border border-border-primary/30">
+                        <div className="blackjack-container my-6 p-12">
                             <div className="blackjack-glow"></div>
                             <img src="/images/NPCS/blackjackNPC.gif" alt="Blackjack Dealer" className="sway-animation w-48 h-48 object-contain" />
                         </div>
                         <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_B3AR-B</p>
                         <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">B3AR-B</h3>
                         
-                        <div className="h-24 text-center mt-4 mb-4 border border-border-primary/30 flex items-center justify-center">
+                        <div className="h-28 text-center mt-4 mb-4 border border-border-primary/30 flex items-center justify-center">
                             <p className="text-lg font-one-store-mobile-gothic-body text-text-main/70 m-4">"{typedDialog}"</p>
                         </div>
 
@@ -404,27 +421,48 @@ function BlackJack() {
                                     <p className="text-red-400">LOSE: -{betAmount} P</p>
                                 </div>
                             )}
-                            <p className="text-xs text-text-main/50 mt-2">
+                            <p className="text-lg font-one-store-mobile-gothic-body text-text-main/50 mt-2">
                                 보유 포인트: {balance === null ? '...' : `${balance} P`}
                             </p>
                             {canPlay === false && (
-                                <p className="text-xs text-red-400/70 mt-2 tracking-widest">오늘은 이미 플레이 했네?</p>
+                                <p className="text-lg font-one-store-mobile-gothic-body text-red-400/70 mt-2 tracking-widest">오늘은 이미 플레이 했네?</p>
                             )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                             <button
-                                onClick={handleStartBetting}
-                                disabled={(gameStatus !== 'IDLE' && gameStatus !== 'ENDED') || gameOver || isUpdatingPoints || !canPlay}
-                                className="col-span-2 py-4 bg-primary text-main font-black uppercase text-sm tracking-widest hover:bg-text-main hover:text-primary transition-all shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isUpdatingPoints ? '처리 중...'
-                                    : gameOver ? 'GAME OVER'
-                                    : canPlay === false ? '오늘은 이미 플레이했습니다'
-                                    : (gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '새 게임' : '게임 중')}
-                            </button>
-                            <button onClick={hit} disabled={gameStatus !== 'PLAYING' || isUpdatingPoints} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">히트</button>
-                            <button onClick={stand} disabled={gameStatus !== 'PLAYING' || isUpdatingPoints} className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[12px] transition-all disabled:opacity-50 disabled:cursor-not-allowed">스탠드</button>
+        onClick={handleStartBetting}
+        // 로그인 안 되어있으면 무조건 비활성화
+        disabled={!isLoggedIn || (gameStatus !== 'IDLE' && gameStatus !== 'ENDED') || gameOver || isUpdatingPoints || !canPlay}
+        className={`col-span-2 py-8 font-black uppercase text-sm tracking-widest transition-all shadow-stark-glow 
+            ${!isLoggedIn 
+                ? 'bg-primary/20 text-primary/40 cursor-not-allowed opacity-50' 
+                : 'bg-primary text-main hover:bg-text-main hover:text-primary active:scale-95'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+        {/* 로그인 상태에 따른 텍스트 분기 */}
+        {!isLoggedIn ? '로그인 필요' 
+            : isUpdatingPoints ? '처리 중...'
+            : gameOver ? 'GAME OVER'
+            : canPlay === false ? '오늘의 게임 완료'
+            : (gameStatus === 'IDLE' || gameStatus === 'ENDED' ? '새 게임' : '게임 진행 중')}
+    </button>
+
+    <button 
+        onClick={hit} 
+        disabled={!isLoggedIn || gameStatus !== 'PLAYING' || isUpdatingPoints} 
+        className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[16px] transition-all disabled:opacity-50"
+    >
+        히트
+    </button>
+    
+    <button 
+        onClick={stand} 
+        disabled={!isLoggedIn || gameStatus !== 'PLAYING' || isUpdatingPoints} 
+        className="py-4 border border-border-primary/30 hover:border-border-primary text-text-main/50 hover:text-primary font-black uppercase text-[16px] transition-all disabled:opacity-50"
+    >
+        스탠드
+    </button>
                         </div>
                     </div>
                 </aside>
