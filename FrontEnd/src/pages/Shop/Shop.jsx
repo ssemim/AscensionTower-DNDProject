@@ -47,6 +47,10 @@ const Shop = () => {
     dispatch(clearCart());
   };
 
+  // 8번 아이템 수량 체크 (id가 숫자/문자열 둘 다 대응)
+  const item8InCart = cartItems.find(item => item.id === 8 || item.id === '8');
+  const isItem8Exceeded = item8InCart && item8InCart.quantity >= 2;
+
   return (
     <div className="min-h-screen bg-main text-text-main font-one-store-mobile-gothic-body p-4 md:p-8 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.05] dark:opacity-10 pointer-events-none"
@@ -159,18 +163,24 @@ const Shop = () => {
                   {`> LOG_READOUT: ${selected?.desc || 'Awaiting selection for neural link diagnostic...'}`}
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  if (selected && !selected.isEmpty && !isAcquiring) {
-                    setIsAcquiring(true);
-                    dispatch(addItem(selected));
-                    setTimeout(() => setIsAcquiring(false), 1000);
-                  }
-                }}
-                disabled={!selected || selected.isEmpty || isAcquiring}
-                className="mt-8 bg-primary hover:bg-text-main text-main font-black py-4 text-sm uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed">
-                {isAcquiring ? '불러오는 중...' : `장바구니 담기 // ${selected?.price || '0'} CR`}
-              </button>
+              {(() => {
+                const selectedIsItem8 = selected?.id === 8 || selected?.id === '8';
+                const blockAdd = selectedIsItem8 && !!item8InCart;
+                return (
+                  <button
+                    onClick={() => {
+                      if (selected && !selected.isEmpty && !isAcquiring && !blockAdd) {
+                        setIsAcquiring(true);
+                        dispatch(addItem(selected));
+                        setTimeout(() => setIsAcquiring(false), 1000);
+                      }
+                    }}
+                    disabled={!selected || selected.isEmpty || isAcquiring || blockAdd}
+                    className="mt-8 bg-primary hover:bg-text-main text-main font-black py-4 text-sm uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-stark-glow disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isAcquiring ? '불러오는 중...' : blockAdd ? '오르골은 1개만 담을 수 있습니다' : `장바구니 담기 // ${selected?.price || '0'} CR`}
+                  </button>
+                );
+              })()}
             </HUDBox>
           )}
 
@@ -188,28 +198,48 @@ const Shop = () => {
                     <button onClick={() => dispatch(clearCart())} className="text-red-500 hover:text-red-400 text-xs uppercase tracking-widest">Clear Cart</button>
                   </div>
                   <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2">
-                    {cartItems.map(item => (
-                      <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-primary/5 py-4 px-2 border-l-2 border-border-primary">
-                        <div className="col-span-6">
-                          <p className="text-base space-x-1 truncate">{item.name}</p>
+                    {cartItems.map(item => {
+                      const isItem8 = item.id === 8 || item.id === '8';
+                      return (
+                        <div key={item.id} className="grid grid-cols-12 gap-2 items-center bg-primary/5 py-4 px-2 border-l-2 border-border-primary">
+                          <div className="col-span-6">
+                            <p className="text-base space-x-1 truncate">{item.name}</p>
+                          </div>
+                          <div className="col-span-4 text-center flex justify-around items-center">
+                            <button onClick={() => dispatch(decreaseItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">-</button>
+                            <p className="text-base font-one-store-mobile-gothic-body">x{item.quantity}</p>
+                            <button
+                              onClick={() => dispatch(addItem(item))}
+                              disabled={isItem8 && item.quantity >= 1}
+                              className={`text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm transition-opacity ${isItem8 && item.quantity >= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                            >+</button>
+                          </div>
+                          <div className="col-span-2 text-right">
+                            <button onClick={() => dispatch(removeItem(item.id))} className="text-red-500 hover:text-red-400 text-base">지우기</button>
+                          </div>
                         </div>
-                        <div className="col-span-4 text-center flex justify-around items-center">
-                          <button onClick={() => dispatch(decreaseItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">-</button>
-                          <p className="text-base font-one-store-mobile-gothic-body">x{item.quantity}</p>
-                          <button onClick={() => dispatch(addItem(item))} className="text-lg w-6 h-6 flex items-center justify-center bg-primary/20 rounded-sm">+</button>
-                        </div>
-                        <div className="col-span-2 text-right">
-                          <button onClick={() => dispatch(removeItem(item.id))} className="text-red-500 hover:text-red-400 text-base">지우기</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="mt-2 text-right text-sm font-bold">
                     합계: {cartItems.reduce((sum, itm) => sum + parseFloat(String(itm.price).replace(/,/g, '')) * itm.quantity, 0)} CR
                   </div>
+                  {isItem8Exceeded && (
+                    <p className="mt-2 text-right text-[11px] text-red-400">
+                      ⚠ 오르골 아이템은 한 번에 하나씩만 구매가 가능합니다.
+                    </p>
+                  )}
                   <div className="mt-4 pt-4 border-t border-border-primary flex justify-end gap-4">
-                    <button onClick={() => setModalType('buy')} className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">구매하기</button>
-                    <button onClick={() => setModalType('gift')} className="bg-primary hover:bg-text-main text-main font-black py-2 px-4 text-xs uppercase tracking-widest">선물하기</button>
+                    <button
+                      onClick={() => !isItem8Exceeded && setModalType('buy')}
+                      disabled={isItem8Exceeded}
+                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${isItem8Exceeded ? 'opacity-40 cursor-not-allowed' : 'hover:bg-text-main'}`}
+                    >구매하기</button>
+                    <button
+                      onClick={() => !isItem8Exceeded && setModalType('gift')}
+                      disabled={isItem8Exceeded}
+                      className={`bg-primary text-main font-black py-2 px-4 text-xs uppercase tracking-widest transition-all ${isItem8Exceeded ? 'opacity-40 cursor-not-allowed' : 'hover:bg-text-main'}`}
+                    >선물하기</button>
                   </div>
                 </>
               )}

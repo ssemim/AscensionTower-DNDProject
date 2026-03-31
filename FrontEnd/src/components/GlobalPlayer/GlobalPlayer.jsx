@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import YouTube from 'react-youtube';
-import { setIsPlaying, playNext, playPrev } from '../../store/playerSlice';
+import { setIsPlaying, playNext, playPrev, setShowPlayer } from '../../store/playerSlice';
 import PlayListPlayer from '../PlayListPlayer/PlayListPlayer';
 
 function getYouTubeID(url) {
@@ -92,13 +92,31 @@ export default function GlobalPlayer() {
     playerRef.current?.setVolume(newVolume);
   };
 
+  // 플레이어 전체를 닫는 함수
+  const handleClosePlayer = () => {
+    dispatch(setShowPlayer(false));
+  };
+
   if (!showPlayer || !currentTrack) {
     return null;
   }
 
   return (
     <>
+        {/* 메인 플레이어 컨테이너 (relative 추가하여 내부 close 버튼 배치) */}
         <div className="fixed bottom-4 right-4 w-96 bg-main border border-border-primary z-50 p-4 flex flex-col gap-3 rounded-lg shadow-lg">
+            
+            {/* 플레이어 자체 닫기 버튼 (우측 상단) */}
+            <button 
+                onClick={handleClosePlayer} 
+                className="absolute top-2 right-2 text-text-main hover:text-red-500 transition-colors"
+                title="닫기"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
             <div className="hidden">
                 <YouTube
                 onReady={onPlayerReady}
@@ -108,7 +126,8 @@ export default function GlobalPlayer() {
                 />
             </div>
 
-            <div>
+            {/* 타이틀 영역 (닫기 버튼 자리를 위해 오른쪽 패딩 추가) */}
+            <div className="pr-6">
                 <p className="text-sm font-bold text-text-main truncate">{currentTrack.title}</p>
             </div>
 
@@ -121,7 +140,7 @@ export default function GlobalPlayer() {
                     onChange={handleSeek}
                     className="w-full h-1 rounded cursor-pointer accent-primary"
                 />
-                <div className="text-xs flex justify-between mt-1">
+                <div className="text-xs flex justify-between mt-1 text-text-main/70">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                 </div>
@@ -130,13 +149,13 @@ export default function GlobalPlayer() {
             <div className="flex items-center justify-between gap-4">
                  <div className="flex-1 flex items-center justify-center gap-2">
                     <button onClick={handlePrev} className="hover:bg-primary/30 text-primary p-2 rounded-full font-bold transition-colors disabled:opacity-30">
-                        ⏮
+                        <span className="text-lg">⏮</span>
                     </button>
                     <button onClick={handlePlayPause} className="w-12 h-12 flex items-center justify-center bg-primary hover:bg-primary/80 text-white p-2 rounded-full font-bold transition-colors text-xl">
                         {isPlaying ? '⏸' : '▶'}
                     </button>
                     <button onClick={handleNext} className="hover:bg-primary/30 text-primary p-2 rounded-full font-bold transition-colors disabled:opacity-30">
-                        ⏭
+                        <span className="text-lg">⏭</span>
                     </button>
                 </div>
                 
@@ -163,13 +182,17 @@ export default function GlobalPlayer() {
             <div className="fixed bottom-48 right-4 w-96 h-[40vh] bg-main border border-border-primary z-40 rounded-lg shadow-lg flex flex-col transition-all duration-300">
                 <div className="p-4 border-b border-border-primary flex justify-between items-center flex-shrink-0">
                     <h3 className="font-bold text-lg text-primary">Playlist </h3>
-                    <button onClick={() => setIsPlaylistVisible(false)} className="text-text-main/50 hover:text-primary">
+                    {/* 재생목록 닫기 버튼: text-text-main 적용 및 stroke 설정 수정 */}
+                    <button 
+                        onClick={() => setIsPlaylistVisible(false)} 
+                        className="text-text-main hover:text-primary transition-colors"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-2">
+                <div className="flex-1 overflow-y-auto p-2 text-text-main">
                     <PlayListPlayer 
                         playlist={playlist}
                         isLoading={false}
