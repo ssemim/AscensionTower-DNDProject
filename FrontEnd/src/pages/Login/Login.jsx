@@ -45,9 +45,9 @@ export default function Login() {
         <div className="relative bg-main border border-border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
 
           <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_10px_var(--color-primary-glow)]"></div>
-
+          <div className="absolute inset-0 pointer-events-none z-2 opacity-[0.08] bg-[linear-gradient(to_bottom,var(--color-primary)_50%,transparent_50%)] bg-[length:100%_4px]" />
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold font-nexon-warhaven text-primary tracking-wider mb-2 filter drop-shadow-[0_0_15px_var(--color-primary-glow)]">
+            <h1 className="text-4xl font-bold font-nexon-warhaven text-primary tracking-wider mb-2 filter drop-shadow-[0_0_20px_var(--color-primary-glow)]">
               로그인
             </h1>
             <p className="text-xs text-primary/60 font-nexon-warhaven dark:text-white/60 tracking-widest">
@@ -97,7 +97,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary text-white font-medium py-3 rounded-lg transition-all duration-300 relative overflow-hidden group shadow-stark-glow hover:shadow-[0_0_30px_var(--color-primary-glow)]"
+              className="w-full z-30 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/80 hover:to-primary text-white font-medium py-3 rounded-lg transition-all duration-300 relative overflow-hidden group shadow-stark-glow hover:shadow-[0_0_30px_var(--color-primary-glow)]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/0 to-transparent group-hover:via-white/20 transition-all duration-500"></div>
               <span className="relative z-10 flex items-center justify-center gap-2 tracking-wide">ACCESS SYSTEM</span>

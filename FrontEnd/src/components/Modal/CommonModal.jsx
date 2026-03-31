@@ -31,7 +31,7 @@ const CommonModal = ({
       >
 
         {/* 1. CRT Scanlines */}
-        <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(to_bottom,var(--color-primary)_50%,transparent_50%)] bg-[length:100%_4px]" />
+        <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.07] bg-[linear-gradient(to_bottom,var(--color-primary)_50%,transparent_50%)] bg-[length:100%_4px]" />
 
         {/* 2. Grid Background */}
         <div
@@ -103,11 +103,11 @@ const CommonModal = ({
           {/* Metadata Grid */}
           <div className="bg-black/40 border border-primary/30 rounded p-4 grid grid-cols-2 divide-x divide-primary/20 mb-2">
             <div className="pr-4">
-              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">MODULE_ID</p>
+              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">POSITION</p>
               <p className="text-xs font-black text-primary">{moduleId}</p>
             </div>
             <div className="pl-4">
-              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">TIMESTAMP</p>
+              <p className="text-[9px] font-bold text-primary/40 uppercase tracking-widest mb-1">AGE</p>
               <p className="text-xs font-black text-primary">{timestamp}</p>
             </div>
           </div>

@@ -298,10 +298,6 @@ function BlackJack() {
     if (authStatus === 'loading') {
         return <div className="min-h-screen bg-main flex items-center justify-center text-primary">Loading...</div>;
     }
-    if (authStatus === 'unauthenticated') {
-        return <div className="min-h-screen bg-main flex items-center justify-center text-red-500">인증 실패. 로그인 후 이용해주세요.</div>;
-    }
-
     return (
         <div className={`min-h-screen font-mono p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
       <header className="max-w-7xl mx-auto flex justify-between items-end mb-8 border-b border-border-primary pt-4 pb-8 relative z-10 font-one-store-mobile-gothic-body">

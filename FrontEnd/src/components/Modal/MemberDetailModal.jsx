@@ -128,7 +128,7 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
 
           {/* 왼쪽: 아바타 + 간단 정보 */}
           <div className="flex-shrink-0 flex flex-col items-center gap-3 md:w-36">
-            <div className="w-32 h-32 border border-border-primary overflow-hidden bg-primary/10 flex items-center justify-center">
+            <div className="w-36 h-36 border border-border-primary overflow-hidden bg-primary/10 flex items-center justify-center">
               {member.image_url ? (
                 <img
                   src={`${API}${member.image_url}`}
@@ -141,7 +141,7 @@ export default function MemberDetailModal({ memberId, isOpen, onClose }) {
             </div>
             <ul className="text-xs text-text-main/60 font-one-store-mobile-gothic-body space-y-1 text-center">
               {member.position && <li className="text-primary font-bold">{member.position}</li>}
-              {member.char_age && <li>AGE: {member.char_age}</li>}
+              {member.char_age && <li>{member.char_age}</li>}
             </ul>
           </div>
 

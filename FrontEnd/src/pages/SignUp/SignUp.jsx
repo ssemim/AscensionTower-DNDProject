@@ -57,7 +57,7 @@ export default function SignUp() {
       <div className="w-full max-w-md relative">
 
         <div className="relative bg-main/60 border border-border-primary/30 rounded-2xl p-12 backdrop-blur-sm shadow-stark-glow min-w-420px">
-
+          <div className="absolute inset-0 pointer-events-none z-2 opacity-[0.08] bg-[linear-gradient(to_bottom,var(--color-primary)_50%,transparent_50%)] bg-[length:100%_4px]" />
           {/* Top glow line */}
           <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_10px_var(--color-primary-glow)]"></div>
 
