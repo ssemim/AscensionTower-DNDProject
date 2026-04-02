@@ -6,7 +6,7 @@ import dialogBlackJack from './dialogBlackJack';
 import './Blackjack.css';
 
 // ── Typing Effect Hook ──
-const useTypingEffect = (text, duration = 50) => {
+const useTypingEffect = (text, duration = 100) => {
     const [typedText, setTypedText] = useState('');
 
     useEffect(() => {

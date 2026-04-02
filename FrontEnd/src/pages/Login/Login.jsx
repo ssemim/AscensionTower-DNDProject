@@ -68,7 +68,7 @@ export default function Login() {
                   onFocus={() => setIsFocused('ID')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="ID"
+                  placeholder="아이디"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'ID' ? 'via-primary/10' : ''}`}></div>
               </div>
@@ -85,7 +85,7 @@ export default function Login() {
                   onFocus={() => setIsFocused('password')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="PW"
+                  placeholder="비밀번호"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'password' ? 'via-primary/10' : ''}`}></div>
               </div>

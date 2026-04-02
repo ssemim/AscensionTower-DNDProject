@@ -88,7 +88,7 @@ export default function SignUp() {
                   onFocus={() => setIsFocused('ID')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="ID"
+                  placeholder="아이디"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'ID' ? 'via-primary/10' : ''}`}></div>
               </div>
@@ -108,7 +108,7 @@ export default function SignUp() {
                   onFocus={() => setIsFocused('characterName')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="Character Name"
+                  placeholder="캐릭터 이름"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'characterName' ? 'via-primary/10' : ''}`}></div>
               </div>
@@ -128,7 +128,7 @@ export default function SignUp() {
                   onFocus={() => setIsFocused('password')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="PW"
+                  placeholder="비밀번호"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'password' ? 'via-primary/10' : ''}`}></div>
               </div>
@@ -148,7 +148,7 @@ export default function SignUp() {
                   onFocus={() => setIsFocused('confirmPassword')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="Confirm Password"
+                  placeholder="비밀번호 재확인"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'confirmPassword' ? 'via-primary/10' : ''}`}></div>
               </div>
@@ -168,7 +168,7 @@ export default function SignUp() {
                   onFocus={() => setIsFocused('accessCode')}
                   onBlur={() => setIsFocused(null)}
                   className="w-full bg-white/90 border border-border-primary/30 rounded-lg pl-12 pr-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:border-border-primary focus:shadow-stark-glow transition-all duration-300"
-                  placeholder="Access Code"
+                  placeholder="가입 코드"
                 />
                 <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-primary/0 to-transparent pointer-events-none transition-all duration-500 ${isFocused === 'accessCode' ? 'via-primary/10' : ''}`}></div>
               </div>

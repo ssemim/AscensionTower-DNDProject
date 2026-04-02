@@ -72,7 +72,7 @@ const GalleryItem = ({ memberId, title, serial, imageUrl, onViewDetail, isDisabl
         </h3>
         <p className={`text-[10px] font-bold tracking-widest mt-1
           ${isDisabled ? 'text-text-main/15 blur-[2px]' : 'text-text-main/60'}`}>
-          SN: {serial}
+          ID: {serial}
         </p>
       </div>
 
