@@ -56,7 +56,11 @@ function TrackButton({ video, index, isPlaying, isActive, onPlay, showPopover })
     <>
       <button
         ref={btnRef}
-        onClick={() => onPlay(index)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onPlay(index);
+        }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={`w-full text-left p-2 rounded transition-colors duration-200 flex items-center

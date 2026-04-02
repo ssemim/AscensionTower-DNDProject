@@ -62,7 +62,7 @@ export default function Menu({ isOpen, onToggle }) {
             className="
               absolute top-4 right-4 z-[60]
               bg-primary/80 hover:bg-primary
-              text-white p-2 rounded-lg
+              text-text-main p-2 rounded-lg
               backdrop-blur-sm transition-all
               opacity-40 hover:opacity-100
             "

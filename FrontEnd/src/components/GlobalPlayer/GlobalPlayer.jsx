@@ -203,7 +203,7 @@ export default function GlobalPlayer() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-2 text-text-main">
-            <PlayListPlayer playlist={playlist} isLoading={false} showPopover={false} className="h-full" />
+            <PlayListPlayer playlist={playlist} isLoading={false} showPopover={false} className="h-full"  ownerName={ownerName}/>
           </div>
         </div>
       )}
