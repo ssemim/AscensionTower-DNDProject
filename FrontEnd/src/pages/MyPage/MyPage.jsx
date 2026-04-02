@@ -458,47 +458,41 @@ if (authStatus === 'unauthenticated') {
           {/* 탭형 인벤토리 */}
           <InventorySection />
 
-          {/* 뱃지 */}
-          <section className="px-12 py-12 bg-main border-b border-border-primary relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
-            <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
-              <div className="md:w-1/4">
-                <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
-                <p className="text-text-main/50 text-s leading-relaxed font-one-store-mobile-gothic-body">무엇을 해냈나요?</p>
+       {/* 뱃지 */}
+<section className="px-12 py-12 bg-main border-b border-border-primary relative overflow-hidden">
+  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
+  <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
+    <div className="md:w-1/4">
+      <span className="text-primary font-bold text-s tracking-widest">ARCHIVE_BADGES</span>
+      <p className="text-text-main/50 text-s leading-relaxed font-one-store-mobile-gothic-body">무엇을 해냈나요?</p>
+    </div>
+    <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
+      {badges.filter(badge => !badge.isEmpty && earnedBadgeIds.includes(badge.id)).length > 0
+        ? badges
+            .filter(badge => !badge.isEmpty && earnedBadgeIds.includes(badge.id))
+            .map((badge) => (
+              <div
+                key={badge.id}
+                className="aspect-square border border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow flex flex-col items-center justify-center relative transition-all cursor-pointer group font-one-store-mobile-gothic-body text-lg text-text-main/70 overflow-hidden"
+              >
+                <img
+                  src={badge.imgUrl}
+                  alt={badge.name}
+                  className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
+                />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 bg-white/50 backdrop-blur-xl dark:bg-black/50 dark:backdrop-blur-xl">
+                  <div className="text-center text-lg font-bold font-one-store-mobile-gothic-body text-primary leading-relaxed drop-shadow">
+                    {badge.desc}
+                  </div>
+                </div>
+                <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
               </div>
-              <div className="md:w-2/3 grid grid-cols-4 gap-2 bg-main p-4 border border-border-primary h-full max-h-64 overflow-y-auto">
-                {badges.map((badge) => {
-                  const isEarned = earnedBadgeIds.includes(badge.id);
-                  return (
-                    <div key={badge.id}
-                      className={`aspect-square border flex flex-col items-center justify-center relative transition-all cursor-pointer group font-one-store-mobile-gothic-body text-lg text-text-main/70 overflow-hidden
-                        ${badge.isEmpty || !isEarned ? 'border-border-primary bg-main/40 opacity-30' : 'border-border-primary/70 bg-primary/10 hover:border-primary hover:shadow-stark-glow'}`}
-                    >
-                      {!badge.isEmpty && isEarned && (
-  <>
-    <img
-      src={badge.imgUrl}
-      alt={badge.name}
-      className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:scale-110"
-    />
-<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 
-  flex items-center justify-center p-2
-  bg-white/50 backdrop-blur-xl          
-  dark:bg-black/50 dark:backdrop-blur-xl"
->
-  <div className="text-center text-lg font-bold font-one-store-mobile-gothic-body text-primary leading-relaxed drop-shadow">
-    {badge.desc}
+            ))
+        : <p className="text-text-main/50 text-sm font-one-store-mobile-gothic-body col-span-4 self-center">획득한 뱃지가 없습니다.</p>
+      }
+    </div>
   </div>
-</div>
-  </>
-)}
-                      <span className="absolute bottom-1 right-1 text-[8px] opacity-20 font-bold italic tracking-tighter">{badge.id}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
+</section>
 
         </main>
 
