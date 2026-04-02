@@ -170,8 +170,8 @@ function InventorySection() {
     <>
       {selectedMail && (
         <ReceiveAndUseModal
-          title="INCOMING MAIL"
-          confirmText="RECEIVE"
+          title="받은 메시지"
+          confirmText="수령하기"
           from={selectedMail.sender_name || selectedMail.sender_id}
           itemName={selectedMail.item_name}
           quantity={selectedMail.quantity}
@@ -185,8 +185,8 @@ function InventorySection() {
 
       {selectedItem && (
         <ReceiveAndUseModal
-          title="USE ITEM"
-          confirmText="USE"
+          title="아이템 사용하기"
+          confirmText="사용하기"
           itemName={selectedItem.item_name}
           quantity={selectedItem.quantity}
           description={selectedItem.description}

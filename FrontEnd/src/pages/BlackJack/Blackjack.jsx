@@ -300,7 +300,7 @@ function BlackJack() {
     }
     return (
         <div className={`min-h-screen p-4 relative overflow-hidden transition-all duration-500 bg-main font-one-store-mobile-gothic-body text-text-main ${isBlackjack ? 'bg-primary/10' : ''}`}>
-      <header className="max-w-7xl mx-auto flex justify-between items-end border-b border-border-primary pt-4 pb-8 relative z-10 font-one-store-mobile-gothic-body">
+      <header className="max-w-7xl mx-auto flex justify-between items-end border-b border-border-primary pt-4 pb-4 relative z-10 font-one-store-mobile-gothic-body">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 border-2 border-border-primary rotate-45 flex items-center justify-center bg-primary/10 dark:bg-cyan-950/20 shadow-stark-glow">
             <img src="/src/assets/image/logo_trans.png" alt="logo" className="w-full h-full object-contain -rotate-45" />
@@ -396,15 +396,15 @@ function BlackJack() {
 
                 <aside className="col-span-12 lg:col-span-3 flex flex-col justify-between lg:justify-start gap-6 mb-12 lg:mb-0 font-one-store-mobile-gothic-body">
                     <div className="text-center">
-                        <div className="blackjack-container my-3 p-6">
+                        <div className="blackjack-container my-1 p-3">
                             <div className="blackjack-glow"></div>
                             <img src="/images/NPCS/blackjackNPC.gif" alt="Blackjack Dealer" className="sway-animation w-48 h-48 object-contain" />
                         </div>
                         <p className="text-[10px] font-black tracking-widest text-primary/60 opacity-60 uppercase mb-1">Unit_B3AR-B</p>
                         <h3 className="text-xl font-bold text-text-main tracking-widest uppercase italic">B3AR-B</h3>
                         
-                        <div className="h-28 text-center mt-4 mb-4 border border-border-primary/30 flex items-center justify-center">
-                            <p className="text-lg font-one-store-mobile-gothic-body text-text-main/70 m-4">"{typedDialog}"</p>
+                        <div className="h-32 text-center mt-4 mb-4 border border-border-primary/30 flex items-center justify-center">
+                            <p className="text-md font-one-store-mobile-gothic-body text-text-main/70 m-4">"{typedDialog}"</p>
                         </div>
 
                         <div className="text-center mb-4 p-4 border border-border-primary/30">

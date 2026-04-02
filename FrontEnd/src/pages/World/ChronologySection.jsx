@@ -38,7 +38,7 @@ const ChronologySection = () => {
 
         <div className="relative">
           {/* 4. 세로선: 중앙 정렬 및 높이 조정 */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-[2px] h-full bg-primary top-0 hidden md:block"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 w-[2px] h-full bg-primary top-0 block"></div>
 
           <div className="space-y-24">
             {events.map((event, index) => (

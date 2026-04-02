@@ -5,6 +5,7 @@ import items from '../../pages/Shop/item.js';
 const API = 'http://localhost:8081';
 
 export default function ReceiveAndUseModal({
+  // eslint-disable-next-line no-unused-vars
   title, onConfirm, onClose, confirmText,
   from, itemName, quantity, description,
   invId, itemId, isGacha, isFriendItem, onUseSuccess
@@ -131,7 +132,7 @@ export default function ReceiveAndUseModal({
   const otherResults   = searchResults.filter(u => u.is_friend !== 1);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm font-one-store-mobile-gothic-body">
       <div className="bg-main border border-border-primary rounded-xl p-8 max-w-sm w-full shadow-stark-glow relative overflow-hidden">
         <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
@@ -166,7 +167,7 @@ export default function ReceiveAndUseModal({
                 onClick={onClose}
                 className="flex-1 border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm"
               >
-                CLOSE
+                닫기
               </button>
             </div>
           </>
@@ -175,7 +176,7 @@ export default function ReceiveAndUseModal({
         {/* ── 친구 검색 단계 ── */}
         {phase === 'search' && (
           <>
-            <h3 className="text-primary font-bold text-lg tracking-widest mb-4">FRIEND SEARCH</h3>
+            <h3 className="text-primary font-bold text-lg tracking-widest mb-4">친구 검색</h3>
             <p className="text-text-main/50 text-xs mb-3">추가할 유저의 이름을 검색하세요.</p>
 
             {/* 입력하면 자동으로 검색됨 — GO 버튼은 보조용 */}
@@ -267,13 +268,13 @@ export default function ReceiveAndUseModal({
                 disabled={!selectedUser}
                 className="flex-1 bg-primary hover:bg-primary/80 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold py-2 rounded-lg transition-colors tracking-widest text-sm"
               >
-                ADD
+                추가하기
               </button>
               <button
                 onClick={() => { setPhase('confirm'); setError(null); setSelectedUser(null); setSearchResults([]); setSearchQuery(''); }}
                 className="flex-1 border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm"
               >
-                BACK
+                뒤로가기
               </button>
             </div>
           </>
@@ -284,7 +285,7 @@ export default function ReceiveAndUseModal({
           <div className="flex flex-col items-center justify-center py-8 gap-4">
             <div className="text-4xl animate-spin">✦</div>
             <p className="text-primary font-bold tracking-widest text-sm animate-pulse">
-              {isFriendItem ? 'CONNECTING...' : isGacha ? 'OPENING...' : 'USING...'}
+              {isFriendItem ? 'CONNECTING...' : isGacha ? '여는중...' : '사용중...'}
             </p>
             <div className="w-full bg-border-primary/20 rounded-full h-1 mt-2 overflow-hidden">
               <div
@@ -305,7 +306,7 @@ export default function ReceiveAndUseModal({
         {phase === 'done' && (
           <div className="flex flex-col items-center gap-4">
             <div className="text-4xl text-primary">✦</div>
-            <h3 className="text-primary font-bold text-lg tracking-widest">ITEM USED!</h3>
+            <h3 className="text-primary font-bold text-lg tracking-widest">아이템 사용 완료!</h3>
             <div className="text-center border border-border-primary/30 rounded-lg p-4 w-full bg-primary/5">
               <p className="text-text-main font-bold font-one-store-mobile-gothic-body text-base">{itemName}</p>
               <p className="text-text-main/50 text-xs mt-1">x1 사용 완료</p>
@@ -317,7 +318,7 @@ export default function ReceiveAndUseModal({
               onClick={onClose}
               className="mt-2 w-full bg-primary/10 border border-primary/50 text-primary hover:bg-primary/20 font-bold py-2 rounded-lg transition-colors text-sm tracking-widest"
             >
-              CONFIRM
+              확인
             </button>
           </div>
         )}
@@ -325,7 +326,7 @@ export default function ReceiveAndUseModal({
         {/* ── 가챠 결과 ── */}
         {phase === 'result' && !isFriendItem && rewardedItem && (
           <div className="flex flex-col items-center gap-4">
-            <h3 className="text-primary font-bold text-lg tracking-widest">ITEM GET!</h3>
+            <h3 className="text-primary font-bold text-lg tracking-widest">랜덤박스 결과!</h3>
             <div className="w-24 h-24 border border-border-primary bg-primary/10 flex items-center justify-center rounded-lg overflow-hidden">
               {rewardedItem.src
                 ? <img src={rewardedItem.src} alt={rewardedItem.name} className="w-full h-full object-cover" />
@@ -334,7 +335,7 @@ export default function ReceiveAndUseModal({
             </div>
             <p className="text-text-main font-bold font-one-store-mobile-gothic-body text-lg">{rewardedItem.name}</p>
             {rewardedItem.desc && <p className="text-text-main/50 text-xs font-one-store-mobile-gothic-body text-center">{rewardedItem.desc}</p>}
-            <button onClick={onClose} className="mt-2 w-full border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm">CLOSE</button>
+            <button onClick={onClose} className="mt-2 w-full border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm">닫기</button>
           </div>
         )}
 
@@ -342,7 +343,7 @@ export default function ReceiveAndUseModal({
         {phase === 'result' && isFriendItem && (
           <div className="flex flex-col items-center gap-4">
             <div className="text-4xl">✦</div>
-            <h3 className="text-primary font-bold text-lg tracking-widest">FRIEND ADDED!</h3>
+            <h3 className="text-primary font-bold text-lg tracking-widest">친구 추가 완료!</h3>
             {selectedUser && (
               <>
                 {selectedUser.image_url
@@ -353,7 +354,7 @@ export default function ReceiveAndUseModal({
               </>
             )}
             <p className="text-text-main/50 text-xs">친구 목록에 추가되었습니다.</p>
-            <button onClick={onClose} className="mt-2 w-full border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm">CLOSE</button>
+            <button onClick={onClose} className="mt-2 w-full border border-border-primary/50 text-text-main/50 hover:text-text-main font-bold py-2 rounded-lg transition-colors text-sm">닫기</button>
           </div>
         )}
       </div>
